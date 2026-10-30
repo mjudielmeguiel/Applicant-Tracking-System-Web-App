@@ -11,47 +11,82 @@
 
 <div class="app-shell">
 
-  <nav class="sidebar">
+  <!-- Sidebar -->
+  <nav class="sidebar" id="sidebar">
     <div class="sidebar-brand">
-      <div class="sidebar-logo">CN</div>
-      <span class="sidebar-name">Applicant Tracking</span>
+      <div class="sidebar-brand-left">
+        <div class="sidebar-logo">CN</div>
+        <span class="sidebar-name">Applicant Tracking</span>
+      </div>
+      <button type="button" class="sidebar-toggle-btn" id="sidebarToggle" aria-label="Toggle sidebar" title="Toggle sidebar">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+          <line x1="9" y1="3" x2="9" y2="21"/>
+        </svg>
+      </button>
     </div>
-    <a href="dashboard.html" class="nav-link active">Dashboard</a>
-    <a href="#" class="nav-link">Applicant Masterlist</a>
-    <a href="mrf-monitoring.html" class="nav-link">MRF Monitoring</a>
-    <a href="#" class="nav-link">Calendar</a>
+
+    <a href="dashboard.html" class="nav-link active" title="Dashboard">
+      <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      <span class="nav-text">Dashboard</span>
+    </a>
+    <a href="#" class="nav-link" title="Applicant Masterlist">
+      <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      <span class="nav-text">Applicant Masterlist</span>
+    </a>
+    <a href="mrf-monitoring.html" class="nav-link" title="MRF Monitoring">
+      <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+      <span class="nav-text">MRF Monitoring</span>
+    </a>
+    <!-- Links to the separate users.html page -->
+    <a href="users.html" class="nav-link" title="Users List">
+      <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 1 0 7.75"/></svg>
+      <span class="nav-text">Users List</span>
+    </a>
+    <a href="#" class="nav-link" title="Calendar">
+      <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <span class="nav-text">Calendar</span>
+    </a>
+    
     <div class="sidebar-spacer"></div>
-    <a href="index.html" class="nav-link">Log out</a>
+
+    <a href="index.html" class="nav-link" id="logoutBtn" title="Log out">
+      <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      <span class="nav-text">Log out</span>
+    </a>
   </nav>
 
   <main class="main">
+    <!-- Topbar with Real-time Clock and Logged-in Admin Name -->
     <div class="topbar">
       <div>
-        <h1>Good afternoon, Judiel</h1>
-        <p class="meta">HR Administrator · Thursday, October 29, 2026</p>
+        <h1 id="userGreeting">Good afternoon, User</h1>
+        <p class="meta" id="realtimeMeta">HR Administrator · Loading time...</p>
       </div>
-      <div class="avatar">JM</div>
+      <div class="avatar" id="userAvatar">JM</div>
     </div>
 
+    <!-- Stat Grid -->
     <div class="stat-grid">
       <div class="card stat-card">
         <div class="stat-label">SCREENED</div>
-        <div class="stat-value">12</div>
+        <div class="stat-value">0</div>
       </div>
       <div class="card stat-card">
         <div class="stat-label">PHONE INTERVIEW</div>
-        <div class="stat-value">4</div>
+        <div class="stat-value">0</div>
       </div>
       <div class="card stat-card">
         <div class="stat-label">FINAL INTERVIEW</div>
-        <div class="stat-value">1</div>
+        <div class="stat-value">0</div>
       </div>
       <div class="card stat-card">
         <div class="stat-label">TOTAL APPLICANTS</div>
-        <div class="stat-value accent">2</div>
+        <div class="stat-value accent">0</div>
       </div>
     </div>
 
+    <!-- Analytics Panels -->
     <div class="panel-row">
       <div class="card panel">
         <div class="panel-title">Applicants per Month</div>
@@ -90,6 +125,7 @@
       </div>
     </div>
 
+    <!-- Applicants Table -->
     <div class="table-card">
       <div class="table-card-head">
         <div class="panel-title" style="margin:0">All Applicants</div>
@@ -106,8 +142,75 @@
         </tbody>
       </table>
     </div>
+
   </main>
 </div>
+
+<script>
+(function () {
+  // ---------- SIDEBAR TOGGLE ----------
+  const sidebar = document.getElementById('sidebar');
+  const sidebarToggle = document.getElementById('sidebarToggle');
+
+  if (localStorage.getItem('ats_sidebar_collapsed') === 'true') {
+    sidebar.classList.add('collapsed');
+  }
+
+  sidebarToggle.addEventListener('click', function () {
+    sidebar.classList.toggle('collapsed');
+    localStorage.setItem('ats_sidebar_collapsed', sidebar.classList.contains('collapsed'));
+  });
+
+  // ---------- LOGGED-IN ADMIN GREETING & REALTIME CLOCK ----------
+  const userGreeting = document.getElementById('userGreeting');
+  const realtimeMeta = document.getElementById('realtimeMeta');
+  const userAvatar = document.getElementById('userAvatar');
+
+  const savedUserJson = localStorage.getItem('ats_user');
+  let currentUser = null;
+  
+  if (savedUserJson) {
+    try { currentUser = JSON.parse(savedUserJson); } catch (e) {}
+  }
+
+  if (currentUser && currentUser.name) {
+    const fullName = currentUser.name;
+    const nameParts = fullName.trim().split(' ');
+    let initials = 'AU';
+    if (nameParts.length >= 2) {
+      initials = (nameParts[0][0] + nameParts[nameParts.length - 1][0]).toUpperCase();
+    } else if (nameParts.length === 1 && nameParts[0].length > 0) {
+      initials = nameParts[0].substring(0, 2).toUpperCase();
+    }
+    userAvatar.textContent = initials;
+
+    function updateClock() {
+      const now = new Date();
+      const hours = now.getHours();
+      let timeOfDay = 'day';
+      if (hours < 12) timeOfDay = 'morning';
+      else if (hours < 18) timeOfDay = 'afternoon';
+      else timeOfDay = 'evening';
+
+      userGreeting.textContent = `Good ${timeOfDay}, ${fullName}`;
+
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+      realtimeMeta.textContent = `HR Administrator · ${now.toLocaleDateString('en-US', options)}`;
+    }
+
+    updateClock();
+    setInterval(updateClock, 1000);
+  } else {
+    userGreeting.textContent = 'Good day, Administrator';
+    realtimeMeta.textContent = 'HR Administrator · ' + new Date().toLocaleDateString('en-US');
+  }
+
+  // ---------- LOGOUT CLEAR ----------
+  document.getElementById('logoutBtn').addEventListener('click', function () {
+    localStorage.removeItem('ats_user');
+  });
+})();
+</script>
 
 </body>
 </html>

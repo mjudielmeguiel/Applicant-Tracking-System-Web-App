@@ -133,6 +133,16 @@ button { cursor: pointer; font-family: inherit; }
   font-family: inherit;
   margin-bottom: 18px;
   color: var(--ink);
+  background-color: var(--surface);
+}
+
+select.field-input {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%64748B' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+  cursor: pointer;
 }
 
 .field-input:focus,
@@ -491,13 +501,41 @@ a:focus-visible {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1), padding 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .sidebar-brand {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 10px;
   padding: 0 6px 24px;
+  width: 100%;
+}
+
+.sidebar-brand-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.sidebar-toggle-btn {
+  background: transparent;
+  border: none;
+  color: var(--nav-text);
+  padding: 6px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s, color 0.2s;
+  flex-shrink: 0;
+}
+.sidebar-toggle-btn:hover {
+  background-color: var(--navy-800);
+  color: #FFFFFF;
 }
 
 .sidebar-logo {
@@ -511,6 +549,7 @@ a:focus-visible {
   font-weight: 700;
   font-size: 14px;
   color: #fff;
+  flex-shrink: 0;
 }
 
 .sidebar-name { font-size: 14px; font-weight: 600; }
@@ -524,12 +563,48 @@ a:focus-visible {
   color: var(--nav-text);
   font-size: 13.5px;
   font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
 }
 .nav-link:hover { color: #fff; background: #13315C; }
 .nav-link.active {
   background: var(--navy-700);
   color: #fff;
   font-weight: 600;
+}
+
+.nav-icon {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+}
+
+.nav-text {
+  transition: opacity 0.2s;
+}
+
+/* Collapsed Sidebar Mode (Gemini Style) */
+.sidebar.collapsed {
+  width: 72px;
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+.sidebar.collapsed .sidebar-brand {
+  justify-content: center;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.sidebar.collapsed .sidebar-brand-left,
+.sidebar.collapsed .sidebar-name,
+.sidebar.collapsed .nav-text {
+  display: none !important;
+}
+
+.sidebar.collapsed .nav-link {
+  justify-content: center;
+  padding: 10px 0;
 }
 
 .sidebar-spacer { flex: 1; }
@@ -708,6 +783,32 @@ td { padding: 12px 16px; border-top: 1px solid var(--line-soft); }
   padding: 36px 16px;
   text-align: center;
   color: var(--muted-light);
+}
+
+/* User status badges */
+.badge-status {
+  display: inline-block;
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 9999px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.badge-status.active {
+  background-color: #DCFCE7;
+  color: #15803D;
+}
+
+.badge-status.inactive {
+  background-color: #FEE2E2;
+  color: #B91C1C;
+}
+
+.badge-status.role {
+  background-color: #EFF6FF;
+  color: #1D4ED8;
 }
 
 /* ===== Responsive: tablet ===== */
