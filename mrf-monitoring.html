@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MRF Monitoring — Applicant Tracking System</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="app-shell">
+
+  <nav class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-logo">CN</div>
+      <span class="sidebar-name">Applicant Tracking</span>
+    </div>
+    <a href="dashboard.html" class="nav-link">Dashboard</a>
+    <a href="#" class="nav-link">Applicant Masterlist</a>
+    <a href="mrf-monitoring.html" class="nav-link active">MRF Monitoring</a>
+    <a href="#" class="nav-link">Calendar</a>
+    <div class="sidebar-spacer"></div>
+    <a href="login.html" class="nav-link">Log out</a>
+  </nav>
+
+  <main class="main">
+    <div class="topbar">
+      <h1>MRF Monitoring</h1>
+      <div style="display:flex; gap:10px;">
+        <button class="btn-sm ghost">Export</button>
+        <button class="btn-sm primary">Create New</button>
+      </div>
+    </div>
+
+    <div class="stat-grid cols-5">
+      <div class="card stat-card">
+        <div class="stat-label">SCREENED</div>
+        <div class="stat-value">0</div>
+      </div>
+      <div class="card stat-card">
+        <div class="stat-label">HIRED</div>
+        <div class="stat-value positive">0</div>
+      </div>
+      <div class="card stat-card">
+        <div class="stat-label">JOB OFFER</div>
+        <div class="stat-value">0</div>
+      </div>
+      <div class="card stat-card">
+        <div class="stat-label">REJECTED</div>
+        <div class="stat-value negative">0</div>
+      </div>
+      <div class="card stat-card">
+        <div class="stat-label">TOTAL APPLICANTS</div>
+        <div class="stat-value accent">0</div>
+      </div>
+    </div>
+
+    <div class="table-card">
+      <div class="table-toolbar">
+        <input type="text" placeholder="Search applicant..." style="flex:1; max-width:260px;">
+        <input type="text" value="Oct 29, 2026" readonly style="width:140px; color:#334155;">
+        <input type="text" value="Oct 29, 2026" readonly style="width:140px; color:#334155;">
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Applicant Name</th>
+            <th>Position Applied</th>
+            <th>Contact No.</th>
+            <th>Requirements %</th>
+            <th>Status</th>
+            <th>Date Applied</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td colspan="7" class="empty-state">No records found</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>
+
+</body>
+</html>

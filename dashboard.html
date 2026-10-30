@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard — Applicant Tracking System</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="app-shell">
+
+  <nav class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-logo">CN</div>
+      <span class="sidebar-name">Applicant Tracking</span>
+    </div>
+    <a href="dashboard.html" class="nav-link active">Dashboard</a>
+    <a href="#" class="nav-link">Applicant Masterlist</a>
+    <a href="mrf-monitoring.html" class="nav-link">MRF Monitoring</a>
+    <a href="#" class="nav-link">Calendar</a>
+    <div class="sidebar-spacer"></div>
+    <a href="login.html" class="nav-link">Log out</a>
+  </nav>
+
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <h1>Good afternoon, Judiel</h1>
+        <p class="meta">HR Administrator · Thursday, October 29, 2026</p>
+      </div>
+      <div class="avatar">JM</div>
+    </div>
+
+    <div class="stat-grid">
+      <div class="card stat-card">
+        <div class="stat-label">SCREENED</div>
+        <div class="stat-value">12</div>
+      </div>
+      <div class="card stat-card">
+        <div class="stat-label">PHONE INTERVIEW</div>
+        <div class="stat-value">4</div>
+      </div>
+      <div class="card stat-card">
+        <div class="stat-label">FINAL INTERVIEW</div>
+        <div class="stat-value">1</div>
+      </div>
+      <div class="card stat-card">
+        <div class="stat-label">TOTAL APPLICANTS</div>
+        <div class="stat-value accent">2</div>
+      </div>
+    </div>
+
+    <div class="panel-row">
+      <div class="card panel">
+        <div class="panel-title">Applicants per Month</div>
+        <div class="bars">
+          <div class="bar" style="height:14%"></div>
+          <div class="bar" style="height:10%"></div>
+          <div class="bar" style="height:18%"></div>
+          <div class="bar" style="height:8%"></div>
+          <div class="bar" style="height:12%"></div>
+          <div class="bar" style="height:16%"></div>
+          <div class="bar" style="height:9%"></div>
+          <div class="bar" style="height:20%"></div>
+          <div class="bar highlight" style="height:100%"></div>
+          <div class="bar highlight" style="height:22%"></div>
+          <div class="bar" style="height:7%"></div>
+          <div class="bar" style="height:11%"></div>
+        </div>
+        <div class="bar-labels">
+          <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span>
+          <span>May</span><span>Jun</span><span>Jul</span><span>Aug</span>
+          <span class="highlight">Sep</span><span class="highlight">Oct</span>
+          <span>Nov</span><span>Dec</span>
+        </div>
+      </div>
+
+      <div class="card panel">
+        <div class="panel-title">Pipeline Status</div>
+        <div class="progress-row">
+          <div class="progress-head"><span>Final Interview</span><span>50%</span></div>
+          <div class="progress-track"><div class="progress-fill" style="width:50%"></div></div>
+        </div>
+        <div class="progress-row">
+          <div class="progress-head"><span>Ongoing Requirements</span><span>50%</span></div>
+          <div class="progress-track"><div class="progress-fill muted" style="width:50%"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-card">
+      <div class="table-card-head">
+        <div class="panel-title" style="margin:0">All Applicants</div>
+        <button class="btn-sm primary">+ Add New</button>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th><th>Applicant Name</th><th>Position Applied</th><th>Status</th><th>Date Applied</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td colspan="5" class="empty-state">No applicants to display yet</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>
+
+</body>
+</html>

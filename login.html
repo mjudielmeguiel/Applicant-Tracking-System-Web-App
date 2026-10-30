@@ -1,0 +1,614 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sign In — Applicant Tracking System</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="login-shell">
+
+  <div class="login-panel">
+    <div class="login-message">
+      <div class="login-eyebrow">Applicant Tracking System</div>
+      <h1 class="login-headline">Hire with clarity, from first application to final offer.</h1>
+      <p class="login-sub">Track every applicant, requirement and interview stage in one corporate-grade workspace.</p>
+    </div>
+    <div class="login-footer">© 2026 CodeNect System Alliance. All rights reserved.</div>
+  </div>
+
+  <div class="login-form-wrap">
+    <form class="login-card" action="#" method="post">
+      <h2>Welcome back</h2>
+      <p class="sub">Sign in to the Applicant Tracking System.</p>
+
+      <div id="formError" class="form-error" role="alert" hidden></div>
+
+      <label class="field-label" for="uname">Username</label>
+      <input class="field-input" id="uname" name="username" type="text" placeholder="Enter your username" autocomplete="username" required>
+
+      <label class="field-label" for="pw">Password</label>
+      <div class="password-wrap">
+        <input class="field-input" id="pw" name="password" type="password" placeholder="Enter your password" autocomplete="current-password" required>
+        <button type="button" class="pw-toggle" id="pwToggle" aria-label="Show password" aria-pressed="false">
+          <svg id="pwIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="login-row">
+        <label class="remember"><input type="checkbox" name="remember"> Remember me</label>
+        <button type="button" class="link-btn" id="openForgotBtn">Forgot password?</button>
+      </div>
+
+      <button type="submit" class="btn btn-primary" id="signInBtn">Sign In</button>
+
+      <p class="login-foot-link">No account? <button type="button" class="link-btn" id="openSignupBtn">Sign up</button></p>
+    </form>
+  </div>
+
+</div>
+
+<!-- Forgot Password modal -->
+<div class="modal-overlay" id="forgotOverlay" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="forgotTitle">
+    <button type="button" class="modal-close" data-close="forgotOverlay" aria-label="Close">&times;</button>
+    <h2 id="forgotTitle">Reset your password</h2>
+    <p class="sub">Enter the email linked to your admin account and we'll send you a reset link.</p>
+
+    <div id="forgotError" class="form-error" role="alert" hidden></div>
+    <div id="forgotSuccess" class="form-success" role="status" hidden></div>
+
+    <form id="forgotForm">
+      <label class="field-label" for="forgotEmail">Email</label>
+      <input class="field-input" id="forgotEmail" type="email" placeholder="you@company.com" autocomplete="email" required>
+
+      <button type="submit" class="btn btn-primary" id="forgotSubmitBtn">Send reset link</button>
+      <button type="button" class="btn btn-secondary" data-close="forgotOverlay">Cancel</button>
+    </form>
+  </div>
+</div>
+
+<!-- Admin Sign Up modal -->
+<div class="modal-overlay" id="signupOverlay" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="signupTitle">
+    <button type="button" class="modal-close" data-close="signupOverlay" aria-label="Close">&times;</button>
+    <h2 id="signupTitle">Create an admin account</h2>
+    <p class="sub">Admin accounts only — new sign-ups are added with the Administrator role.</p>
+
+    <div id="signupError" class="form-error" role="alert" hidden></div>
+    <div id="signupSuccess" class="form-success" role="status" hidden></div>
+
+    <form id="signupForm" novalidate>
+
+      <div class="avatar-field">
+        <button type="button" class="avatar-upload" id="avatarBtn" aria-label="Upload profile picture">
+          <img id="avatarPreview" class="avatar-preview" alt="" hidden>
+          <svg id="avatarPlaceholder" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <path d="M4 20c1.5-3.5 4.5-5.5 8-5.5s6.5 2 8 5.5"/>
+            <circle cx="12" cy="8" r="4"/>
+          </svg>
+          <span class="avatar-edit-badge" aria-hidden="true">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
+          </span>
+        </button>
+        <input type="file" id="suPhoto" name="profilePicture" accept="image/*" hidden>
+        <div class="avatar-field-text">
+          <span id="avatarFileName" class="avatar-filename">Add a profile picture</span>
+          <button type="button" class="link-btn avatar-remove" id="avatarRemoveBtn" hidden>Remove</button>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label" for="suFullName">Full name</label>
+        <input class="field-input" id="suFullName" name="fullName" type="text" placeholder="Juan Dela Cruz" autocomplete="name" required>
+        <span class="field-hint" id="suFullNameHint"></span>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label" for="suUsername">Username</label>
+        <input class="field-input" id="suUsername" name="username" type="text" placeholder="Choose a username" autocomplete="username" required>
+        <span class="field-hint" id="suUsernameHint"></span>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label" for="suEmail">Email</label>
+        <input class="field-input" id="suEmail" name="email" type="email" placeholder="you@company.com" autocomplete="email" required>
+        <span class="field-hint" id="suEmailHint"></span>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label" for="suPassword">Password</label>
+        <div class="password-wrap">
+          <input class="field-input" id="suPassword" name="password" type="password" placeholder="At least 8 characters" autocomplete="new-password" minlength="8" required>
+          <button type="button" class="pw-toggle" data-pw-toggle-for="suPassword" aria-label="Show password" aria-pressed="false">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/>
+            </svg>
+          </button>
+        </div>
+        <div class="pw-strength" id="pwStrength" hidden>
+          <div class="pw-strength-track"><div class="pw-strength-fill" id="pwStrengthFill"></div></div>
+          <span id="pwStrengthLabel"></span>
+        </div>
+        <span class="field-hint" id="suPasswordHint"></span>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label" for="suConfirm">Confirm password</label>
+        <div class="password-wrap">
+          <input class="field-input" id="suConfirm" name="confirmPassword" type="password" placeholder="Re-enter your password" autocomplete="new-password" minlength="8" required>
+          <button type="button" class="pw-toggle" data-pw-toggle-for="suConfirm" aria-label="Show password" aria-pressed="false">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/>
+            </svg>
+          </button>
+        </div>
+        <span class="field-hint" id="suConfirmHint"></span>
+      </div>
+
+      <div class="role-pill"><span class="dot"></span>Creating an <strong>Administrator</strong> account</div>
+
+      <button type="submit" class="btn btn-primary" id="signupSubmitBtn">Create account</button>
+      <button type="button" class="btn btn-secondary" data-close="signupOverlay">Cancel</button>
+    </form>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/bcryptjs@2.4.3/dist/bcrypt.min.js"></script>
+<script>
+(function () {
+  const SUPABASE_URL = 'https://wqshrjlcjqbjqcophvfv.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_2QWxapvC5t_KHq-0u35d1w_kK-ah1eN';
+  const sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  const form = document.querySelector('.login-card');
+  const unameInput = document.getElementById('uname');
+  const pwInput = document.getElementById('pw');
+  const errorBox = document.getElementById('formError');
+  const signInBtn = document.getElementById('signInBtn');
+  const pwToggle = document.getElementById('pwToggle');
+
+  function showError(message) {
+    errorBox.textContent = message;
+    errorBox.hidden = false;
+  }
+
+  function clearError() {
+    errorBox.hidden = true;
+    errorBox.textContent = '';
+  }
+
+  pwToggle.addEventListener('click', function () {
+    const isPassword = pwInput.type === 'password';
+    pwInput.type = isPassword ? 'text' : 'password';
+    pwToggle.setAttribute('aria-pressed', String(isPassword));
+    pwToggle.setAttribute('aria-label', isPassword ? 'Hide password' : 'Show password');
+  });
+
+  // ========== LOGIN — KONEKTADO SA SUPABASE ==========
+  form.addEventListener('submit', async function (e) {
+    e.preventDefault();
+    clearError();
+
+    const username = unameInput.value.trim();
+    const password = pwInput.value;
+
+    if (!username || !password) {
+      showError('Please enter both your username and password.');
+      return;
+    }
+
+    signInBtn.disabled = true;
+    signInBtn.textContent = 'Signing in…';
+
+    try {
+      const { data: users, error: dbError } = await sbClient
+        .from('admins')
+        .select('AdminID, Username, PasswordHash, FullName, Email')
+        .eq('Username', username)
+        .limit(1);
+
+      if (dbError) {
+        console.error(dbError);
+        showError('Database error: ' + dbError.message);
+        signInBtn.disabled = false;
+        signInBtn.textContent = 'Sign In';
+        return;
+      }
+
+      if (!users || users.length === 0) {
+        showError('No account found with that username.');
+        signInBtn.disabled = false;
+        signInBtn.textContent = 'Sign In';
+        return;
+      }
+
+      const user = users[0];
+      const isCorrect = dcodeIO.bcrypt.compareSync(password, user.PasswordHash);
+
+      if (!isCorrect) {
+        showError('Incorrect password. Please try again.');
+        signInBtn.disabled = false;
+        signInBtn.textContent = 'Sign In';
+        return;
+      }
+
+      localStorage.setItem('ats_user', JSON.stringify({
+        id: user.AdminID,
+        name: user.FullName,
+        username: user.Username,
+        email: user.Email
+      }));
+
+      clearError();
+      alert('Welcome, ' + user.FullName + '! Successfully logged in.');
+      window.location.href = 'dashboard.html';
+
+    } catch (err) {
+      console.error(err);
+      showError('Something went wrong. Please try again.');
+    }
+
+    signInBtn.disabled = false;
+    signInBtn.textContent = 'Sign In';
+  });
+
+  /* ---------- Modal open/close ---------- */
+  function openModal(id) {
+    document.getElementById(id).hidden = false;
+    document.body.style.overflow = 'hidden';
+  }
+  function closeModal(id) {
+    document.getElementById(id).hidden = true;
+    document.body.style.overflow = '';
+  }
+
+  document.getElementById('openForgotBtn').addEventListener('click', function () {
+    openModal('forgotOverlay');
+  });
+  document.getElementById('openSignupBtn').addEventListener('click', function () {
+    openModal('signupOverlay');
+  });
+
+  document.querySelectorAll('[data-close]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      closeModal(btn.getAttribute('data-close'));
+    });
+  });
+
+  document.querySelectorAll('.modal-overlay').forEach(function (overlay) {
+    overlay.addEventListener('click', function (e) {
+      if (e.target === overlay) closeModal(overlay.id);
+    });
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+      document.querySelectorAll('.modal-overlay').forEach(function (overlay) {
+        if (!overlay.hidden) closeModal(overlay.id);
+      });
+    }
+  });
+
+  document.querySelectorAll('[data-pw-toggle-for]').forEach(function (toggle) {
+    toggle.addEventListener('click', function () {
+      const input = document.getElementById(toggle.getAttribute('data-pw-toggle-for'));
+      const isPassword = input.type === 'password';
+      input.type = isPassword ? 'text' : 'password';
+      toggle.setAttribute('aria-pressed', String(isPassword));
+      toggle.setAttribute('aria-label', isPassword ? 'Hide password' : 'Show password');
+    });
+  });
+
+  /* ---------- Forgot password (demo) ---------- */
+  const forgotForm = document.getElementById('forgotForm');
+  const forgotError = document.getElementById('forgotError');
+  const forgotSuccess = document.getElementById('forgotSuccess');
+  const forgotSubmitBtn = document.getElementById('forgotSubmitBtn');
+
+  forgotForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    forgotError.hidden = true;
+    forgotSuccess.hidden = true;
+
+    const email = document.getElementById('forgotEmail').value.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      forgotError.textContent = 'Enter a valid email address.';
+      forgotError.hidden = false;
+      return;
+    }
+
+    forgotSubmitBtn.disabled = true;
+    forgotSubmitBtn.textContent = 'Sending…';
+
+    setTimeout(function () {
+      forgotSubmitBtn.disabled = false;
+      forgotSubmitBtn.textContent = 'Send reset link';
+      forgotSuccess.textContent = 'Reset link sent — check your inbox.';
+      forgotSuccess.hidden = false;
+      forgotForm.reset();
+    }, 600);
+  });
+
+  /* ---------- Admin sign up ---------- */
+  async function usernameTaken(username) {
+    const { data, error } = await sbClient
+      .from('admins')
+      .select('AdminID')
+      .ilike('Username', username)
+      .limit(1);
+    if (error) { console.error(error); return false; }
+    return data.length > 0;
+  }
+  async function emailTaken(email) {
+    const { data, error } = await sbClient
+      .from('admins')
+      .select('AdminID')
+      .ilike('Email', email)
+      .limit(1);
+    if (error) { console.error(error); return false; }
+    return data.length > 0;
+  }
+
+  function fileToBytea(file) {
+    return new Promise(function (resolve, reject) {
+      const reader = new FileReader();
+      reader.onload = function () {
+        const bytes = new Uint8Array(reader.result);
+        let hex = '\\x';
+        for (let i = 0; i < bytes.length; i++) {
+          hex += bytes[i].toString(16).padStart(2, '0');
+        }
+        resolve(hex);
+      };
+      reader.onerror = reject;
+      reader.readAsArrayBuffer(file);
+    });
+  }
+
+  const signupForm = document.getElementById('signupForm');
+  const signupError = document.getElementById('signupError');
+  const signupSuccess = document.getElementById('signupSuccess');
+  const signupSubmitBtn = document.getElementById('signupSubmitBtn');
+
+  const suFullName = document.getElementById('suFullName');
+  const suUsername = document.getElementById('suUsername');
+  const suEmail = document.getElementById('suEmail');
+  const suPassword = document.getElementById('suPassword');
+  const suConfirm = document.getElementById('suConfirm');
+
+  function setHint(input, hintId, message) {
+    const hint = document.getElementById(hintId);
+    if (message) {
+      input.classList.add('invalid');
+      hint.textContent = message;
+    } else {
+      input.classList.remove('invalid');
+      hint.textContent = '';
+    }
+    return !message;
+  }
+
+  function validateFullName() {
+    const v = suFullName.value.trim();
+    if (!v) return setHint(suFullName, 'suFullNameHint', 'Full name is required.');
+    if (v.length < 2) return setHint(suFullName, 'suFullNameHint', 'Enter your full name.');
+    return setHint(suFullName, 'suFullNameHint', '');
+  }
+
+  function validateUsernameFormat() {
+    const v = suUsername.value.trim();
+    if (!v) return setHint(suUsername, 'suUsernameHint', 'Username is required.');
+    if (!/^[a-zA-Z0-9_]{3,20}$/.test(v)) return setHint(suUsername, 'suUsernameHint', '3–20 characters: letters, numbers, underscore.');
+    return setHint(suUsername, 'suUsernameHint', '');
+  }
+  async function validateUsername() {
+    if (!validateUsernameFormat()) return false;
+    const v = suUsername.value.trim();
+    if (await usernameTaken(v)) return setHint(suUsername, 'suUsernameHint', 'That username is already taken.');
+    return setHint(suUsername, 'suUsernameHint', '');
+  }
+
+  function validateEmailFormat() {
+    const v = suEmail.value.trim();
+    if (!v) return setHint(suEmail, 'suEmailHint', 'Email is required.');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) return setHint(suEmail, 'suEmailHint', 'Enter a valid email address.');
+    return setHint(suEmail, 'suEmailHint', '');
+  }
+  async function validateEmail() {
+    if (!validateEmailFormat()) return false;
+    const v = suEmail.value.trim();
+    if (await emailTaken(v)) return setHint(suEmail, 'suEmailHint', 'That email is already registered.');
+    return setHint(suEmail, 'suEmailHint', '');
+  }
+
+  function passwordStrength(pw) {
+    let score = 0;
+    if (pw.length >= 8) score++;
+    if (pw.length >= 12) score++;
+    if (/[a-z]/.test(pw) && /[A-Z]/.test(pw)) score++;
+    if (/\d/.test(pw)) score++;
+    if (/[^A-Za-z0-9]/.test(pw)) score++;
+    return Math.min(score, 4);
+  }
+
+  const pwStrengthWrap = document.getElementById('pwStrength');
+  const pwStrengthFill = document.getElementById('pwStrengthFill');
+  const pwStrengthLabel = document.getElementById('pwStrengthLabel');
+  const strengthLabels = ['Weak', 'Fair', 'Good', 'Strong'];
+  const strengthColors = ['#DC2626', '#F59E0B', '#2563EB', '#15803D'];
+
+  function validatePassword() {
+    const v = suPassword.value;
+    if (!v) {
+      pwStrengthWrap.hidden = true;
+      return setHint(suPassword, 'suPasswordHint', 'Password is required.');
+    }
+    pwStrengthWrap.hidden = false;
+    const score = passwordStrength(v);
+    const idx = Math.max(score - 1, 0);
+    pwStrengthFill.style.width = ((score / 4) * 100) + '%';
+    pwStrengthFill.style.background = strengthColors[idx];
+    pwStrengthLabel.textContent = strengthLabels[idx];
+    pwStrengthLabel.style.color = strengthColors[idx];
+
+    if (v.length < 8) return setHint(suPassword, 'suPasswordHint', 'At least 8 characters.');
+    if (!/\d/.test(v) || !/[a-zA-Z]/.test(v)) return setHint(suPassword, 'suPasswordHint', 'Mix letters and numbers for a stronger password.');
+    return setHint(suPassword, 'suPasswordHint', '');
+  }
+
+  function validateConfirm() {
+    if (!suConfirm.value) return setHint(suConfirm, 'suConfirmHint', 'Confirm your password.');
+    if (suConfirm.value !== suPassword.value) return setHint(suConfirm, 'suConfirmHint', 'Passwords do not match.');
+    return setHint(suConfirm, 'suConfirmHint', '');
+  }
+
+  suFullName.addEventListener('blur', validateFullName);
+  suUsername.addEventListener('blur', validateUsername);
+  suEmail.addEventListener('blur', validateEmail);
+  suPassword.addEventListener('input', validatePassword);
+  suConfirm.addEventListener('input', validateConfirm);
+
+  /* Avatar upload + live preview */
+  const avatarBtn = document.getElementById('avatarBtn');
+  const avatarInput = document.getElementById('suPhoto');
+  const avatarPreview = document.getElementById('avatarPreview');
+  const avatarPlaceholder = document.getElementById('avatarPlaceholder');
+  const avatarFileName = document.getElementById('avatarFileName');
+  const avatarRemoveBtn = document.getElementById('avatarRemoveBtn');
+  let avatarDataUrl = null;
+
+  avatarBtn.addEventListener('click', function () { avatarInput.click(); });
+
+  avatarInput.addEventListener('change', function () {
+    const file = avatarInput.files[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      avatarFileName.textContent = 'Please choose an image file.';
+      avatarInput.value = '';
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      avatarFileName.textContent = 'Image must be under 2MB.';
+      avatarInput.value = '';
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      avatarDataUrl = e.target.result;
+      avatarPreview.src = avatarDataUrl;
+      avatarPreview.hidden = false;
+      avatarPlaceholder.hidden = true;
+      avatarFileName.textContent = file.name;
+      avatarRemoveBtn.hidden = false;
+    };
+    reader.readAsDataURL(file);
+  });
+
+  avatarRemoveBtn.addEventListener('click', function () {
+    avatarDataUrl = null;
+    avatarInput.value = '';
+    avatarPreview.src = '';
+    avatarPreview.hidden = true;
+    avatarPlaceholder.hidden = false;
+    avatarFileName.textContent = 'Add a profile picture';
+    avatarRemoveBtn.hidden = true;
+  });
+
+  function resetAvatar() {
+    avatarDataUrl = null;
+    avatarInput.value = '';
+    avatarPreview.src = '';
+    avatarPreview.hidden = true;
+    avatarPlaceholder.hidden = false;
+    avatarFileName.textContent = 'Add a profile picture';
+    avatarRemoveBtn.hidden = true;
+    pwStrengthWrap.hidden = true;
+  }
+
+  signupForm.addEventListener('submit', async function (e) {
+    e.preventDefault();
+    signupError.hidden = true;
+    signupSuccess.hidden = true;
+
+    const validFullName = validateFullName();
+    const validPassword = validatePassword();
+    const validConfirm = validateConfirm();
+
+    signupSubmitBtn.disabled = true;
+    signupSubmitBtn.textContent = 'Checking details…';
+
+    const validUsername = await validateUsername();
+    const validEmail = await validateEmail();
+
+    if (!validFullName || !validUsername || !validEmail || !validPassword || !validConfirm) {
+      signupSubmitBtn.disabled = false;
+      signupSubmitBtn.textContent = 'Create account';
+      signupError.textContent = 'Please fix the highlighted fields before continuing.';
+      signupError.hidden = false;
+      return;
+    }
+
+    signupSubmitBtn.textContent = 'Creating account…';
+
+    try {
+      const passwordHash = dcodeIO.bcrypt.hashSync(suConfirm.value, 10);
+
+      const row = {
+        FullName: suFullName.value.trim(),
+        Username: suUsername.value.trim(),
+        Email: suEmail.value.trim(),
+        PasswordHash: passwordHash
+      };
+
+      if (avatarInput.files[0]) {
+        row.ProfilePicture = await fileToBytea(avatarInput.files[0]);
+      }
+
+      const { error: insertError } = await sbClient.from('admins').insert([row]);
+
+      if (insertError) {
+        signupError.textContent = 'Could not create the account: ' + insertError.message;
+        signupError.hidden = false;
+        signupSubmitBtn.disabled = false;
+        signupSubmitBtn.textContent = 'Create account';
+        return;
+      }
+
+      signupSuccess.textContent = 'Admin account created. You can sign in now.';
+      signupSuccess.hidden = false;
+      signupSubmitBtn.disabled = false;
+      signupSubmitBtn.textContent = 'Create account';
+
+      const createdUsername = suUsername.value.trim();
+      signupForm.reset();
+      resetAvatar();
+
+      setTimeout(function () {
+        closeModal('signupOverlay');
+        signupSuccess.hidden = true;
+        unameInput.value = createdUsername;
+        pwInput.focus();
+      }, 1200);
+    } catch (err) {
+      console.error(err);
+      signupError.textContent = 'Something went wrong creating the account. Please try again.';
+      signupError.hidden = false;
+      signupSubmitBtn.disabled = false;
+      signupSubmitBtn.textContent = 'Create account';
+    }
+  });
+})();
+</script>
+
+</body>
+</html>
