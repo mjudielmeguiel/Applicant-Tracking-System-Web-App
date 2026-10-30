@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Users Management — Applicant Tracking System</title>
+<title>Dashboard — Applicant Tracking System</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="users.css">
+<link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
@@ -26,7 +26,7 @@
       </button>
     </div>
 
-    <a href="dashboard.html" class="nav-link" title="Dashboard">
+    <a href="dashboard.html" class="nav-link active" title="Dashboard">
       <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
       <span class="nav-text">Dashboard</span>
     </a>
@@ -38,7 +38,7 @@
       <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
       <span class="nav-text">MRF Monitoring</span>
     </a>
-    <a href="users.html" class="nav-link active" title="Users List">
+    <a href="users.html" class="nav-link" title="Users List">
       <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 1 0 7.75"/></svg>
       <span class="nav-text">Users List</span>
     </a>
@@ -56,7 +56,7 @@
   </nav>
 
   <main class="main">
-    <!-- Topbar displaying Real-time Clock and Logged-in Admin Name -->
+    <!-- Topbar -->
     <div class="topbar">
       <div>
         <h1 id="userGreeting">Good afternoon, User</h1>
@@ -65,27 +65,79 @@
       <div class="avatar" id="userAvatar">JM</div>
     </div>
 
-    <!-- Users List Table Section -->
+    <!-- Stat Grid -->
+    <div class="stat-grid">
+      <div class="card stat-card">
+        <div class="stat-label">SCREENED</div>
+        <div class="stat-value">0</div>
+      </div>
+      <div class="card stat-card">
+        <div class="stat-label">PHONE INTERVIEW</div>
+        <div class="stat-value">0</div>
+      </div>
+      <div class="card stat-card">
+        <div class="stat-label">FINAL INTERVIEW</div>
+        <div class="stat-value">0</div>
+      </div>
+      <div class="card stat-card">
+        <div class="stat-label">TOTAL APPLICANTS</div>
+        <div class="stat-value accent">0</div>
+      </div>
+    </div>
+
+    <!-- Analytics Panels -->
+    <div class="panel-row">
+      <div class="card panel">
+        <div class="panel-title">Applicants per Month</div>
+        <div class="bars">
+          <div class="bar" style="height:14%"></div>
+          <div class="bar" style="height:10%"></div>
+          <div class="bar" style="height:18%"></div>
+          <div class="bar" style="height:8%"></div>
+          <div class="bar" style="height:12%"></div>
+          <div class="bar" style="height:16%"></div>
+          <div class="bar" style="height:9%"></div>
+          <div class="bar" style="height:20%"></div>
+          <div class="bar highlight" style="height:100%"></div>
+          <div class="bar highlight" style="height:22%"></div>
+          <div class="bar" style="height:7%"></div>
+          <div class="bar" style="height:11%"></div>
+        </div>
+        <div class="bar-labels">
+          <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span>
+          <span>May</span><span>Jun</span><span>Jul</span><span>Aug</span>
+          <span class="highlight">Sep</span><span class="highlight">Oct</span>
+          <span>Nov</span><span>Dec</span>
+        </div>
+      </div>
+
+      <div class="card panel">
+        <div class="panel-title">Pipeline Status</div>
+        <div class="progress-row">
+          <div class="progress-head"><span>Final Interview</span><span>50%</span></div>
+          <div class="progress-track"><div class="progress-fill" style="width:50%"></div></div>
+        </div>
+        <div class="progress-row">
+          <div class="progress-head"><span>Ongoing Requirements</span><span>50%</span></div>
+          <div class="progress-track"><div class="progress-fill muted" style="width:50%"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Applicants Table -->
     <div class="table-card">
       <div class="table-card-head">
-        <div class="panel-title" style="margin:0">System Users List</div>
-        <button class="btn-sm primary" id="openAddUserModalBtn">+ Add User</button>
+        <div class="panel-title" style="margin:0">All Applicants</div>
+        <button class="btn-sm primary">+ Add New</button>
       </div>
       <table>
         <thead>
           <tr>
-            <th>User ID</th>
-            <th>Full Name</th>
-            <th>Username</th>
-            <th>Email</th>
-            <th>Role</th>
-            <th>Status</th>
-            <th>Created By (AdminID)</th>
-            <th>Created At</th>
+            <th>ID</th><th>Applicant Name</th><th>Position Applied</th><th>Status</th><th>Date Applied</th>
           </tr>
         </thead>
-        <tbody id="usersTableBody">
-          <tr><td colspan="8" class="empty-state">Loading users list...</td></tr>
+        <tbody>
+          <tr><td colspan="5" class="empty-state">No applicants to display yet</td></tr>
         </tbody>
       </table>
     </div>
@@ -93,64 +145,9 @@
   </main>
 </div>
 
-<!-- Create User Modal (Admin Only) -->
-<div class="modal-overlay" id="addUserModal" hidden>
-  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="addUserTitle">
-    <button type="button" class="modal-close" id="closeAddUserModalBtn" aria-label="Close">&times;</button>
-    <h2>Create User Account</h2>
-    <p class="sub">Only logged-in Admins can create users. AdminID will be automatically linked.</p>
-
-    <div id="addUserError" class="form-error" role="alert" hidden></div>
-    <div id="addUserSuccess" class="form-success" role="status" hidden></div>
-
-    <form id="addUserForm" novalidate>
-      <div class="field-group">
-        <label class="field-label" for="uFullName">Full Name *</label>
-        <input class="field-input" id="uFullName" type="text" placeholder="e.g. Maria Santos" required>
-      </div>
-
-      <div class="field-group">
-        <label class="field-label" for="uUsername">Username *</label>
-        <input class="field-input" id="uUsername" type="text" placeholder="e.g. msantos" required>
-      </div>
-
-      <div class="field-group">
-        <label class="field-label" for="uEmail">Email Address *</label>
-        <input class="field-input" id="uEmail" type="email" placeholder="e.g. maria@company.com" required>
-      </div>
-
-      <div class="field-group">
-        <label class="field-label" for="uPassword">Password *</label>
-        <input class="field-input" id="uPassword" type="password" placeholder="Minimum 6 characters" required>
-      </div>
-
-      <div class="field-group">
-        <label class="field-label" for="uRole">Role</label>
-        <select class="field-input" id="uRole">
-          <option value="USER">USER</option>
-          <option value="RECRUITER">RECRUITER</option>
-          <option value="HR_MANAGER">HR_MANAGER</option>
-          <option value="ADMIN">ADMIN</option>
-        </select>
-      </div>
-
-      <button type="submit" class="btn btn-primary" id="saveUserBtn">Create User Account</button>
-      <button type="button" class="btn btn-secondary" id="cancelAddUserBtn">Cancel</button>
-    </form>
-  </div>
-</div>
-
-<!-- Supabase & Bcrypt JS -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdn.jsdelivr.net/npm/bcryptjs@2.4.3/dist/bcrypt.min.js"></script>
-
 <script>
 (function () {
-  const SUPABASE_URL = 'https://wqshrjlcjqbjqcophvfv.supabase.co';
-  const SUPABASE_KEY = 'sb_publishable_2QWxapvC5t_KHq-0u35d1w_kK-ah1eN';
-  const sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-  // ---------- 1. SIDEBAR TOGGLE ----------
+  // Sidebar Toggle
   const sidebar = document.getElementById('sidebar');
   const sidebarToggle = document.getElementById('sidebarToggle');
 
@@ -163,7 +160,7 @@
     localStorage.setItem('ats_sidebar_collapsed', sidebar.classList.contains('collapsed'));
   });
 
-  // ---------- 2. LOGGED-IN ADMIN & REALTIME DATE/TIME ----------
+  // Logged-in Admin Greeting & Realtime Clock
   const userGreeting = document.getElementById('userGreeting');
   const realtimeMeta = document.getElementById('realtimeMeta');
   const userAvatar = document.getElementById('userAvatar');
@@ -210,159 +207,6 @@
   document.getElementById('logoutBtn').addEventListener('click', function () {
     localStorage.removeItem('ats_user');
   });
-
-  // ---------- 3. FETCH USERS LIST FROM SUPABASE ----------
-  const usersTableBody = document.getElementById('usersTableBody');
-
-  async function loadUsersList() {
-    try {
-      const { data: users, error } = await sbClient
-        .from('users')
-        .select('*')
-        .order('UserID', { ascending: false });
-
-      if (error) {
-        console.error('Error fetching users:', error);
-        usersTableBody.innerHTML = `<tr><td colspan="8" class="empty-state" style="color:#B91C1C">Failed to load users: ${error.message}</td></tr>`;
-        return;
-      }
-
-      if (!users || users.length === 0) {
-        usersTableBody.innerHTML = `<tr><td colspan="8" class="empty-state">No users registered yet. Click "+ Add User" to create one.</td></tr>`;
-        return;
-      }
-
-      let rowsHtml = '';
-      users.forEach(u => {
-        const dateCreated = u.CreatedAt ? new Date(u.CreatedAt).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }) : 'N/A';
-        const statusClass = (u.Status || 'Active').toLowerCase() === 'active' ? 'active' : 'inactive';
-
-        rowsHtml += `
-          <tr>
-            <td><strong>#${u.UserID}</strong></td>
-            <td>${u.FullName || 'N/A'}</td>
-            <td>${u.Username || 'N/A'}</td>
-            <td>${u.Email || 'N/A'}</td>
-            <td><span class="badge-status role">${u.Role || 'USER'}</span></td>
-            <td><span class="badge-status ${statusClass}">${u.Status || 'Active'}</span></td>
-            <td>${u.AdminID ? 'Admin #' + u.AdminID : 'System'}</td>
-            <td>${dateCreated}</td>
-          </tr>
-        `;
-      });
-
-      usersTableBody.innerHTML = rowsHtml;
-
-    } catch (err) {
-      console.error(err);
-      usersTableBody.innerHTML = `<tr><td colspan="8" class="empty-state">Error loading users table.</td></tr>`;
-    }
-  }
-
-  loadUsersList();
-
-  // ---------- 4. CREATE USER MODAL & SUPABASE INSERT ----------
-  const addUserModal = document.getElementById('addUserModal');
-  const openAddUserModalBtn = document.getElementById('openAddUserModalBtn');
-  const closeAddUserModalBtn = document.getElementById('closeAddUserModalBtn');
-  const cancelAddUserBtn = document.getElementById('cancelAddUserBtn');
-
-  const addUserForm = document.getElementById('addUserForm');
-  const addUserError = document.getElementById('addUserError');
-  const addUserSuccess = document.getElementById('addUserSuccess');
-  const saveUserBtn = document.getElementById('saveUserBtn');
-
-  function openModal() {
-    addUserError.hidden = true;
-    addUserSuccess.hidden = true;
-    addUserForm.reset();
-    addUserModal.hidden = false;
-  }
-
-  function closeModal() {
-    addUserModal.hidden = true;
-  }
-
-  openAddUserModalBtn.addEventListener('click', openModal);
-  closeAddUserModalBtn.addEventListener('click', closeModal);
-  cancelAddUserBtn.addEventListener('click', closeModal);
-
-  addUserModal.addEventListener('click', function (e) {
-    if (e.target === addUserModal) closeModal();
-  });
-
-  addUserForm.addEventListener('submit', async function (e) {
-    e.preventDefault();
-    addUserError.hidden = true;
-    addUserSuccess.hidden = true;
-
-    if (!currentUser || !currentUser.id) {
-      addUserError.textContent = 'Only logged-in Admins can create users. Please sign in first.';
-      addUserError.hidden = false;
-      return;
-    }
-
-    const fullName = document.getElementById('uFullName').value.trim();
-    const username = document.getElementById('uUsername').value.trim();
-    const email = document.getElementById('uEmail').value.trim();
-    const password = document.getElementById('uPassword').value;
-    const role = document.getElementById('uRole').value;
-
-    if (!fullName || !username || !email || !password) {
-      addUserError.textContent = 'Please fill in all required fields.';
-      addUserError.hidden = false;
-      return;
-    }
-
-    saveUserBtn.disabled = true;
-    saveUserBtn.textContent = 'Creating...';
-
-    try {
-      const passwordHash = dcodeIO.bcrypt.hashSync(password, 10);
-
-      const newUserRow = {
-        FullName: fullName,
-        Username: username,
-        Email: email,
-        PasswordHash: passwordHash,
-        Role: role,
-        Status: 'Active',
-        AdminID: currentUser.id
-      };
-
-      const { data, error } = await sbClient
-        .from('users')
-        .insert([newUserRow])
-        .select();
-
-      if (error) {
-        console.error(error);
-        addUserError.textContent = 'Could not create user: ' + error.message;
-        addUserError.hidden = false;
-        saveUserBtn.disabled = false;
-        saveUserBtn.textContent = 'Create User Account';
-        return;
-      }
-
-      addUserSuccess.textContent = 'User account created successfully!';
-      addUserSuccess.hidden = false;
-      saveUserBtn.disabled = false;
-      saveUserBtn.textContent = 'Create User Account';
-
-      setTimeout(function () {
-        closeModal();
-        loadUsersList();
-      }, 1000);
-
-    } catch (err) {
-      console.error(err);
-      addUserError.textContent = 'An unexpected error occurred. Please try again.';
-      addUserError.hidden = false;
-      saveUserBtn.disabled = false;
-      saveUserBtn.textContent = 'Create User Account';
-    }
-  });
-
 })();
 </script>
 
