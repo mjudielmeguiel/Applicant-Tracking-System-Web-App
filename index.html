@@ -83,6 +83,12 @@
     invitationNotice.hidden = false;
     invitationNotice.textContent = invitationResult === 'created' ? 'Your account was created. Sign in with your username and password.' : 'This invitation has expired or is no longer available. Ask your admin for a new link.';
   }
+  const handoverResult = new URLSearchParams(location.search).get('admin_handover');
+  const sessionResult = new URLSearchParams(location.search).get('session');
+  if (handoverResult === 'complete' || sessionResult === 'ended') {
+    invitationNotice.hidden = false;
+    invitationNotice.textContent = handoverResult === 'complete' ? 'Admin access was transferred. Sign in with the replacement admin username and password.' : 'This admin session ended because access for this AdminID was transferred.';
+  }
   const SUPABASE_URL = 'https://wqshrjlcjqbjqcophvfv.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_2QWxapvC5t_KHq-0u35d1w_kK-ah1eN';
   const sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);

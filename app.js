@@ -156,6 +156,28 @@
       return null;
     }
   })();
+  let sessionCheckInFlight = false;
+  async function checkCurrentSession() {
+    const account = verifiedAccount;
+    if (!account || sessionCheckInFlight || document.visibilityState === 'hidden') return;
+    const saved = getUser();
+    if (saved?.sessionToken !== account.sessionToken) return;
+    sessionCheckInFlight = true;
+    try {
+      const current = await ATS.rpc('ats_me', { p_session_token: account.sessionToken });
+      if (!current || current.status !== 'Active' || current.accountType !== account.accountType) throw Object.assign(new Error('Session is no longer active.'), { code: '28000' });
+    } catch (error) {
+      // Network errors do not sign people out. A revoked/expired session does.
+      if (error.code === '28000') {
+        try { if (getUser()?.sessionToken === account.sessionToken) localStorage.removeItem('ats_user'); } catch (_) { /* Continue to login. */ }
+        verifiedAccount = null;
+        userLinks.forEach(link => { link.hidden = true; });
+        location.replace('index.html?session=ended');
+      }
+    } finally { sessionCheckInFlight = false; }
+  }
+  setInterval(checkCurrentSession, 15000);
+  document.addEventListener('visibilitychange', checkCurrentSession);
   ATS.reloadCatalogs = async function () {
     const session = await ATS.ready;
     if (!session || getUser()?.sessionToken !== session.sessionToken) throw new Error('Please sign in again.');
@@ -184,7 +206,7 @@
     const keys=['NBI','POLICE','SSS','PHILHEALTH','PAG IBIG','TIN','MEDICAL','DIPLOMA','TOR','RESUME'];
     const done=keys.filter(key=>row[key]&&!/pending|missing|not submitted|not yet|follow.?up/i.test(row[key])).length;
     return { id: row.ClientRecordID || 'db-'+row.ApplicantID, databaseId:row.ApplicantID, AdminID:row.AdminID,
-      name:row.FullName||row.Name||'',position:row.PositionApplied||row.Position||'',source:row.Source||'',site:row.Site||'',
+      name:row.FullName||row.Name||(row.ApplicationInvitationID?'Incomplete application':''),position:row.PositionApplied||row.Position||'',source:row.Source||'',site:row.Site||'',
       email:row.Email||row['Email Address']||'',phone:row.ContactNumber||row['Contact Number']||'',status:row.Status||(row.WorkbookImportID?'Not recorded':'Screened'),
       dateApplied:row.Date||String(row.DateApplied||'').slice(0,10),requirements:done*10,db:row };
   };
@@ -279,4 +301,7 @@
   const companyScript = document.createElement('script'); companyScript.src='company.js'; document.head.append(companyScript);
   const settingsStyles = document.createElement('link'); settingsStyles.rel = 'stylesheet'; settingsStyles.href = 'settings.css'; document.head.append(settingsStyles);
   const settingsScript = document.createElement('script'); settingsScript.src = 'settings.js'; document.head.append(settingsScript);
+  settingsScript.addEventListener('load', () => {
+    const invitations = document.createElement('script'); invitations.src = 'invitation-admin.js'; document.head.append(invitations);
+  });
 })();

@@ -1,52 +1,119 @@
 # Applicant Tracking System
 
-A static HTML, CSS, and JavaScript recruitment workspace. No build step is required.
+Next.js App Router and TypeScript entry points for the recruitment workspace.
+The original HTML, CSS, and JavaScript filenames are preserved.
 
 ## Run locally
 
-With Node.js installed, run:
+Use Node.js 20.9 or newer.
 
-```sh
-npm start
-```
+    npm ci
+    npm run dev
 
-Open [the local app](http://127.0.0.1:3000). Sign in through `index.html`, or open [the dashboard](http://127.0.0.1:3000/dashboard.html) to review the workspace directly. The existing Supabase sign-in and administrator signup remain in `index.html`.
+Open http://localhost:3000. For production:
 
-## Workspace pages
+    npm run build
+    npm start
 
-- **Dashboard** — actual applicant totals, monthly application chart with year selection, recruitment pipeline, recent applicants, and upcoming events/meetings.
-- **Applicant Masterlist** — create/edit applicants, contact details, application dates, hiring stages, requirements completion, search/status filters, and CSV export.
-- **MRF Monitoring** — create/edit manpower requisitions, position/department/headcount/status tracking, date/search/status filters, CSV export, and the shared applicant pipeline.
-- **Users List** — read the existing Supabase `admins` directory, search/filter accounts, and refresh. If Supabase is unreachable or access is denied, the page explains the failure and shows only saved current-session details when available. Unknown account status is labeled explicitly.
-- **Calendar** — previous/next month and Today controls, daily and monthly applicant/event/meeting counts, selected-day agenda, and a create/edit event modal. Events support an optional applicant, start/end time, location, and notes. Deleting an event requires confirmation. All seven calendar columns fit on phones; colored dots match the category legend.
+## Project structure
 
-Sidebar links work on every workspace page. Collapse preference is shared between pages. Calendar applicant links open the corresponding applicant details.
+    src/
+      app/
+        layout.tsx               Shared document and metadata
+        page.tsx                 Login
+        (workspace)/
+          dashboard/page.tsx
+          applicants/page.tsx
+          mrf/page.tsx
+          users/page.tsx
+          calendar/page.tsx
+        invite/page.tsx
+        api/health/route.ts
+        loading.tsx
+        error.tsx
+        not-found.tsx
+      components/
+        Screen.tsx               Server-rendered screen markup
+        ScreenRuntime.tsx        Existing controller lifecycle
+        StatusPage.tsx           Shared system messages
+      lib/
+        screens.ts               Typed server-only screen access
+        generated/               Build-generated screen data
+      styles/globals.css
+      types/index.ts
+    public/
+      assets/                    Prepared sound/media assets
+      scripts/                   Prepared inline page controllers
+      robots.txt
+    scripts/prepare-next.cjs
+    next.config.ts
+    tsconfig.json
+    vercel.json
 
-## Data storage
+## Migration boundary
 
-The project contains an existing Supabase `admins` connection, but no applicant, requisition, or event database schema. These new records are therefore saved with browser `localStorage`:
+Every screen is served by a Next.js App Router route. The shared React screen
+component renders existing markup, and its client runtime loads each page's
+controllers in order after the document is ready. This preserves the current
+Supabase RPCs, forms, uploads, notifications, branding, and AdminID checks.
+The existing controllers have not been rewritten into React hooks/components.
 
-| Key | Records |
+Original root HTML/CSS/JS files remain the source for existing screens.
+Before development or production builds, prepare-next.cjs extracts screen markup,
+separates inline JavaScript, and copies approved browser assets to public.
+Generated files are ignored by Git and recreated on Vercel.
+After editing original files during development, restart npm run dev or run
+npm run prepare:next and refresh the browser.
+
+Navigation uses full document loads because the existing controllers create
+document listeners and timers. This gives each screen a fresh lifecycle.
+Use ordinary anchors until a feature is migrated to React with explicit cleanup.
+
+Old .html URLs redirect to the corresponding routes. Query strings and invitation
+URL fragments are preserved:
+
+| Existing URL | Next route |
 | --- | --- |
-| `ats_applicants` | Applicants, status, application date, and requirements completion |
-| `ats_mrfs` | Manpower requisitions |
-| `ats_events` | Calendar events and meetings |
-| `ats_user` | Existing signed-in administrator details |
-| `ats_sidebar_collapsed` | Sidebar preference |
+| /index.html | / |
+| /dashboard.html | /dashboard |
+| /applicant-masterlist.html | /applicants |
+| /mrf-monitoring.html | /mrf |
+| /users.html | /users |
+| /calendar.html | /calendar |
+| /invite.html | /invite |
 
-Applicant calendar counts use **Date applied**. Linked calendar events do not duplicate applicants in that count. Dates use local calendar days, avoiding UTC date shifts. End times must follow start times on the same day; leaving both blank creates an all-day item.
+## Supabase
 
-Browser records are shared across these pages and tabs on the same origin. They remain after refresh, but do not synchronize to other devices or separate browser profiles, and are not isolated by administrator account. Use a consistent local server origin and port. Clearing site data removes these records. Connecting them to a shared backend requires a database schema and access rules; the UI currently labels browser storage explicitly.
+The folder migration does not change the database, its records, or its access
+rules. Custom sessions continue to be verified by the existing Supabase RPCs.
+No service-role credentials are required by the frontend.
+See INVITATIONS.md for user invitations and admin handover.
+SQL and Markdown files are not copied into public.
 
-The Users List requests only `AdminID`, `FullName`, `Username`, `Email`, `RoleID`, `Status`, and `CreatedAt` from the existing `admins` table. It does not retrieve password hashes or modify accounts. Supabase must permit this directory read through the existing project configuration.
+## Vercel
 
-## Browser verification
+Push the project, including package-lock.json, src, scripts, public/robots.txt,
+and the Next/Vercel configuration files. vercel.json selects Next.js,
+npm ci, npm run build, and the .next output directory.
+Keep the Vercel Root Directory at the repository root.
+Generated public assets do not need to be committed.
 
-```sh
-npm install
-npm test
-```
+## Checks
 
-Tests use Playwright with installed Microsoft Edge on Windows. On other systems, install Chromium once with `npx playwright install chromium`. The browser test starts its own temporary local server and uses an isolated browser profile and mocked administrator responses, so it does not change real records or submit to Supabase.
+    npm run build
+    npm test
+    npm run test:invitations
 
-The checks cover sidebar navigation and saved collapse preference, applicant create/edit/filter, dashboard counts/chart, calendar counts and persistence, create/edit/delete events, invalid time ranges, selected-date defaults, applicant links, MRF create/edit/filter, users/offline fallback, and layouts at phone/tablet widths. Screenshots are saved in the ignored `test-results/` directory for visual review.
+The build checks TypeScript and generates every route. The browser smoke test
+starts a production Next server on port 3117, mocks remote services, and
+checks page initialization, old URL redirects, invitation fragments, login query
+parameters, the admin handover modal and the 404 page. It does not write to
+live Supabase. Windows uses installed Microsoft Edge; elsewhere install
+Chromium with npx playwright install chromium.
+
+The original static server remains available as npm run start:legacy.
+Its older smoke suite is retained as npm run test:legacy and is separate from
+the Next.js checks.
+
+Applicant invitation forms use the React route /apply. See APPLICANT-INVITATIONS.md
+for configurable limits, required fields, autosaved drafts and deadline submission.

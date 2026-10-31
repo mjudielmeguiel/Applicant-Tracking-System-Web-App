@@ -2,11 +2,30 @@
   "name": "applicant-tracking-system",
   "version": "1.0.0",
   "private": true,
+  "engines": { "node": ">=20.9.0" },
   "scripts": {
-    "start": "node scripts/serve.cjs",
-    "test": "node tests/browser-smoke.cjs"
+    "prepare:next": "node scripts/prepare-next.cjs",
+    "predev": "npm run prepare:next",
+    "dev": "next dev",
+    "prebuild": "npm run prepare:next",
+    "build": "next build",
+    "start": "next start",
+    "start:legacy": "node scripts/serve.cjs",
+    "test:legacy": "node tests/browser-smoke.cjs",
+    "test": "node tests/next-smoke.cjs",
+    "test:invitations": "node tests/applicant-invitations.cjs",
+    "typecheck": "npm run prepare:next && tsc --noEmit"
   },
   "devDependencies": {
-    "playwright": "^1.64.1"
+    "@types/node": "26.6.6",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "playwright": "^1.64.1",
+    "typescript": "7.0.2"
+  },
+  "dependencies": {
+    "next": "16.4.3",
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
   }
 }

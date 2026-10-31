@@ -124,3 +124,7 @@
   .tabs-row { gap: 16px; }
   .invite-btn { width: 100%; justify-content: center; }
 }
+.handover-warning { padding:14px 16px; margin:2px 0 18px; background:#fff8eb; border:1px solid #f4d29b; border-radius:10px; color:#6d4b0c; font-size:13px; line-height:1.6; }
+.handover-warning p { margin:7px 0 0; }
+.handover-confirm { display:flex; align-items:flex-start; gap:9px; margin-top:14px; font-size:13px; line-height:1.5; }
+.handover-confirm input { margin-top:3px; }

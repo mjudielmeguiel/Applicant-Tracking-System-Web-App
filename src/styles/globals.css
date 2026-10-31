@@ -1,0 +1,6 @@
+@import "../../styles.css";
+
+.system-status { max-width: 600px; margin: 12vh auto; padding: 32px; background: white; border: 1px solid #dce3ef; border-radius: 14px; }
+.system-status h1 { color: #192a56; margin-bottom: 16px; }
+.runtime-error { position: fixed; z-index: 10000; inset: auto 16px 16px; padding: 16px; background: #fff4f2; border: 1px solid #e9a6a0; border-radius: 10px; color: #742b25; }
+.runtime-error button { padding: 8px 14px; border-radius: 6px; cursor: pointer; }

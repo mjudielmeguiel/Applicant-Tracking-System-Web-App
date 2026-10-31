@@ -1,2 +1,13 @@
 node_modules/
 test-results/
+.next/
+out/
+*.tsbuildinfo
+next-env.d.ts
+.env*
+!.env.example
+/src/lib/generated/
+/public/*.js
+/public/*.css
+/public/scripts/
+/public/assets/
