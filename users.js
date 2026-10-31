@@ -3,6 +3,7 @@
   const A = window.ATS,
     $ = (id) => document.getElementById(id),
     esc = A.escape;
+  let photos = {};
   let users = [],
     loading = false,
     saving = false;
@@ -36,7 +37,7 @@
       filtered
         .map(
           (u) =>
-            `<tr><td>${esc(u.UserID)}</td><td>${esc(u.AdminID ?? "—")}</td><td><div class="user-info-name">${esc(u.FullName)}</div><div class="user-info-email">${esc(u.Email)}</div></td><td>${esc(u.Username)}</td><td><span class="badge-status role">USER</span></td><td>${esc(u.Status)}</td><td>${u.CreatedAt ? esc(A.formatDate(String(u.CreatedAt).slice(0, 10))) : "—"}</td></tr>`,
+            `<tr><td>${esc(u.UserID)}</td><td>${esc(u.AdminID ?? "—")}</td><td><div class="user-directory-person"><div class="user-directory-avatar">${ProfileImages.safe(photos[u.UserID]) ? `<img src="${esc(photos[u.UserID])}" alt="${esc(u.FullName)} profile picture">` : esc(ProfileImages.initials(u.FullName))}</div><div><div class="user-info-name">${esc(u.FullName)}</div><div class="user-info-email">${esc(u.Email)}</div></div></div></td><td>${esc(u.Username)}</td><td><span class="badge-status role">USER</span></td><td>${esc(u.Status)}</td><td>${u.CreatedAt ? esc(A.formatDate(String(u.CreatedAt).slice(0, 10))) : "—"}</td></tr>`,
         )
         .join("") ||
       `<tr><td colspan="7" class="empty-state">${loading ? "Loading users…" : "No users to display."}</td></tr>`;
@@ -68,6 +69,7 @@
       }
       if (A.getUser()?.sessionToken !== session.sessionToken) return;
       users = records;
+      try { const result = await A.rpc("ats_user_photos", {p_session_token:session.sessionToken}); if (String(result.AdminID) !== String(session.AdminID)) throw Error("Invalid photo response."); photos = result.photos || {}; } catch (_) { photos = {}; }
     } catch (e) {
       users = [];
       $("usersError").textContent = e.message;
@@ -112,9 +114,9 @@
       if (
         photo &&
         (!["image/png", "image/jpeg", "image/webp"].includes(photo.type) ||
-          photo.size > 262144)
+          photo.size > 10 * 1024 * 1024)
       )
-        throw Error("Choose a PNG, JPEG, or WebP image no larger than 256 KB.");
+        throw Error("Choose a PNG, JPEG, or WebP image no larger than 10 MB.");
       const values = {
         p_full_name: $("newFullName").value.trim(),
         p_username: $("newUsername").value.trim(),
@@ -134,12 +136,7 @@
         return;
       }
       values.p_password_hash = dcodeIO.bcrypt.hashSync(password, 10);
-      values.p_profile_picture = photo
-        ? "\\x" +
-          Array.from(new Uint8Array(await photo.arrayBuffer()), (b) =>
-            b.toString(16).padStart(2, "0"),
-          ).join("")
-        : null;
+      values.p_profile_picture = ProfileImages.hex(await ProfileImages.read(photo));
       const saved = await A.rpc("ats_add_user", values);
       if (
         !saved ||
@@ -179,5 +176,6 @@
   $("userSearch").addEventListener("input", render);
   $("userStatus").addEventListener("change", render);
   $("refreshUsers").addEventListener("click", loadUsers);
+  window.addEventListener("ats:profile-change", loadUsers);
   await loadUsers();
 })();

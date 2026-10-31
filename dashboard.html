@@ -42,6 +42,8 @@
       <div class="card stat-card"><span class="stat-symbol" aria-hidden="true">◷</span><div class="stat-label">PHONE INTERVIEW</div><div class="stat-value" id="phoneCount">0</div><div class="stat-note">In the phone interview stage</div></div>
       <div class="card stat-card"><span class="stat-symbol" aria-hidden="true">↗</span><div class="stat-label">FINAL INTERVIEW</div><div class="stat-value" id="finalCount">0</div><div class="stat-note">In the final interview stage</div></div>
     </section>
+    <div class="dashboard-content">
+    <div class="dashboard-main-panels">
     <div class="panel-row">
       <section class="card panel" aria-labelledby="monthlyTitle">
         <div class="section-heading"><div><h2 id="monthlyTitle">Applicants per month</h2><p class="section-subtitle">Applications received throughout the year</p></div><label><span class="field-label" style="position:absolute;clip-path:inset(50%);width:1px;height:1px;overflow:hidden">Chart year</span><select class="year-select" id="chartYear" aria-label="Chart year"></select></label></div>
@@ -58,6 +60,13 @@
         <div class="table-footer" id="applicantSummary">0 applicants</div>
       </section>
       <section class="card panel" aria-labelledby="scheduleTitle"><div class="section-heading"><div><h2 id="scheduleTitle">Upcoming schedule</h2><p class="section-subtitle">Your next events and meetings</p></div><a href="calendar.html">Calendar →</a></div><div class="schedule-list" id="upcomingSchedule"></div></section>
+    </div>
+    </div>
+    <section class="card panel dashboard-positions" aria-labelledby="jobPositionsTitle">
+      <div class="section-heading"><div><h2 id="jobPositionsTitle">Available job positions</h2><p class="section-subtitle">Applicants and remaining slots by position. Hired and deployed applicants occupy slots.</p></div><button type="button" class="btn-sm ghost" id="refreshPositionCounts">Refresh counts</button></div>
+      <p class="form-error" id="positionCountsError" role="status" hidden></p>
+      <div class="job-position-grid" id="jobPositionCards" aria-live="polite"></div>
+    </section>
     </div>
     <p class="storage-note">Applicant and MRF records are saved to Supabase; calendar events remain in this browser.</p>
   </main>

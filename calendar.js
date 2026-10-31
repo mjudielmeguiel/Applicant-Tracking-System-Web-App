@@ -32,6 +32,7 @@
   function itemsOn(date) {
     return {
       applicants: applicants.filter((item) => item.dateApplied === date),
+      appointments: A.applicantAppointments().filter(item => item.date === date),
       events: events.filter((item) => item.date === date && item.type === 'event'),
       meetings: events.filter((item) => item.date === date && item.type === 'meeting')
     };
@@ -66,11 +67,12 @@
       if (date.getMonth() !== month) classes.push('is-outside');
       if (key === A.today()) classes.push('is-today');
       if (key === selectedDate) classes.push('is-selected');
-      const label = dateLabel(key, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }) + ': ' + countLabel(counts.applicants.length, 'applicant') + ', ' + countLabel(counts.events.length, 'event') + ', ' + countLabel(counts.meetings.length, 'meeting');
+      const label = dateLabel(key, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }) + ': ' + countLabel(counts.applicants.length, 'applicant') + ', ' + countLabel(counts.events.length, 'event') + ', ' + countLabel(counts.meetings.length, 'meeting') + ' · ' + countLabel(counts.appointments.length, 'appointment');
       html += '<button type="button" class="' + classes.join(' ') + '" data-date="' + key + '" aria-label="' + escape(label) + '" aria-pressed="' + (key === selectedDate) + '"><span class="calendar-date-number">' + date.getDate() + '</span>';
       html += countChip(counts.applicants.length, 'applicant', 'applicant-count');
       html += countChip(counts.events.length, 'event', 'event-count');
       html += countChip(counts.meetings.length, 'meeting', 'meeting-count');
+      html += countChip(counts.appointments.length, 'appointment', 'meeting-count');
       html += '</button>';
     }
     $('calendarGrid').innerHTML = html;
@@ -79,9 +81,9 @@
 
   function renderAgenda() {
     const counts = itemsOn(selectedDate);
-    const schedule = [...counts.events, ...counts.meetings].sort((a, b) => String(a.startTime || '').localeCompare(String(b.startTime || '')) || String(a.title || '').localeCompare(String(b.title || '')));
+    const schedule = [...counts.events, ...counts.meetings, ...counts.appointments].sort((a, b) => String(a.startTime || '').localeCompare(String(b.startTime || '')) || String(a.title || '').localeCompare(String(b.title || '')));
     $('selectedDateLabel').textContent = dateLabel(selectedDate, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
-    $('selectedDateSummary').textContent = countLabel(counts.applicants.length, 'applicant') + ' · ' + countLabel(counts.events.length, 'event') + ' · ' + countLabel(counts.meetings.length, 'meeting');
+    $('selectedDateSummary').textContent = countLabel(counts.applicants.length, 'applicant') + ' · ' + countLabel(counts.events.length, 'event') + ' · ' + countLabel(counts.meetings.length, 'meeting') + ', ' + countLabel(counts.appointments.length, 'appointment');
     let html = '';
     if (!schedule.length && !counts.applicants.length) {
       html = '<div class="agenda-empty"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M8 2v4M16 2v4M3 10h18M8 15h3M8 18h6"/></svg><strong>A little room to plan</strong><p>No applicants, events, or meetings for this date. Add an event to get started.</p></div>';
@@ -89,16 +91,17 @@
     if (schedule.length) {
       html += '<h3 class="agenda-section-label">Schedule</h3>';
       schedule.forEach((event) => {
-        const kind = event.type === 'meeting' ? 'meeting' : 'event';
+        const kind = event.type === 'meeting' || event.type === 'appointment' ? 'meeting' : 'event';
         const applicant = applicants.find((item) => String(item.id) === String(event.applicantId));
         const start = timeLabel(event.startTime);
         const end = timeLabel(event.endTime);
         const time = start ? start + (end ? ' – ' + end : '') : 'All day';
-        html += '<article class="agenda-record"><div class="agenda-record-head"><h3>' + escape(event.title || 'Untitled event') + '</h3><span class="agenda-kind ' + kind + '">' + (kind === 'meeting' ? 'Meeting' : 'Event') + '</span></div><p>' + escape(time) + '</p>';
+        html += '<article class="agenda-record"><div class="agenda-record-head"><h3>' + escape(event.title || 'Untitled event') + '</h3><span class="agenda-kind ' + kind + '">' + (event.type === 'appointment' ? 'Appointment' : kind === 'meeting' ? 'Meeting' : 'Event') + '</span></div><p>' + escape(time) + '</p>';
         if (applicant) html += '<p>Applicant: <a href="applicant-masterlist.html?applicant=' + encodeURIComponent(applicant.id) + '">' + escape(applicant.name) + '</a></p>';
         if (event.location) html += '<p>' + escape(event.location) + '</p>';
         if (event.description) html += '<p>' + escape(event.description) + '</p>';
-        html += '<div class="agenda-record-actions"><button type="button" data-edit="' + escape(event.id) + '" aria-label="Edit ' + escape(event.title) + '">Edit</button><button type="button" data-delete="' + escape(event.id) + '" aria-label="Delete ' + escape(event.title) + '">Delete</button></div></article>';
+        if (event.type !== 'appointment') html += '<div class="agenda-record-actions"><button type="button" data-edit="' + escape(event.id) + '" aria-label="Edit ' + escape(event.title) + '">Edit</button><button type="button" data-delete="' + escape(event.id) + '" aria-label="Delete ' + escape(event.title) + '">Delete</button></div></article>';
+        if (event.type === 'appointment') html += '<p>Response: '+escape(event.response)+'</p></article>';
       });
     }
     if (counts.applicants.length) {
@@ -232,6 +235,9 @@
   $('calendarToday').addEventListener('click', () => chooseDate(A.today(), false));
   window.addEventListener('storage', (e) => { if (!e.key || /^(ats_applicants|ats_events)(:admin:|$)/.test(e.key)) render(); });
   window.addEventListener('ats:data-change', render);
+  async function refreshAppointments(){if(document.hidden||eventDialog.open)return;try{await A.reloadApplicants();}catch(error){A.notify('Unable to refresh appointments.');}}
+  window.addEventListener('focus',refreshAppointments);
+  setInterval(refreshAppointments,60000);
   render();
   const query = new URLSearchParams(window.location.search);
   if (query.get('add') === '1') {

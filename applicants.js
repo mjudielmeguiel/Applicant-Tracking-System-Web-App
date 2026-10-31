@@ -8,6 +8,7 @@
   const key = "ats_applicants";
   const statuses = window.ATS.applicantStatuses;
   const statusTools = window.ApplicantStatusTools;
+  const workflow = window.ApplicantWorkflow;
   const search = document.getElementById("applicantSearch");
   const filter = document.getElementById("statusFilter");
   const rows = document.getElementById("applicantRows");
@@ -19,6 +20,7 @@
   const controls = (definition) => {
     const f = definition,
       attrs = `id="${f.id}" data-applicant-field="${esc(f.column)}" class="field-input" ${f.required ? "required" : ""} ${f.column === "Name" ? 'minlength="2"' : ""} ${f.type === "tel" ? 'pattern="[+()0-9 .-]{7,25}"' : ""}`;
+    if (f.type === "response") return `<select ${attrs}><option value="Pending">Awaiting response / attendance</option><option value="Confirmed">Confirmed</option><option value="Attended">Attended</option><option value="Cancelled">Cancelled</option></select>`;
     if (["position", "site", "source", "status"].includes(f.type))
       return `<select ${attrs}><option value="">Select ${esc(f.label)}</option></select>`;
     if (f.type === "textarea")
@@ -68,6 +70,7 @@
   const session = await window.ATS.ready;
 
   function fillChoices(record) {
+    const positionStats = new Map(window.ATS.positionSummary().map(row => [row.name.trim().toLowerCase(), row]));
     for (const [key, group] of [
       ["position", "positions"],
       ["source", "sources"],
@@ -87,7 +90,7 @@
               '">' +
               esc(row.name) +
               (key === "position"
-                ? " · " + row.slots_available + " available"
+                ? " · " + (positionStats.get(row.name.trim().toLowerCase())?.applicants || 0) + " applicants · " + (positionStats.get(row.name.trim().toLowerCase())?.remaining || 0) + " slots remaining"
                 : "") +
               "</option>",
           )
@@ -99,6 +102,7 @@
   }
   fillChoices();
   window.addEventListener("ats:catalogs-changed", () => fillChoices());
+  window.addEventListener("ats:data-change", () => fillChoices());
 
   const options = statuses
     .map((status) => `<option value="${esc(status)}">${esc(status)}</option>`)
@@ -275,7 +279,7 @@
     definitions.forEach((f) => {
       const input = document.getElementById(f.id);
       let value = row[f.column] ?? "";
-      if (f.type === "datetime-local") value = localDatetime(value);
+      if (f.type === "datetime-local") value = f.column === "ScheduleDate" && value ? new Date(new Date(value).getTime()+8*3600000).toISOString().slice(0,16) : localDatetime(value);
       input.value = value;
     });
     fields.dateApplied.value = fields.dateApplied.value || A.today();
@@ -305,6 +309,7 @@
     );
     document.getElementById("applicantCompanyNote").textContent =
       "Checking company configuration…";
+    workflow.open(record);
     A.openDialog(dialog);
     fields.name.focus();
     A.rpc("ats_mrf_context", { p_session_token: session.sessionToken })
@@ -335,6 +340,7 @@
     form.querySelectorAll("input,select,textarea,button").forEach((c) => {
       c.disabled = value;
     });
+    if (!value) workflow.refresh();
   }
   dialog.addEventListener("cancel", (event) => {
     if (saving) event.preventDefault();
@@ -346,7 +352,7 @@
     event.preventDefault();
     if (saving) return;
     formError.hidden = true;
-    if (!form.reportValidity()) return;
+    if (!workflow.validate()) return;
     const contactError = statusTools.validateContacts(
       currentRecord,
       applicants(),
@@ -383,13 +389,15 @@
         : f.type === "number"
           ? Number(value)
           : f.type === "datetime-local"
-            ? new Date(value).toISOString()
+            ? new Date(f.column === "ScheduleDate" ? value + (value.length === 16 ? ":00" : "") + "+08:00" : value).toISOString()
             : value;
     });
     documentTypes.forEach((type, i) => {
       changes[type] =
         document.getElementById("requirement_" + i).value.trim() || null;
     });
+    if (!workflow.prepareChanges(changes)) return;
+    if (currentRecord?.databaseId) changes.ExpectedStageVersion = Number(currentRecord.db?.StageVersion || 0);
     if (!changes.DateApplied)
       changes.DateApplied = new Date(changes.Date + "T00:00:00").toISOString();
     lockForm(true);
@@ -440,7 +448,7 @@
         const status = document.getElementById("requirement_" + item.index);
         if (!status.value) status.value = "Submitted";
       }
-      await A.reloadApplicants();
+      await Promise.all([A.reloadApplicants(), A.reloadCatalogs()]);
       render();
       A.closeDialog(dialog);
       A.notify(
@@ -513,6 +521,7 @@
     }
   });
   statusTools.initForm();
+  workflow.init({form, dialog, session});
   document.getElementById("addApplicant").disabled = false;
   document
     .getElementById("refreshApplicants")
@@ -520,7 +529,7 @@
       const button = event.currentTarget;
       button.disabled = true;
       try {
-        await A.reloadApplicants();
+        await Promise.all([A.reloadApplicants(), A.reloadCatalogs()]);
       } catch (error) {
         A.applicantsError = error;
       } finally {
@@ -603,8 +612,16 @@
 
   window.addEventListener("storage", render);
   window.addEventListener("ats:data-change", render);
-  window.addEventListener('focus', render);
-  setInterval(render, 60000);
+  let refreshingStages = false;
+  async function refreshStages() {
+    if (refreshingStages || saving || dialog.open || document.hidden) return;
+    refreshingStages = true;
+    try { await Promise.all([A.reloadApplicants(), A.reloadCatalogs()]); }
+    catch (error) { A.applicantsError = error; render(); }
+    finally { refreshingStages = false; }
+  }
+  window.addEventListener('focus', refreshStages);
+  setInterval(refreshStages, 60000);
   render();
   const linkedApplicantId = pageUrl.searchParams.get("applicant");
   if (linkedApplicantId !== null || pageUrl.searchParams.get("add") === "1") {

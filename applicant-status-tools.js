@@ -11,6 +11,13 @@
     "For Job Offer": "Job Offer",
   };
   const dateToStatus = {
+    "PHONE INTERVIEW DATE": "For Phone Interview",
+    "F2F INTERVIEW DATE": "For F2F Interview",
+    "ONLINE INTERVIEW DATE": "For Online Interview",
+    "ORIENTATION DATE": "For Orientation",
+    "EXAM DATE": "For Exam",
+    "NO SHOW DATE": "No Show",
+    "NO ANSWER DATE": "No Answer",
     "FINAL INTERVIEW DATE": "For Final Interview",
     "DATE HIRED": "Hired",
     "JOB OFFER DATE": "For Job Offer",
@@ -19,12 +26,20 @@
     "BACKOUT DATE": "Backout",
   };
   const completed = {
+    "No Show": "NO SHOW DATE",
+    "No Answer": "NO ANSWER DATE",
     Hired: "DATE HIRED",
     Deployed: "Date of Deployment",
     Rejected: "REJECTED DATE",
     Backout: "BACKOUT DATE",
   };
   const stageFields = {
+    "Phone Interview": "PHONE INTERVIEW DATE",
+    "F2F Interview": "F2F INTERVIEW DATE",
+    "Online Interview": "ONLINE INTERVIEW DATE",
+    "For Exam": "EXAM DATE",
+    "No Show": "NO SHOW DATE",
+    "No Answer": "NO ANSWER DATE",
     Screened: "DATE SCREENED",
     "Final Interview": "FINAL INTERVIEW DATE",
     Hired: "DATE HIRED",
@@ -32,9 +47,16 @@
     Deployed: "Date of Deployment",
     Rejected: "REJECTED DATE",
     Backout: "BACKOUT DATE",
-    Orientation: "For Onboarding Target Start Date",
+    Orientation: "ORIENTATION DATE",
   };
   const stageLabels = {
+    "PHONE INTERVIEW DATE": "Phone interview",
+    "F2F INTERVIEW DATE": "Face-to-face interview",
+    "ONLINE INTERVIEW DATE": "Online interview",
+    "ORIENTATION DATE": "Orientation",
+    "EXAM DATE": "Exam",
+    "NO SHOW DATE": "No show",
+    "NO ANSWER DATE": "No answer",
     "DATE SCREENED": "Screened",
     "FINAL INTERVIEW DATE": "Final interview",
     "DATE HIRED": "Hired",
@@ -151,9 +173,9 @@
         kind = group(record.status);
       let key = stageFields[kind];
       if (
-        ["Phone Interview", "F2F Interview", "Online Interview"].includes(kind)
+        ["Phone Interview", "Final Interview", "F2F Interview", "Online Interview", "Orientation", "For Exam", "Job Offer"].includes(kind)
       )
-        key = row.ScheduleDate ? "ScheduleDate" : "Date of Interview";
+        key = row.ScheduleDate ? "ScheduleDate" : row[stageFields[kind]] ? stageFields[kind] : "Date of Interview";
       const stage =
         key && row[key]
           ? `<span class="applicant-stage-date">${A.escape(stageLabels[key] || key)}: ${A.escape(formatted(row[key]))}</span>`
@@ -168,7 +190,7 @@
             `<li><strong>${A.escape(stageLabels[field])}</strong> ${A.escape(formatted(row[field]))}</li>`,
         )
         .join("");
-      return `<span class="applicant-date-applied">Applied: ${A.escape(record.dateApplied ? A.formatDate(record.dateApplied) : "—")}</span>${stage}${changed}${entries ? `<details class="applicant-date-history"><summary>Stage dates</summary><ul>${entries}</ul></details>` : ""}`;
+      return `<span class="applicant-date-applied">Applied: ${A.escape(record.dateApplied ? A.formatDate(record.dateApplied) : "—")}</span>${stage}${row.ScheduleDate ? `<span class="applicant-ref">Response: ${A.escape(row.ScheduleResponse || "Pending")}</span>` : ""}${changed}${entries ? `<details class="applicant-date-history"><summary>Stage dates</summary><ul>${entries}</ul></details>` : ""}`;
     },
     validateContacts(current, records) {
       const inputEmail = document.getElementById("applicantEmail"),

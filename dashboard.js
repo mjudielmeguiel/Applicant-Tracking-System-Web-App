@@ -2,6 +2,7 @@
   'use strict';
   if (!await window.ATS.ready) return;
   await window.ATS.applicantsReady;
+  await window.ATS.catalogReady;
   const { read, escape, today, formatDate } = ATS;
   const stages = ATS.applicantStatuses;
   const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -13,6 +14,13 @@
   function render() {
     const applicants = read('ats_applicants');
     const events = read('ats_events');
+    const positions = ATS.positionSummary().filter(position => position.remaining > 0);
+    const countError = document.getElementById('positionCountsError');
+    countError.hidden = !ATS.catalogError;
+    if (ATS.catalogError) countError.textContent = 'Position counts could not be loaded from Supabase. Refresh counts to try again.';
+    document.getElementById('jobPositionCards').innerHTML = ATS.catalogError ? '' : positions.map(position =>
+      `<article class="job-position-card" data-position="${escape(position.name)}"><h3>${escape(position.name)}</h3><div class="job-position-counts"><div><strong data-position-applicants>${position.applicants}</strong><span>Applicants</span></div><div><strong data-position-remaining>${position.remaining}</strong><span>Remaining slots</span></div></div><p>${position.filled} filled · ${position.totalSlots} total slots</p></article>`
+    ).join('') || (ATS.catalogError ? '' : '<p class="inline-empty">No job positions with available slots. Update total job slots in Settings when vacancies open.</p>');
     document.getElementById('totalCount').textContent = applicants.length;
     const count = status => applicants.filter(applicant => applicant.status === status).length;
     document.getElementById('screenedCount').textContent = count('Screened');
@@ -46,18 +54,29 @@
 
     const now = new Date();
     const time = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-    const upcoming = events.filter(event => event.date > today() || (event.date === today() && (!event.startTime || (event.endTime || event.startTime) >= time))).sort((a, b) => `${a.date}${a.startTime || ''}`.localeCompare(`${b.date}${b.startTime || ''}`)).slice(0, 4);
+    const upcoming = [...events, ...ATS.applicantAppointments().filter(item => item.response !== 'Attended')].filter(event => event.date > today() || (event.date === today() && (!event.startTime || (event.endTime || event.startTime) >= time))).sort((a, b) => `${a.date}${a.startTime || ''}`.localeCompare(`${b.date}${b.startTime || ''}`)).slice(0, 4);
     document.getElementById('upcomingSchedule').innerHTML = upcoming.length ? upcoming.map(event => {
       const date = new Date(`${event.date}T12:00:00`);
       const applicant = applicants.find(person => person.id === event.applicantId);
-      return `<div class="schedule-item"><div class="schedule-date"><small>${date.toLocaleDateString('en-PH', { month: 'short' })}</small>${date.getDate()}</div><div class="schedule-info"><strong>${escape(event.title)}</strong><p>${event.startTime ? escape(event.startTime) : 'All day'} · ${event.type === 'meeting' ? 'Meeting' : 'Event'}${applicant ? ` · ${escape(applicant.name)}` : ''}</p>${event.location ? `<p>${escape(event.location)}</p>` : ''}</div></div>`;
+      return `<div class="schedule-item"><div class="schedule-date"><small>${date.toLocaleDateString('en-PH', { month: 'short' })}</small>${date.getDate()}</div><div class="schedule-info"><strong>${escape(event.title)}</strong><p>${event.startTime ? escape(event.startTime) : 'All day'} · ${event.type === 'appointment' ? 'Appointment' : event.type === 'meeting' ? 'Meeting' : 'Event'}${applicant ? ` · ${escape(applicant.name)}` : ''}</p>${event.location ? `<p>${escape(event.location)}</p>` : ''}</div></div>`;
     }).join('') : '<div class="inline-empty">Your schedule is clear.<br><a href="calendar.html?add=1">Create an event or meeting →</a></div>';
   }
 
   yearSelect.addEventListener('change', render);
   window.addEventListener('storage', render);
   window.addEventListener('ats:data-change', render);
-  window.addEventListener('focus', render);
-  setInterval(render, 60000);
+  let refreshingPositions = false;
+  async function refreshPositions() {
+    if (refreshingPositions) return;
+    refreshingPositions = true;
+    const button = document.getElementById('refreshPositionCounts'); button.disabled = true;
+    try { await Promise.all([ATS.reloadApplicants(), ATS.reloadCatalogs()]); render(); }
+    catch (error) { const message = document.getElementById('positionCountsError'); message.textContent = 'Unable to refresh counts. Previously loaded figures are retained. Try again.'; message.hidden = false; }
+    finally { refreshingPositions = false; button.disabled = false; }
+  }
+  document.getElementById('refreshPositionCounts').addEventListener('click', refreshPositions);
+  window.addEventListener('ats:catalogs-changed', render);
+  window.addEventListener('focus', refreshPositions);
+  setInterval(() => { if (!document.hidden) refreshPositions(); }, 60000);
   render();
 })();

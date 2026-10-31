@@ -162,11 +162,24 @@
     const data = await ATS.rpc('ats_catalog_list', { p_session_token: session.sessionToken });
     if (!data || String(data.AdminID) !== String(session.AdminID) || !['sources','positions','locations'].every(key => Array.isArray(data[key]))) throw new Error('Invalid settings response.');
     if (getUser()?.sessionToken !== session.sessionToken) throw new Error('The signed-in account changed.');
-    ATS.catalogs = data;
+    if (data.positions.some(row => ![row.slots_available,row.applicant_count,row.filled_count,row.remaining_slots].every(value => Number.isInteger(value) && value >= 0))) throw new Error('Invalid position counts from Supabase.');
+    ATS.catalogs = data; ATS.catalogError = null;
     window.dispatchEvent(new Event('ats:catalogs-changed'));
     return data;
   };
   ATS.catalogReady = ATS.reloadCatalogs().catch(error => { ATS.catalogError = error; return null; });
+  ATS.positionSummary = function () {
+    return (ATS.catalogs?.positions || []).map(row => ({
+      name: row.name, totalSlots: row.slots_available,
+      applicants: row.applicant_count, filled: row.filled_count, remaining: row.remaining_slots
+    })).sort((a,b) => b.applicants - a.applicants || a.name.localeCompare(b.name));
+  };
+  ATS.applicantAppointments = function () {
+    return read('ats_applicants').filter(record => record.db?.ScheduleDate && record.db.ScheduleResponse !== 'Cancelled' && !Number.isNaN(Date.parse(record.db.ScheduleDate))).map(record => {
+      const date = new Date(new Date(record.db.ScheduleDate).getTime() + 8 * 3600000).toISOString();
+      return {id:'appointment-'+record.id,type:'appointment',applicantId:record.id,date:date.slice(0,10),startTime:date.slice(11,16),title:(record.db.ScheduleType || 'Appointment')+' · '+record.name,response:record.db.ScheduleResponse || 'Pending'};
+    });
+  };
   ATS.normalizeApplicant = row => {
     const keys=['NBI','POLICE','SSS','PHILHEALTH','PAG IBIG','TIN','MEDICAL','DIPLOMA','TOR','RESUME'];
     const done=keys.filter(key=>row[key]&&!/pending|missing|not submitted|not yet|follow.?up/i.test(row[key])).length;
@@ -260,6 +273,8 @@
   activityStyles.rel = 'stylesheet'; activityStyles.href = 'notifications.css'; document.head.append(activityStyles);
   const activityScript = document.createElement('script');
   activityScript.src = 'notifications.js'; document.head.append(activityScript);
+  const profileStyles=document.createElement('link');profileStyles.rel='stylesheet';profileStyles.href='profile.css';document.head.append(profileStyles);
+  const profileImages=document.createElement('script');profileImages.src='profile-images.js';profileImages.onload=()=>{const profileScript=document.createElement('script');profileScript.src='profile.js';document.head.append(profileScript);};document.head.append(profileImages);
   const companyStyles = document.createElement('link'); companyStyles.rel='stylesheet'; companyStyles.href='company.css'; document.head.append(companyStyles);
   const companyScript = document.createElement('script'); companyScript.src='company.js'; document.head.append(companyScript);
   const settingsStyles = document.createElement('link'); settingsStyles.rel = 'stylesheet'; settingsStyles.href = 'settings.css'; document.head.append(settingsStyles);

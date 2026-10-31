@@ -47,12 +47,14 @@
     $("newCatalog").hidden = true;
     $("catalogSlotsGroup").hidden = kind === "source";
     $("catalogSlots").disabled = kind === "source";
+    modal.querySelector('label[for="catalogSlots"]').textContent = kind === "position" ? "Total job slots" : "Available slots";
     $("catalogFormTitle").textContent =
       "Add " + (kind === "position" ? "job position" : kind);
     $("saveCatalog").textContent = "Add " + kind;
   }
   function render() {
     const data = A.catalogs?.[plural()] || [];
+    const positionStats = new Map(A.positionSummary().map(row => [row.name.trim().toLowerCase(), row]));
     $("catalogListTitle").textContent =
       kind === "position"
         ? "Job positions"
@@ -63,7 +65,7 @@
       "<tr><th>Name</th>" +
       (kind === "source"
         ? ""
-        : "<th>Available</th><th>Hired</th><th>Action</th>") +
+        : kind === "position" ? "<th>Applicants</th><th>Total slots</th><th>Filled</th><th>Remaining</th><th>Action</th>" : "<th>Available</th><th>Hired</th><th>Action</th>") +
       "</tr>";
     $("catalogRows").replaceChildren();
     data.forEach((row) => {
@@ -72,7 +74,9 @@
       name.textContent = row.name;
       tr.append(name);
       if (kind !== "source") {
-        for (const value of [row.slots_available, row.hired_count]) {
+        const stats = positionStats.get(row.name.trim().toLowerCase());
+        const values = kind === "position" ? [A.catalogError ? "—" : stats?.applicants || 0, row.slots_available, A.catalogError ? "—" : stats?.filled || 0, A.catalogError ? "—" : stats?.remaining || 0] : [row.slots_available, row.hired_count];
+        for (const value of values) {
           const td = document.createElement("td");
           td.textContent = value;
           tr.append(td);
@@ -90,7 +94,7 @@
           $("catalogName").readOnly = true;
           $("catalogSlots").value = row.slots_available;
           $("newCatalog").hidden = false;
-          $("catalogFormTitle").textContent = "Update available slots";
+          $("catalogFormTitle").textContent = kind === "position" ? "Update total job slots" : "Update available slots";
           $("saveCatalog").textContent = "Save slots";
           $("catalogSlots").focus();
         });
@@ -102,7 +106,7 @@
     if (!data.length) {
       const tr = document.createElement("tr"),
         td = document.createElement("td");
-      td.colSpan = kind === "source" ? 1 : 4;
+      td.colSpan = kind === "source" ? 1 : kind === "position" ? 6 : 4;
       td.className = "empty-state";
       td.textContent = "No choices available. Add one or refresh.";
       tr.append(td);
@@ -130,6 +134,7 @@
     }
   }
   button.addEventListener("click", async () => {
+    await A.applicantsReady;
     reset();
     $("catalogSaved").hidden = true;
     modal.showModal();
@@ -196,6 +201,7 @@
       render();
     }
   });
+  window.addEventListener("ats:data-change", () => { if (modal.open && !busy) render(); });
   window.addEventListener("ats:catalogs-changed", () => {
     if (modal.open && !busy) render();
   });

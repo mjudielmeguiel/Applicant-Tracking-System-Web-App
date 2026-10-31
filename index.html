@@ -25,6 +25,7 @@
       <h2>Welcome back</h2>
       <p class="sub">Sign in to the Applicant Tracking System.</p>
 
+      <p id="invitationNotice" class="form-success" role="status" hidden></p>
       <div id="formError" class="form-error" role="alert" hidden></div>
 
       <label class="field-label" for="uname">Username</label>
@@ -76,6 +77,12 @@
 <script src="https://cdn.jsdelivr.net/npm/bcryptjs@2.4.3/dist/bcrypt.min.js"></script>
 <script>
 (function () {
+  const invitationNotice = document.getElementById('invitationNotice');
+  const invitationResult = new URLSearchParams(location.search).get('invitation');
+  if (invitationResult === 'created' || invitationResult === 'unavailable') {
+    invitationNotice.hidden = false;
+    invitationNotice.textContent = invitationResult === 'created' ? 'Your account was created. Sign in with your username and password.' : 'This invitation has expired or is no longer available. Ask your admin for a new link.';
+  }
   const SUPABASE_URL = 'https://wqshrjlcjqbjqcophvfv.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_2QWxapvC5t_KHq-0u35d1w_kK-ah1eN';
   const sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);

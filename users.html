@@ -45,10 +45,10 @@
 <label class="field-label" for="newEmail">Email</label><input class="field-input" id="newEmail" type="email" autocomplete="email" maxlength="254" required>
 <label class="field-label" for="newPassword">Password</label><input class="field-input" id="newPassword" type="password" autocomplete="new-password" minlength="8" required>
 <label class="field-label" for="newConfirm">Confirm password</label><input class="field-input" id="newConfirm" type="password" autocomplete="new-password" minlength="8" required>
-<label class="field-label" for="newPhoto">Profile picture (optional, PNG/JPEG/WebP, up to 256 KB)</label><input class="field-input" id="newPhoto" type="file" accept="image/png,image/jpeg,image/webp">
+<label class="field-label" for="newPhoto">Profile picture (optional, PNG/JPEG/WebP up to 10 MB, resized before saving)</label><input class="field-input" id="newPhoto" type="file" accept="image/png,image/jpeg,image/webp">
 <p class="section-subtitle">Role: USER. UserID is generated when Supabase saves the account.</p>
 </div><div class="dialog-actions"><button type="button" class="btn-sm ghost" data-close-dialog>Cancel</button><button type="submit" class="btn-sm primary" id="saveUserBtn">Save User</button></div>
 </form></dialog>
 <script src="https://cdn.jsdelivr.net/npm/bcryptjs@2.4.3/dist/bcrypt.min.js"></script>
-<script src="app.js"></script><script src="users.js"></script>
+<script src="profile-images.js"></script><script src="app.js"></script><script src="users.js"></script><script src="user-invitations.js"></script>
 </body></html>
