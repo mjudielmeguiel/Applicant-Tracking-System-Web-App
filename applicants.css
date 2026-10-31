@@ -239,3 +239,5 @@
 @media(max-width:1000px){.applicant-summary{grid-template-columns:1fr}.applicant-summary .monthly-hired-card{flex-direction:row;align-items:center}.applicant-summary .monthly-hired-total{text-align:right}}
 
 @media(min-width:1001px){.applicant-summary .applicant-status-overview{grid-column:1;grid-row:1}.applicant-summary .monthly-hired-card{grid-column:2;grid-row:1}}
+
+.applicant-requirements-status{font-size:11px;line-height:1.55;color:var(--muted);margin-top:8px;white-space:pre-wrap;overflow-wrap:anywhere;max-width:220px}.applicant-requirements-status>span{display:block;font-size:10px;font-weight:600;color:var(--ink);margin-bottom:3px}

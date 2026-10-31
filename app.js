@@ -120,9 +120,7 @@
   ATS.applicantStatuses = [
     'For Orientation', 'For Final Interview', 'Rejected', 'Backout', 'No Show',
     'No Answer', 'For F2F Interview', 'Deployed', 'For Pooling', 'For Exam',
-    'For Job Offer', 'For Phone Interview', 'For Online Interview', 'Hired', 'RESIGNED',
-    'Screened', 'HR Avatar', 'Phone Interview', 'Final Interview', 'Orientation',
-    'Ongoing', 'Inactive', 'Pooling', 'Job Offer'
+    'For Job Offer', 'For Phone Interview', 'For Online Interview', 'Hired', 'RESIGNED'
   ];
   ATS.applicantInterviewStatuses = ['Phone Interview','Final Interview','For Phone Interview','For Final Interview','For F2F Interview','For Online Interview'];
   ATS.applicantStatusTone = status => ['Hired','Deployed','Job Offer','For Job Offer'].includes(status) ? 'success'
@@ -174,7 +172,7 @@
     const done=keys.filter(key=>row[key]&&!/pending|missing|not submitted|not yet|follow.?up/i.test(row[key])).length;
     return { id: row.ClientRecordID || 'db-'+row.ApplicantID, databaseId:row.ApplicantID, AdminID:row.AdminID,
       name:row.FullName||row.Name||'',position:row.PositionApplied||row.Position||'',source:row.Source||'',site:row.Site||'',
-      email:row.Email||row['Email Address']||'',phone:row.ContactNumber||row['Contact Number']||'',status:row.Status||'Screened',
+      email:row.Email||row['Email Address']||'',phone:row.ContactNumber||row['Contact Number']||'',status:row.Status||(row.WorkbookImportID?'Not recorded':'Screened'),
       dateApplied:row.Date||String(row.DateApplied||'').slice(0,10),requirements:done*10,db:row };
   };
   ATS.reloadApplicants = async function () {

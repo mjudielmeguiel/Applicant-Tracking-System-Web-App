@@ -11,7 +11,6 @@
     "For Job Offer": "Job Offer",
   };
   const dateToStatus = {
-    "DATE SCREENED": "Screened",
     "FINAL INTERVIEW DATE": "For Final Interview",
     "DATE HIRED": "Hired",
     "JOB OFFER DATE": "For Job Offer",
@@ -20,7 +19,6 @@
     "BACKOUT DATE": "Backout",
   };
   const completed = {
-    Screened: "DATE SCREENED",
     Hired: "DATE HIRED",
     Deployed: "Date of Deployment",
     Rejected: "REJECTED DATE",
@@ -101,7 +99,6 @@
         ...new Set([
           ...first,
           ...A.applicantStatuses.map(group),
-          ...records.map((row) => group(row.status)),
         ]),
       ];
       host.replaceChildren();

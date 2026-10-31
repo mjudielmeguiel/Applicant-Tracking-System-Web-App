@@ -104,7 +104,7 @@
     .map((status) => `<option value="${esc(status)}">${esc(status)}</option>`)
     .join("");
   filter.insertAdjacentHTML("beforeend", options);
-  fields.status.innerHTML = options;
+  fields.status.innerHTML = '<option value="">Select status</option>' + options;
   const pageUrl = new URL(window.location.href);
   if (statuses.includes(pageUrl.searchParams.get("status")))
     filter.value = pageUrl.searchParams.get("status");
@@ -189,7 +189,7 @@
         <td><span class="applicant-name">${esc(record.name || "Unnamed applicant")}</span><span class="applicant-ref">#${esc(shortId)}</span></td>
         <td>${esc(record.position || "—")}<span class="applicant-ref">${esc([record.source, record.site].filter(Boolean).join(" · "))}</span></td>
         <td>${esc(record.phone || "—")}${record.email ? `<span class="applicant-email">${esc(record.email)}</span>` : ""}</td>
-        <td><span class="record-badge ${statusTone(record.status)}">${esc(record.status || "Screened")}</span></td>
+        <td><span class="record-badge ${statusTone(record.status)}">${esc(record.status || "Not recorded")}</span><div class="applicant-requirements-status"><span>Ongoing requirements status</span>${esc(String(record.db?.["Ongoing Requirements Status"] || record["Ongoing Requirements Status"] || "").trim() || "Not provided")}</div></td>
         <td class="applicant-dates-cell">${statusTools.dates(record)}</td>
         <td class="requirements-cell"><span>${progress}%</span><div class="progress-track" role="progressbar" aria-label="Requirements for ${esc(record.name)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${progress}"><div class="progress-fill" style="width:${progress}%"></div></div></td>
         <td><button type="button" class="btn-sm ghost" data-edit="${esc(record.id)}" aria-label="Edit ${esc(record.name)}">Details / documents</button></td>
@@ -279,7 +279,7 @@
       input.value = value;
     });
     fields.dateApplied.value = fields.dateApplied.value || A.today();
-    fields.status.value = fields.status.value || "Screened";
+    fields.status.value = statuses.includes(row.Status) ? row.Status : (statuses.find(status => statusTools.group(status) === statusTools.group(row.Status)) || "");
     statusTools.formOpened();
     documentTypes.forEach((type, i) => {
       document.getElementById("requirement_" + i).value = row[type] || "";

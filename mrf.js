@@ -10,6 +10,7 @@
   const primary = fields.find(field => field.primary) || fields.find(field => field.key === 'MRFID') || fields[0];
   const sheetField = fields.find(field => field.key === 'ExcelSheet');
   const statusField = fields.find(field => field.key === 'STATUS');
+  const siteField = fields.find(field => field.key === 'Site');
   const dateFields = fields.filter(field => field.type === 'date' || field.type === 'datetime');
   const editableFields = fields.filter(field => !field.readOnly && !field.primary);
   const hiddenColumns = new Set();
@@ -74,6 +75,7 @@
     const query = $('mrfSearch').value.trim().toLowerCase();
     const sheet = $('mrfSheet').value;
     const status = $('mrfStatus').value;
+    const site = $('mrfSite').value;
     const from = $('mrfFrom').value;
     const to = $('mrfTo').value;
     const dateKey = $('mrfDateField').value;
@@ -82,6 +84,7 @@
     filtered = invalidRange ? [] : records.filter(record => {
       if (query && !fields.some(field => text(value(record, field.key)).toLowerCase().includes(query))) return false;
       if (sheet && (!sheetField || text(value(record, sheetField.key)) !== sheet)) return false;
+      if (site && (!siteField || text(value(record, siteField.key)) !== site)) return false;
       if (status && (!statusField || text(value(record, statusField.key)) !== status)) return false;
       const date = dateKey ? dateValue(record, dateKey) : '';
       return (!from || date >= from) && (!to || date && date <= to);
@@ -144,6 +147,7 @@
       lastSync = new Date();
       fillOptions('mrfSheet', sheetField, 'All worksheets');
       fillOptions('mrfStatus', statusField, 'All statuses');
+      fillOptions('mrfSite', siteField, 'All sites');
       setConnection('connected', 'Connected to Supabase · MRF Monitoring');
       $('mrfGridHelp').textContent = S.context?.companyConfigured
         ? 'All records are read from and saved to Supabase for AdminID ' + S.context.AdminID + '.'
@@ -289,6 +293,7 @@
   if (!dateFields.length) ['mrfDateField', 'mrfFrom', 'mrfTo'].forEach(id => { $(id).disabled = true; });
   $('mrfSheet').disabled = !sheetField;
   $('mrfStatus').disabled = !statusField;
+  $('mrfSite').disabled = !siteField;
   $('refreshMrfs').addEventListener('click', loadRecords);
   $('retryMrfs').addEventListener('click', loadRecords);
   $('addMrf').addEventListener('click', () => openForm());
@@ -313,9 +318,9 @@
     if (record && source) showSource(record, source.dataset.sourceField);
   });
   $('mrfSearch').addEventListener('input', () => applyFilters(true));
-  ['mrfSheet', 'mrfStatus', 'mrfDateField', 'mrfFrom', 'mrfTo'].forEach(id => $(id).addEventListener('change', () => applyFilters(true)));
+  ['mrfSheet', 'mrfSite', 'mrfStatus', 'mrfDateField', 'mrfFrom', 'mrfTo'].forEach(id => $(id).addEventListener('change', () => applyFilters(true)));
   $('clearMrfFilters').addEventListener('click', () => {
-    ['mrfSearch', 'mrfSheet', 'mrfStatus', 'mrfFrom', 'mrfTo'].forEach(id => { $(id).value = ''; });
+    ['mrfSearch', 'mrfSheet', 'mrfSite', 'mrfStatus', 'mrfFrom', 'mrfTo'].forEach(id => { $(id).value = ''; });
     applyFilters(true);
   });
   $('mrfPageSize').addEventListener('change', () => { page = 1; renderGrid(); });

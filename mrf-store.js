@@ -202,7 +202,7 @@
     },
     {
       key: "SOURCED BY ALABANG",
-      label: "SOURCED BY ALABANG",
+      label: "Sourced by",
       type: "integer",
       primary: false,
       readOnly: false,
