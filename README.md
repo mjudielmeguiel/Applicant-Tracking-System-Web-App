@@ -1,83 +1,52 @@
-# Applicant Tracking System — Admin Account Creation (Supabase)
+# Applicant Tracking System
 
-This package contains your ATS pages with the **Create Admin Account**
-modal on `login.html` wired up to Supabase. Opening it, filling the
-form, and submitting inserts a real row into the `admins` table of
-your `ApplicantDB` project — no Google sign-in, no email-confirmation
-step.
+A static HTML, CSS, and JavaScript recruitment workspace. No build step is required.
 
-## Files
+## Run locally
 
-- `login.html` — Sign In page + **working** "Create an admin account" modal
-- `dashboard.html` — Dashboard screen (unchanged)
-- `mrf-monitoring.html` — MRF Monitoring screen (unchanged)
-- `styles.css` — shared styles (unchanged)
+With Node.js installed, run:
 
-## What the signup form does
+```sh
+npm start
+```
 
-1. Checks the username/email format, then checks Supabase to make sure
-   that username/email isn't already in `admins`.
-2. Hashes the password in the browser with bcrypt (`dcodeIO.bcrypt`,
-   loaded from CDN) — the plaintext password is never sent to Supabase.
-3. If a profile picture was uploaded, converts it to the hex format
-   Postgres expects for a `bytea` column.
-4. Inserts one row into `admins` with: `FullName`, `Username`, `Email`,
-   `PasswordHash`, and `ProfilePicture` (if provided). `RoleID`,
-   `Status`, `CreatedAt`, `UpdatedAt` are left out on purpose so the
-   table's own defaults apply (`RoleID` 2, `Status` 'Active', `now()`).
+Open [the local app](http://127.0.0.1:3000). Sign in through `index.html`, or open [the dashboard](http://127.0.0.1:3000/dashboard.html) to review the workspace directly. The existing Supabase sign-in and administrator signup remain in `index.html`.
 
-The Supabase project URL and publishable (anon) key are already filled
-in inside `login.html`.
+## Workspace pages
 
-## One-time setup in Supabase — required
+- **Dashboard** — actual applicant totals, monthly application chart with year selection, recruitment pipeline, recent applicants, and upcoming events/meetings.
+- **Applicant Masterlist** — create/edit applicants, contact details, application dates, hiring stages, requirements completion, search/status filters, and CSV export.
+- **MRF Monitoring** — create/edit manpower requisitions, position/department/headcount/status tracking, date/search/status filters, CSV export, and the shared applicant pipeline.
+- **Users List** — read the existing Supabase `admins` directory, search/filter accounts, and refresh. If Supabase is unreachable or access is denied, the page explains the failure and shows only saved current-session details when available. Unknown account status is labeled explicitly.
+- **Calendar** — previous/next month and Today controls, daily and monthly applicant/event/meeting counts, selected-day agenda, and a create/edit event modal. Events support an optional applicant, start/end time, location, and notes. Deleting an event requires confirmation. All seven calendar columns fit on phones; colored dots match the category legend.
 
-The publishable key only works if your `admins` table allows inserts
-from it. In the Supabase dashboard:
+Sidebar links work on every workspace page. Collapse preference is shared between pages. Calendar applicant links open the corresponding applicant details.
 
-1. **Table Editor → `admins` → RLS** — if Row Level Security is
-   enabled (it is by default), add a policy that allows `INSERT` for
-   the `anon` role, e.g.:
-   ```sql
-   create policy "Allow anon signup inserts"
-   on public.admins
-   for insert
-   to anon
-   with check (true);
-   ```
-   If RLS is currently *off* for this table, inserts will already work
-   without this step — but turning RLS on later will block the form
-   until the policy above exists.
+## Data storage
 
-2. **`AdminID` auto-increment** — make sure `AdminID` is set as an
-   **Identity** column (Table Editor → column → "is Identity") so
-   Postgres assigns it automatically. The form doesn't send `AdminID`.
+The project contains an existing Supabase `admins` connection, but no applicant, requisition, or event database schema. These new records are therefore saved with browser `localStorage`:
 
-3. **Unique constraints (recommended)** — add unique constraints on
-   `Username` and `Email` in the table so two people can't slip past
-   the client-side check at the same moment:
-   ```sql
-   alter table public.admins add constraint admins_username_unique unique ("Username");
-   alter table public.admins add constraint admins_email_unique unique ("Email");
-   ```
+| Key | Records |
+| --- | --- |
+| `ats_applicants` | Applicants, status, application date, and requirements completion |
+| `ats_mrfs` | Manpower requisitions |
+| `ats_events` | Calendar events and meetings |
+| `ats_user` | Existing signed-in administrator details |
+| `ats_sidebar_collapsed` | Sidebar preference |
 
-## Security note
+Applicant calendar counts use **Date applied**. Linked calendar events do not duplicate applicants in that count. Dates use local calendar days, avoiding UTC date shifts. End times must follow start times on the same day; leaving both blank creates an all-day item.
 
-This keeps things simple for a school/portfolio project: the anon key
-is public by nature (it's meant to be used from the browser), and the
-RLS insert policy above is what limits what it can do — restrict it to
-`insert` only, don't grant it `select`/`update`/`delete` on `admins`.
-For a production system you'd move account creation to a Supabase Edge
-Function (or Supabase Auth) so the password hash and any role logic
-never run on the client at all.
+Browser records are shared across these pages and tabs on the same origin. They remain after refresh, but do not synchronize to other devices or separate browser profiles, and are not isolated by administrator account. Use a consistent local server origin and port. Clearing site data removes these records. Connecting them to a shared backend requires a database schema and access rules; the UI currently labels browser storage explicitly.
 
-## Testing it
+The Users List requests only `AdminID`, `FullName`, `Username`, `Email`, `RoleID`, `Status`, and `CreatedAt` from the existing `admins` table. It does not retrieve password hashes or modify accounts. Supabase must permit this directory read through the existing project configuration.
 
-1. Open `login.html` in a browser (serve it with a local server, e.g.
-   `npx serve .`, rather than opening the file directly — Supabase's
-   client library needs a real `http://` origin, not `file://`).
-2. Click **Sign up**, fill the form, submit.
-3. Check **Table Editor → admins** in Supabase — the new row should
-   appear with `RoleID` 2 and `Status` "Active".
+## Browser verification
 
-Note: the Sign In form itself is still a front-end demo and isn't
-wired to Supabase yet — that's a separate step from account creation.
+```sh
+npm install
+npm test
+```
+
+Tests use Playwright with installed Microsoft Edge on Windows. On other systems, install Chromium once with `npx playwright install chromium`. The browser test starts its own temporary local server and uses an isolated browser profile and mocked administrator responses, so it does not change real records or submit to Supabase.
+
+The checks cover sidebar navigation and saved collapse preference, applicant create/edit/filter, dashboard counts/chart, calendar counts and persistence, create/edit/delete events, invalid time ranges, selected-date defaults, applicant links, MRF create/edit/filter, users/offline fallback, and layouts at phone/tablet widths. Screenshots are saved in the ignored `test-results/` directory for visual review.

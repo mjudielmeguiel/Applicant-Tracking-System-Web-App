@@ -1,273 +1,66 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Dashboard — Applicant Tracking System</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="styles.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard — Applicant Tracking System</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="app.css">
+  <script src="app.js" defer></script>
+  <script src="dashboard.js" defer></script>
 </head>
 <body>
-
 <div class="app-shell">
-
-  <!-- Sidebar -->
-  <nav class="sidebar" id="sidebar">
+  <nav class="sidebar" id="sidebar" aria-label="Main navigation">
     <div class="sidebar-brand">
-      <div class="sidebar-brand-left">
-        <div class="sidebar-logo">CN</div>
-        <span class="sidebar-name">Applicant Tracking</span>
-      </div>
-      <button type="button" class="sidebar-toggle-btn" id="sidebarToggle" aria-label="Toggle sidebar" title="Toggle sidebar">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-          <line x1="9" y1="3" x2="9" y2="21"/>
-        </svg>
+      <div class="sidebar-brand-left"><div class="sidebar-logo">CN</div><span class="sidebar-name">Applicant Tracking</span></div>
+      <button type="button" class="sidebar-toggle-btn" id="sidebarToggle" aria-label="Collapse sidebar" title="Collapse sidebar">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 3v18"/></svg>
       </button>
     </div>
-
-    <a href="dashboard.html" class="nav-link active" title="Dashboard">
-      <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-      <span class="nav-text">Dashboard</span>
-    </a>
-    <a href="#" class="nav-link" title="Applicant Masterlist">
-      <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-      <span class="nav-text">Applicant Masterlist</span>
-    </a>
-    <a href="mrf-monitoring.html" class="nav-link" title="MRF Monitoring">
-      <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-      <span class="nav-text">MRF Monitoring</span>
-    </a>
-    <!-- Links to the separate users.html page -->
-    <a href="users.html" class="nav-link" title="Users List">
-      <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 1 0 7.75"/></svg>
-      <span class="nav-text">Users List</span>
-    </a>
-    <a href="#" class="nav-link" title="Calendar">
-      <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-      <span class="nav-text">Calendar</span>
-    </a>
-    
+    <a href="dashboard.html" class="nav-link active" title="Dashboard"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span class="nav-text">Dashboard</span></a>
+    <a href="applicant-masterlist.html" class="nav-link" title="Applicant Masterlist"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M8 13h8M8 17h5"/></svg><span class="nav-text">Applicant Masterlist</span></a>
+    <a href="mrf-monitoring.html" class="nav-link" title="MRF Monitoring"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg><span class="nav-text">MRF Monitoring</span></a>
+    <a href="users.html" hidden class="nav-link" title="Users List"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3 21v-3a6 6 0 0 1 12 0v3M16 5a3 3 0 0 1 0 6M21 21v-3a6 6 0 0 0-3-5"/></svg><span class="nav-text">Users List</span></a>
+    <a href="calendar.html" class="nav-link" title="Calendar"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18"/></svg><span class="nav-text">Calendar</span></a>
     <div class="sidebar-spacer"></div>
-
-    <a href="index.html" class="nav-link" id="logoutBtn" title="Log out">
-      <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-      <span class="nav-text">Log out</span>
-    </a>
+    <a href="index.html" class="nav-link" id="logoutBtn" title="Log out"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg><span class="nav-text">Log out</span></a>
   </nav>
-
   <main class="main">
-    <!-- Topbar with Real-time Clock and Logged-in Admin Name -->
-    <div class="topbar">
-      <div>
-        <h1 id="userGreeting">Good afternoon, User</h1>
-        <p class="meta" id="realtimeMeta">HR Administrator · Loading time...</p>
-      </div>
-      <div class="avatar" id="userAvatar">JM</div>
+    <header class="topbar">
+      <div><h1 id="userGreeting">Welcome, Administrator</h1><p class="meta" id="realtimeMeta"></p></div>
+      <div class="avatar" id="userAvatar">AD</div>
+    </header>
+    <div class="page-heading">
+      <div><p class="eyebrow">Your hiring workspace</p><h2>Recruitment overview</h2><p>A clear view of your applicants, pipeline, and upcoming schedule.</p></div>
+      <div class="page-actions"><a class="btn-sm ghost" href="calendar.html?add=1">+ Add event</a><a class="btn-sm primary" href="applicant-masterlist.html?add=1">+ Add applicant</a></div>
     </div>
-
-    <!-- Stat Grid -->
-    <div class="stat-grid">
-      <div class="card stat-card">
-        <div class="stat-label">SCREENED</div>
-        <div class="stat-value">0</div>
-      </div>
-      <div class="card stat-card">
-        <div class="stat-label">PHONE INTERVIEW</div>
-        <div class="stat-value">0</div>
-      </div>
-      <div class="card stat-card">
-        <div class="stat-label">FINAL INTERVIEW</div>
-        <div class="stat-value">0</div>
-      </div>
-      <div class="card stat-card">
-        <div class="stat-label">TOTAL APPLICANTS</div>
-        <div class="stat-value accent">0</div>
-      </div>
-    </div>
-
-    <!-- Analytics Panels -->
+    <section class="stat-grid" aria-label="Applicant summary">
+      <div class="card stat-card"><span class="stat-symbol" aria-hidden="true">◎</span><div class="stat-label">TOTAL APPLICANTS</div><div class="stat-value accent" id="totalCount">0</div><div class="stat-note">Across your hiring pipeline</div></div>
+      <div class="card stat-card"><span class="stat-symbol" aria-hidden="true">✓</span><div class="stat-label">SCREENED</div><div class="stat-value" id="screenedCount">0</div><div class="stat-note">Ready for the next step</div></div>
+      <div class="card stat-card"><span class="stat-symbol" aria-hidden="true">◷</span><div class="stat-label">PHONE INTERVIEW</div><div class="stat-value" id="phoneCount">0</div><div class="stat-note">In the phone interview stage</div></div>
+      <div class="card stat-card"><span class="stat-symbol" aria-hidden="true">↗</span><div class="stat-label">FINAL INTERVIEW</div><div class="stat-value" id="finalCount">0</div><div class="stat-note">In the final interview stage</div></div>
+    </section>
     <div class="panel-row">
-      <div class="card panel">
-        <div class="panel-title">Applicants per Month</div>
-        <div class="bars">
-          <div class="bar" style="height:14%"></div>
-          <div class="bar" style="height:10%"></div>
-          <div class="bar" style="height:18%"></div>
-          <div class="bar" style="height:8%"></div>
-          <div class="bar" style="height:12%"></div>
-          <div class="bar" style="height:16%"></div>
-          <div class="bar" style="height:9%"></div>
-          <div class="bar" style="height:20%"></div>
-          <div class="bar highlight" style="height:100%"></div>
-          <div class="bar highlight" style="height:22%"></div>
-          <div class="bar" style="height:7%"></div>
-          <div class="bar" style="height:11%"></div>
-        </div>
-        <div class="bar-labels">
-          <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span>
-          <span>May</span><span>Jun</span><span>Jul</span><span>Aug</span>
-          <span class="highlight">Sep</span><span class="highlight">Oct</span>
-          <span>Nov</span><span>Dec</span>
-        </div>
-      </div>
-
-<div class="card panel">
-  <div class="panel-title">Pipeline Status</div>
-  <div class="pipeline-list">
-    <div class="progress-row">
-      <div class="progress-head"><span>Screened</span><span>65%</span></div>
-      <div class="progress-track"><div class="progress-fill" style="width:65%"></div></div>
+      <section class="card panel" aria-labelledby="monthlyTitle">
+        <div class="section-heading"><div><h2 id="monthlyTitle">Applicants per month</h2><p class="section-subtitle">Applications received throughout the year</p></div><label><span class="field-label" style="position:absolute;clip-path:inset(50%);width:1px;height:1px;overflow:hidden">Chart year</span><select class="year-select" id="chartYear" aria-label="Chart year"></select></label></div>
+        <div class="dashboard-chart" id="monthlyChart" role="img" aria-label="Monthly applicant counts"></div>
+        <div class="chart-months" aria-hidden="true"><span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span><span>Jul</span><span>Aug</span><span>Sep</span><span>Oct</span><span>Nov</span><span>Dec</span></div>
+        <p class="chart-empty" id="chartSummary"></p>
+      </section>
+      <section class="card panel" aria-labelledby="pipelineTitle"><div class="section-heading"><div><h2 id="pipelineTitle">Pipeline status</h2><p class="section-subtitle">Applicants at each stage of recruitment</p></div></div><div class="pipeline-list" id="pipelineList"></div></section>
     </div>
-    <div class="progress-row">
-      <div class="progress-head"><span>HR Avatar</span><span>40%</span></div>
-      <div class="progress-track"><div class="progress-fill" style="width:40%"></div></div>
+    <div class="panel-row">
+      <section class="table-card" aria-labelledby="recentTitle">
+        <div class="table-card-head"><div><h2 id="recentTitle">Recent applicants</h2><p class="section-subtitle">The latest additions to your masterlist</p></div><a href="applicant-masterlist.html" class="btn-sm ghost">View all →</a></div>
+        <div class="table-scroll"><table><thead><tr><th scope="col">Applicant</th><th scope="col">Position</th><th scope="col">Status</th><th scope="col">Date applied</th></tr></thead><tbody id="recentApplicants"></tbody></table></div>
+        <div class="table-footer" id="applicantSummary">0 applicants</div>
+      </section>
+      <section class="card panel" aria-labelledby="scheduleTitle"><div class="section-heading"><div><h2 id="scheduleTitle">Upcoming schedule</h2><p class="section-subtitle">Your next events and meetings</p></div><a href="calendar.html">Calendar →</a></div><div class="schedule-list" id="upcomingSchedule"></div></section>
     </div>
-    <div class="progress-row">
-      <div class="progress-head"><span>Phone Interview</span><span>55%</span></div>
-      <div class="progress-track"><div class="progress-fill" style="width:55%"></div></div>
-    </div>
-    <div class="progress-row">
-      <div class="progress-head"><span>Final Interview</span><span>50%</span></div>
-      <div class="progress-track"><div class="progress-fill" style="width:50%"></div></div>
-    </div>
-    <div class="progress-row">
-      <div class="progress-head"><span>Orientation</span><span>30%</span></div>
-      <div class="progress-track"><div class="progress-fill" style="width:30%"></div></div>
-    </div>
-    <div class="progress-row">
-      <div class="progress-head"><span>Ongoing</span><span>45%</span></div>
-      <div class="progress-track"><div class="progress-fill muted" style="width:45%"></div></div>
-    </div>
-    <div class="progress-row">
-      <div class="progress-head"><span>Deployed</span><span>25%</span></div>
-      <div class="progress-track"><div class="progress-fill success" style="width:25%"></div></div>
-    </div>
-    <div class="progress-row">
-      <div class="progress-head"><span>Hired</span><span>20%</span></div>
-      <div class="progress-track"><div class="progress-fill success" style="width:20%"></div></div>
-    </div>
-    <div class="progress-row">
-      <div class="progress-head"><span>Rejected</span><span>15%</span></div>
-      <div class="progress-track"><div class="progress-fill danger" style="width:15%"></div></div>
-    </div>
-    <div class="progress-row">
-      <div class="progress-head"><span>Inactive</span><span>5%</span></div>
-      <div class="progress-track"><div class="progress-fill danger" style="width:5%"></div></div>
-    </div>
-    <div class="progress-row">
-      <div class="progress-head"><span>No Show</span><span>10%</span></div>
-      <div class="progress-track"><div class="progress-fill danger" style="width:10%"></div></div>
-    </div>
-    <div class="progress-row">
-      <div class="progress-head"><span>Backout</span><span>8%</span></div>
-      <div class="progress-track"><div class="progress-fill danger" style="width:8%"></div></div>
-    </div>
-    <div class="progress-row">
-      <div class="progress-head"><span>Pooling</span><span>35%</span></div>
-      <div class="progress-track"><div class="progress-fill warning" style="width:35%"></div></div>
-    </div>
-    <div class="progress-row">
-      <div class="progress-head"><span>For Exam</span><span>20%</span></div>
-      <div class="progress-track"><div class="progress-fill warning" style="width:20%"></div></div>
-    </div>
-    <div class="progress-row">
-      <div class="progress-head"><span>No Answer</span><span>12%</span></div>
-      <div class="progress-track"><div class="progress-fill danger" style="width:12%"></div></div>
-    </div>
-    <div class="progress-row">
-      <div class="progress-head"><span>Job Offer</span><span>18%</span></div>
-      <div class="progress-track"><div class="progress-fill success" style="width:18%"></div></div>
-    </div>
-  </div>
-</div>
-
-    <!-- Applicants Table -->
-    <div class="table-card">
-      <div class="table-card-head">
-        <div class="panel-title" style="margin:0">All Applicants</div>
-        <button class="btn-sm primary">+ Add New</button>
-      </div>
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th><th>Applicant Name</th><th>Position Applied</th><th>Status</th><th>Date Applied</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td colspan="5" class="empty-state">No applicants to display yet</td></tr>
-        </tbody>
-      </table>
-    </div>
-
+    <p class="storage-note">Applicant and MRF records are saved to Supabase; calendar events remain in this browser.</p>
   </main>
 </div>
-
-<script>
-(function () {
-  // ---------- SIDEBAR TOGGLE ----------
-  const sidebar = document.getElementById('sidebar');
-  const sidebarToggle = document.getElementById('sidebarToggle');
-
-  if (localStorage.getItem('ats_sidebar_collapsed') === 'true') {
-    sidebar.classList.add('collapsed');
-  }
-
-  sidebarToggle.addEventListener('click', function () {
-    sidebar.classList.toggle('collapsed');
-    localStorage.setItem('ats_sidebar_collapsed', sidebar.classList.contains('collapsed'));
-  });
-
-  // ---------- LOGGED-IN ADMIN GREETING & REALTIME CLOCK ----------
-  const userGreeting = document.getElementById('userGreeting');
-  const realtimeMeta = document.getElementById('realtimeMeta');
-  const userAvatar = document.getElementById('userAvatar');
-
-  const savedUserJson = localStorage.getItem('ats_user');
-  let currentUser = null;
-  
-  if (savedUserJson) {
-    try { currentUser = JSON.parse(savedUserJson); } catch (e) {}
-  }
-
-  if (currentUser && currentUser.name) {
-    const fullName = currentUser.name;
-    const nameParts = fullName.trim().split(' ');
-    let initials = 'AU';
-    if (nameParts.length >= 2) {
-      initials = (nameParts[0][0] + nameParts[nameParts.length - 1][0]).toUpperCase();
-    } else if (nameParts.length === 1 && nameParts[0].length > 0) {
-      initials = nameParts[0].substring(0, 2).toUpperCase();
-    }
-    userAvatar.textContent = initials;
-
-    function updateClock() {
-      const now = new Date();
-      const hours = now.getHours();
-      let timeOfDay = 'day';
-      if (hours < 12) timeOfDay = 'morning';
-      else if (hours < 18) timeOfDay = 'afternoon';
-      else timeOfDay = 'evening';
-
-      userGreeting.textContent = `Good ${timeOfDay}, ${fullName}`;
-
-      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
-      realtimeMeta.textContent = `HR Administrator · ${now.toLocaleDateString('en-US', options)}`;
-    }
-
-    updateClock();
-    setInterval(updateClock, 1000);
-  } else {
-    userGreeting.textContent = 'Good day, Administrator';
-    realtimeMeta.textContent = 'HR Administrator · ' + new Date().toLocaleDateString('en-US');
-  }
-
-  // ---------- LOGOUT CLEAR ----------
-  document.getElementById('logoutBtn').addEventListener('click', function () {
-    localStorage.removeItem('ats_user');
-  });
-})();
-</script>
-
 </body>
 </html>

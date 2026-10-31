@@ -1,0 +1,123 @@
+.catalog-dialog {
+  max-width: 900px;
+}
+.catalog-tabs {
+  display: flex;
+  gap: 6px;
+  padding: 18px 26px 8px;
+}
+.catalog-tabs button {
+  border: 1px solid #dce4ef;
+  border-radius: 8px;
+  background: #fff;
+  padding: 9px 14px;
+  font-size: 12px;
+  color: #405b73;
+  cursor: pointer;
+}
+.catalog-tabs button[aria-pressed="true"] {
+  background: #173c59;
+  color: #fff;
+  border-color: #173c59;
+}
+.catalog-scope {
+  padding: 5px 26px 16px;
+  color: #718599;
+  font-size: 11px;
+}
+.catalog-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(240px, 1fr);
+  gap: 24px;
+  padding: 0 26px 26px;
+}
+.catalog-layout h3 {
+  font-size: 14px;
+  margin: 0 0 15px;
+}
+.catalog-list-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+}
+.catalog-table {
+  max-height: 350px;
+  overflow: auto;
+  border: 1px solid #e6edf3;
+  border-radius: 9px;
+}
+.catalog-table td {
+  font-size: 12px;
+  padding: 12px;
+}
+.catalog-table th {
+  font-size: 10px;
+  padding: 11px;
+  white-space: nowrap;
+}
+.catalog-table .link-btn {
+  font-size: 11px;
+  white-space: nowrap;
+}
+.catalog-layout form {
+  background: #f5f8fb;
+  border: 1px solid #e5ecf3;
+  padding: 20px;
+  border-radius: 10px;
+  align-self: start;
+}
+.catalog-layout form .field-label {
+  font-size: 12px;
+  margin-top: 14px;
+}
+.catalog-layout form .btn-sm {
+  margin-top: 14px;
+}
+.catalog-form-note {
+  font-size: 11px;
+  color: #728599;
+  line-height: 1.7;
+  margin-top: 15px;
+}
+.catalog-dialog > .form-error,
+.catalog-dialog > .form-success {
+  margin: 0 26px 16px;
+}
+.catalog-dialog .dialog-actions {
+  align-items: center;
+  justify-content: space-between;
+}
+.catalog-dialog .dialog-actions span {
+  font-size: 11px;
+  color: #7a8da0;
+}
+.catalog-layout > section,
+.catalog-layout > form {
+  min-width: 0;
+}
+.catalog-table {
+  width: 100%;
+  max-width: 100%;
+}
+@media (max-width: 700px) {
+  .catalog-layout {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 0 18px 18px;
+    gap: 20px;
+  }
+  .catalog-tabs {
+    padding: 16px 18px 8px;
+    flex-wrap: wrap;
+  }
+  .catalog-scope {
+    padding: 6px 18px 16px;
+  }
+  .catalog-table {
+    max-height: 240px;
+  }
+  .catalog-dialog > .form-error,
+  .catalog-dialog > .form-success {
+    margin: 0 18px 16px;
+  }
+}

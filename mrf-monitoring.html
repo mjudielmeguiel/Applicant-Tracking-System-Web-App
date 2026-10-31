@@ -1,161 +1,54 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>MRF Monitoring — Applicant Tracking System</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="app.css"><link rel="stylesheet" href="mrf.css">
 </head>
-<body>
-
-<div class="app-shell">
-
-  <nav class="sidebar">
-    <div class="sidebar-brand">
-      <div class="sidebar-logo">CN</div>
-      <span class="sidebar-name">Applicant Tracking</span>
-    </div>
-    <a href="dashboard.html" class="nav-link">Dashboard</a>
-    <a href="#" class="nav-link">Applicant Masterlist</a>
-    <a href="mrf-monitoring.html" class="nav-link active">MRF Monitoring</a>
-    <a href="#" class="nav-link">Calendar</a>
-    <div class="sidebar-spacer"></div>
-    <a href="login.html" class="nav-link">Log out</a>
-  </nav>
-
-  <main class="main">
-    <div class="topbar">
-      <h1>MRF Monitoring</h1>
-      <div style="display:flex; gap:10px;">
-        <button class="btn-sm ghost">Export</button>
-        <button class="btn-sm primary">Create New</button>
-      </div>
-    </div>
-
-    <!-- Stat Grid -->
-    <div class="stat-grid cols-5">
-      <div class="card stat-card">
-        <div class="stat-label">SCREENED</div>
-        <div class="stat-value">0</div>
-      </div>
-      <div class="card stat-card">
-        <div class="stat-label">HIRED</div>
-        <div class="stat-value positive">0</div>
-      </div>
-      <div class="card stat-card">
-        <div class="stat-label">JOB OFFER</div>
-        <div class="stat-value">0</div>
-      </div>
-      <div class="card stat-card">
-        <div class="stat-label">REJECTED</div>
-        <div class="stat-value negative">0</div>
-      </div>
-      <div class="card stat-card">
-        <div class="stat-label">TOTAL APPLICANTS</div>
-        <div class="stat-value accent">0</div>
-      </div>
-    </div>
-
-    <!-- NEW Pipeline Status Widget -->
-    <div class="panel-row" style="grid-template-columns: 1fr; margin-bottom: 24px;">
-      <div class="card panel">
-        <div class="panel-title">MRF Pipeline Status</div>
-        <div class="pipeline-list">
-          <div class="progress-row">
-            <div class="progress-head"><span>Screened</span><span>0%</span></div>
-            <div class="progress-track"><div class="progress-fill" style="width:0%"></div></div>
-          </div>
-          <div class="progress-row">
-            <div class="progress-head"><span>HR Avatar</span><span>0%</span></div>
-            <div class="progress-track"><div class="progress-fill" style="width:0%"></div></div>
-          </div>
-          <div class="progress-row">
-            <div class="progress-head"><span>Phone Interview</span><span>0%</span></div>
-            <div class="progress-track"><div class="progress-fill" style="width:0%"></div></div>
-          </div>
-          <div class="progress-row">
-            <div class="progress-head"><span>Final Interview</span><span>0%</span></div>
-            <div class="progress-track"><div class="progress-fill" style="width:0%"></div></div>
-          </div>
-          <div class="progress-row">
-            <div class="progress-head"><span>Orientation</span><span>0%</span></div>
-            <div class="progress-track"><div class="progress-fill" style="width:0%"></div></div>
-          </div>
-          <div class="progress-row">
-            <div class="progress-head"><span>Ongoing</span><span>0%</span></div>
-            <div class="progress-track"><div class="progress-fill muted" style="width:0%"></div></div>
-          </div>
-          <div class="progress-row">
-            <div class="progress-head"><span>Deployed</span><span>0%</span></div>
-            <div class="progress-track"><div class="progress-fill success" style="width:0%"></div></div>
-          </div>
-          <div class="progress-row">
-            <div class="progress-head"><span>Hired</span><span>0%</span></div>
-            <div class="progress-track"><div class="progress-fill success" style="width:0%"></div></div>
-          </div>
-          <div class="progress-row">
-            <div class="progress-head"><span>Rejected</span><span>0%</span></div>
-            <div class="progress-track"><div class="progress-fill danger" style="width:0%"></div></div>
-          </div>
-          <div class="progress-row">
-            <div class="progress-head"><span>Inactive</span><span>0%</span></div>
-            <div class="progress-track"><div class="progress-fill danger" style="width:0%"></div></div>
-          </div>
-          <div class="progress-row">
-            <div class="progress-head"><span>No Show</span><span>0%</span></div>
-            <div class="progress-track"><div class="progress-fill danger" style="width:0%"></div></div>
-          </div>
-          <div class="progress-row">
-            <div class="progress-head"><span>Backout</span><span>0%</span></div>
-            <div class="progress-track"><div class="progress-fill danger" style="width:0%"></div></div>
-          </div>
-          <div class="progress-row">
-            <div class="progress-head"><span>Pooling</span><span>0%</span></div>
-            <div class="progress-track"><div class="progress-fill warning" style="width:0%"></div></div>
-          </div>
-          <div class="progress-row">
-            <div class="progress-head"><span>For Exam</span><span>0%</span></div>
-            <div class="progress-track"><div class="progress-fill warning" style="width:0%"></div></div>
-          </div>
-          <div class="progress-row">
-            <div class="progress-head"><span>No Answer</span><span>0%</span></div>
-            <div class="progress-track"><div class="progress-fill danger" style="width:0%"></div></div>
-          </div>
-          <div class="progress-row">
-            <div class="progress-head"><span>Job Offer</span><span>0%</span></div>
-            <div class="progress-track"><div class="progress-fill success" style="width:0%"></div></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Applicants Table -->
-    <div class="table-card">
-      <div class="table-toolbar">
-        <input type="text" placeholder="Search applicant..." style="flex:1; max-width:260px;">
-        <input type="text" value="Oct 29, 2026" readonly style="width:140px; color:#334155;">
-        <input type="text" value="Oct 29, 2026" readonly style="width:140px; color:#334155;">
-      </div>
-      <table>
-        <thead>
-          <tr>
-            <th>Applicant Name</th>
-            <th>Position Applied</th>
-            <th>Contact No.</th>
-            <th>Requirements %</th>
-            <th>Status</th>
-            <th>Date Applied</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td colspan="7" class="empty-state">No records found</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </main>
+<body><div class="app-shell">
+<nav class="sidebar" id="sidebar" aria-label="Main navigation">
+<div class="sidebar-brand"><div class="sidebar-brand-left"><div class="sidebar-logo">CN</div><span class="sidebar-name">Applicant Tracking</span></div><button type="button" class="sidebar-toggle-btn" id="sidebarToggle" aria-label="Toggle sidebar" title="Toggle sidebar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/></svg></button></div>
+<a href="dashboard.html" class="nav-link" title="Dashboard"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z"/></svg><span class="nav-text">Dashboard</span></a>
+<a href="applicant-masterlist.html" class="nav-link" title="Applicant Masterlist"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M8 13h8M8 17h5"/></svg><span class="nav-text">Applicant Masterlist</span></a>
+<a href="mrf-monitoring.html" class="nav-link active" title="MRF Monitoring" aria-current="page"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg><span class="nav-text">MRF Monitoring</span></a>
+<a href="users.html" hidden class="nav-link" title="Users List"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="9" cy="7" r="4"/><path d="M1 21v-2a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v2M17 3a4 4 0 0 1 0 8M23 21v-2a4 4 0 0 0-3-3.87"/></svg><span class="nav-text">Users List</span></a>
+<a href="calendar.html" class="nav-link" title="Calendar"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span class="nav-text">Calendar</span></a>
+<div class="sidebar-spacer"></div>
+<a href="index.html" class="nav-link" id="logoutBtn" title="Log out"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg><span class="nav-text">Log out</span></a>
+</nav>
+<main class="main mrf-main">
+<div class="topbar"><div><p class="eyebrow">Hiring operations</p><h1>MRF Monitoring</h1><p class="meta">Your complete manpower requisition workbook, connected to Supabase.</p></div><div class="avatar" id="userAvatar">AU</div></div>
+<div class="page-heading mrf-page-heading"><div><h2>Manpower requisitions</h2><p>Review every field, find a request, and keep your records up to date.</p></div><div class="page-actions"><button type="button" class="btn-sm ghost" id="refreshMrfs">↻ Refresh</button><button type="button" class="btn-sm ghost" id="exportMrfs" disabled>Export CSV</button><button type="button" class="btn-sm primary" id="addMrf" disabled>+ Create New</button></div></div>
+<div class="stat-grid mrf-stat-grid">
+<div class="card stat-card"><div class="stat-label">TOTAL RECORDS</div><div class="stat-value accent" id="mrfTotal">—</div><div class="stat-note">In MRF Monitoring</div></div>
+<div class="card stat-card"><div class="stat-label">MATCHING RECORDS</div><div class="stat-value" id="mrfMatching">—</div><div class="stat-note">With current filters</div></div>
+<div class="card stat-card"><div class="stat-label">SOURCE WORKSHEETS</div><div class="stat-value" id="mrfSheets">—</div><div class="stat-note">Preserved from the workbook</div></div>
+<div class="card stat-card"><div class="stat-label">DATABASE FIELDS</div><div class="stat-value" id="mrfFields">—</div><div class="stat-note" id="mrfFieldCountNote">All fields visible</div></div>
 </div>
-
-</body>
-</html>
+<section class="mrf-connection" id="mrfConnection" role="status" aria-live="polite"><span class="mrf-connection-dot" aria-hidden="true"></span><span id="mrfConnectionText">Connecting to Supabase…</span><span id="mrfLastSync"></span></section>
+<div class="form-error mrf-error" id="mrfError" role="alert" hidden><strong id="mrfErrorTitle">Unable to load MRF Monitoring</strong><p id="mrfErrorMessage"></p><button class="btn-sm ghost" type="button" id="retryMrfs">Try again</button></div>
+<section class="table-card mrf-grid-card" aria-labelledby="mrfTitle">
+<div class="table-card-head mrf-grid-head"><div><h2 id="mrfTitle">MRF Monitoring records</h2><p class="section-subtitle">Scroll horizontally to review all fields. Click a column heading to sort.</p></div>
+<details class="mrf-columns" id="mrfColumns"><summary class="btn-sm ghost">Columns <span id="mrfVisibleColumns"></span><span aria-hidden="true">⌄</span></summary><div class="mrf-column-panel"><div class="mrf-column-panel-head"><strong>Visible columns</strong><button class="link-btn" id="showAllMrfColumns" type="button">Show all</button></div><label class="sr-only" for="mrfColumnSearch">Find a column</label><input class="field-input" id="mrfColumnSearch" type="search" placeholder="Find a column…"><div class="mrf-column-options" id="mrfColumnOptions"></div></div></details>
+</div>
+<div class="filters mrf-filters">
+<div class="filter-field mrf-search-field"><label class="field-label" for="mrfSearch">Search all fields</label><input type="search" class="field-input" id="mrfSearch" placeholder="Search any value in the workbook"></div>
+<div class="filter-field"><label class="field-label" for="mrfSheet">Source worksheet</label><select class="field-input" id="mrfSheet"><option value="">All worksheets</option></select></div>
+<div class="filter-field"><label class="field-label" for="mrfStatus">Status</label><select class="field-input" id="mrfStatus"><option value="">All statuses</option></select></div>
+<div class="filter-field"><label class="field-label" for="mrfDateField">Date field</label><select class="field-input" id="mrfDateField"></select></div>
+<div class="filter-field mrf-date-filter"><label class="field-label" for="mrfFrom">From</label><input type="date" class="field-input" id="mrfFrom"></div>
+<div class="filter-field mrf-date-filter"><label class="field-label" for="mrfTo">To</label><input type="date" class="field-input" id="mrfTo"></div>
+<button type="button" class="btn-sm ghost mrf-clear-filters" id="clearMrfFilters">Clear filters</button>
+</div>
+<p class="form-error mrf-filter-error" id="mrfFilterError" role="alert" hidden>Choose an end date on or after the start date.</p>
+<div class="mrf-grid-scroll" id="mrfGridScroll" tabindex="0" role="region" aria-label="MRF Monitoring data grid; scroll horizontally for all columns">
+<table class="mrf-grid" id="mrfGrid" aria-describedby="mrfGridHelp"><thead id="mrfHead"></thead><tbody id="mrfBody"><tr><td class="empty-state">Loading MRF Monitoring records…</td></tr></tbody></table>
+</div>
+<div class="mrf-grid-footer"><div><div id="mrfCount" aria-live="polite">Connecting to Supabase…</div><p id="mrfGridHelp">All records are read from and saved to Supabase.</p></div><div class="mrf-pagination"><label for="mrfPageSize">Rows per page</label><select id="mrfPageSize"><option>25</option><option>50</option><option>100</option></select><button type="button" class="btn-sm ghost" id="mrfPrevious" aria-label="Previous page" disabled>‹</button><span id="mrfPageLabel">Page 1 of 1</span><button type="button" class="btn-sm ghost" id="mrfNext" aria-label="Next page" disabled>›</button></div></div>
+</section>
+</main></div>
+<dialog class="app-dialog mrf-dialog" id="mrfDialog" aria-labelledby="mrfDialogTitle"><form id="mrfForm"><div class="dialog-head"><div><h2 id="mrfDialogTitle">Create MRF record</h2><p>Complete the requisition details. Changes are saved to Supabase.</p></div><button class="dialog-close" type="button" data-close-mrf aria-label="Close MRF dialog">×</button></div><div class="dialog-body"><p class="form-error" id="mrfFormError" role="alert" hidden></p><div id="mrfFormFields"></div></div><div class="dialog-actions"><button type="button" class="btn-sm ghost" data-close-mrf>Cancel</button><button type="submit" class="btn-sm primary" id="saveMrf">Create record</button></div></form></dialog>
+<dialog class="app-dialog mrf-source-dialog" id="mrfSourceDialog" aria-labelledby="mrfSourceTitle"><div class="dialog-head"><div><h2 id="mrfSourceTitle">Original workbook data</h2><p>Preserved source values for this record.</p></div><button class="dialog-close" type="button" id="closeMrfSource" aria-label="Close source data">×</button></div><div class="dialog-body"><pre id="mrfSourceData"></pre></div></dialog>
+<script src="app.js"></script><script src="mrf-store.js"></script><script src="mrf.js"></script>
+</body></html>

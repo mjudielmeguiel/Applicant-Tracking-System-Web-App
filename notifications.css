@@ -1,0 +1,223 @@
+.activity-bell {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid #dbe3ed;
+  background: #fff;
+  color: #163457;
+  border-radius: 10px;
+  cursor: pointer;
+}
+.activity-bell:hover {
+  background: #edf3f9;
+}
+.activity-count {
+  position: absolute;
+  top: -5px;
+  right: -7px;
+  min-width: 19px;
+  padding: 2px 4px;
+  background: #0d726c;
+  color: #fff;
+  border: 2px solid #fff;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 700;
+}
+.activity-panel {
+  position: fixed;
+  z-index: 250;
+  right: 28px;
+  top: 82px;
+  width: 420px;
+  max-height: calc(100dvh - 100px);
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #dce4ed;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 20px 65px #17324d30;
+  color: #102a45;
+  overflow: hidden;
+}
+.activity-header {
+  padding: 22px 22px 18px;
+  border-bottom: 1px solid #e8edf3;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  background: linear-gradient(110deg, #f3f7fb, #fff);
+}
+.activity-eyebrow {
+  font-size: 9px;
+  letter-spacing: 1.8px;
+  font-weight: 700;
+  color: #497087;
+  margin: 0 0 8px;
+}
+.activity-header h2 {
+  font-size: 19px;
+  letter-spacing: -0.4px;
+  margin: 0 0 7px;
+}
+.activity-scope {
+  font-size: 11px;
+  margin: 0;
+  color: #708295;
+}
+.activity-close {
+  border: 0;
+  background: none;
+  color: #64748b;
+  font-size: 23px;
+  align-self: flex-start;
+  cursor: pointer;
+}
+.activity-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 14px 20px;
+}
+.activity-tabs {
+  display: flex;
+  background: #edf2f6;
+  padding: 3px;
+  border-radius: 7px;
+}
+.activity-toolbar button,
+.activity-summary button,
+.activity-panel footer button {
+  border: 0;
+  background: none;
+  font-size: 11px;
+  font-weight: 600;
+  color: #52677d;
+  padding: 7px 10px;
+  cursor: pointer;
+}
+.activity-tabs [aria-pressed="true"] {
+  background: #163652;
+  color: #fff;
+  border-radius: 5px;
+}
+.activity-summary {
+  padding: 0 22px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #718195;
+  font-size: 11px;
+}
+.activity-summary button {
+  color: #0b746c;
+  padding-right: 0;
+}
+.activity-items {
+  overflow: auto;
+  overscroll-behavior: contain;
+  min-height: 120px;
+}
+.activity-item {
+  width: 100%;
+  display: flex;
+  gap: 13px;
+  text-align: left;
+  border: 0;
+  border-top: 1px solid #edf1f5;
+  background: #fff;
+  padding: 16px 22px;
+  color: inherit;
+  cursor: pointer;
+}
+.activity-item:hover {
+  background: #f1f6fa;
+}
+.activity-item.is-unread {
+  background: #f5faf9;
+  box-shadow: inset 3px 0 #24877f;
+}
+.activity-initials {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 35px;
+  height: 35px;
+  border-radius: 9px;
+  background: #e9eff5;
+  color: #294963;
+  font-size: 11px;
+  font-weight: 700;
+}
+.activity-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.activity-type {
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 9px;
+  font-weight: 700;
+  color: #6a8195;
+}
+.activity-message {
+  font-size: 12px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.activity-copy time {
+  font-size: 10px;
+  color: #7a8b9b;
+}
+.activity-empty {
+  padding: 35px 25px;
+  text-align: center;
+  line-height: 1.7;
+  font-size: 12px;
+  color: #728398;
+}
+.activity-panel footer {
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  border-top: 1px solid #e8edf3;
+}
+.activity-panel footer span {
+  margin-left: auto;
+  font-size: 9px;
+  color: #8090a1;
+}
+.activity-panel #activityError {
+  margin: 0 20px 10px;
+  padding: 10px;
+  background: #fff5e7;
+  color: #80531b;
+  border-radius: 7px;
+  font-size: 11px;
+  line-height: 1.5;
+}
+@media (max-width: 600px) {
+  .activity-panel {
+    right: 12px;
+    left: 12px;
+    top: 76px;
+    width: auto;
+    max-height: calc(100dvh - 90px);
+  }
+  .activity-header {
+    padding: 18px;
+  }
+  .activity-item {
+    padding: 15px 18px;
+  }
+  .activity-panel footer span {
+    display: none;
+  }
+}

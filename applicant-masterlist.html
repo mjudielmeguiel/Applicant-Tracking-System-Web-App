@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Applicant Masterlist — Applicant Tracking System</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="app.css">
+  <link rel="stylesheet" href="applicants.css">
+  <script src="app.js" defer></script>
+  <script src="applicant-fields.js" defer></script>
+  <script src="applicant-status-tools.js" defer></script>
+  <script src="applicants.js" defer></script>
+</head>
+<body>
+<div class="app-shell">
+  <nav class="sidebar" id="sidebar" aria-label="Main navigation">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-left"><div class="sidebar-logo">CN</div><span class="sidebar-name">Applicant Tracking</span></div>
+      <button type="button" class="sidebar-toggle-btn" id="sidebarToggle" aria-label="Toggle sidebar" title="Toggle sidebar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/></svg></button>
+    </div>
+    <a href="dashboard.html" class="nav-link" title="Dashboard"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg><span class="nav-text">Dashboard</span></a>
+    <a href="applicant-masterlist.html" class="nav-link active" aria-current="page" title="Applicant Masterlist"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h6"/></svg><span class="nav-text">Applicant Masterlist</span></a>
+    <a href="mrf-monitoring.html" class="nav-link" title="MRF Monitoring"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg><span class="nav-text">MRF Monitoring</span></a>
+    <a href="users.html" hidden class="nav-link" title="Users List"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M22 21v-2a4 4 0 0 0-3-3.87"/><circle cx="8.5" cy="7" r="4"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span class="nav-text">Users List</span></a>
+    <a href="calendar.html" class="nav-link" title="Calendar"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span class="nav-text">Calendar</span></a>
+    <div class="sidebar-spacer"></div>
+    <a href="index.html" class="nav-link" id="logoutBtn" title="Log out"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg><span class="nav-text">Log out</span></a>
+  </nav>
+  <main class="main">
+    <div class="topbar">
+      <div><p class="eyebrow">RECRUITMENT</p><h1>Applicant Masterlist</h1><p class="meta">Manage applicants from their first application to their next opportunity.</p></div>
+      <div class="avatar" id="userAvatar" aria-label="Current user">AU</div>
+    </div>
+    <div class="applicant-summary">
+    <section class="card monthly-hired-card" aria-label="Applicants hired this month">
+      <div><p class="stat-label">HIRED THIS MONTH</p><h2 id="hiredMonth"></h2><p class="monthly-hired-note">Based on recorded hire dates for your AdminID.</p></div>
+      <div class="monthly-hired-total"><strong id="hiredApplicants">0</strong><span>applicants hired</span></div>
+    </section>
+      <div class="applicant-status-overview"><p>Status overview · select a card to filter</p><div id="applicantStatusCards" class="applicant-status-cards" aria-label="Applicant counts by status"></div></div>
+    </div>
+    <section class="table-card" aria-labelledby="applicantListTitle">
+      <div class="table-card-head">
+        <div><h2 class="section-heading" id="applicantListTitle">All applicants</h2><p class="section-subtitle">Applicant dates also appear on your calendar.</p></div>
+        <div class="page-actions"><button type="button" class="btn-sm ghost" id="refreshApplicants">Refresh</button><button type="button" class="btn-sm ghost" id="exportApplicants">Export CSV</button><button type="button" class="btn-sm primary" id="addApplicant" disabled>+ Add Applicant</button></div>
+      </div>
+      <p id="applicantLoadError" class="form-error" role="alert" hidden></p>
+      <div class="filters applicants-filters">
+        <div class="filter-field applicant-search"><label class="field-label" for="applicantSearch">Search applicants</label><input class="field-input" id="applicantSearch" type="search" placeholder="Search name, position, or contact…"></div>
+        <div class="filter-field"><label class="field-label" for="statusFilter">Status</label><select class="field-input" id="statusFilter"><option value="">All statuses</option></select></div>
+        <button type="button" class="btn-sm ghost" id="clearApplicantFilters">Clear filters</button>
+      </div>
+      <div class="table-scroll"><table><thead><tr><th scope="col">Applicant</th><th scope="col">Position applied</th><th scope="col">Contact</th><th scope="col">Status</th><th scope="col">Dates</th><th scope="col">Requirements</th><th scope="col">Action</th></tr></thead><tbody id="applicantRows"></tbody></table></div>
+      <div class="table-footer" id="applicantCount" role="status" aria-live="polite">0 applicants</div>
+    </section>
+    <p class="applicants-storage-note">New applicant records and documents are saved to Supabase. Older browser records remain available until saved to the database.</p>
+  </main>
+</div>
+
+<dialog class="app-dialog" id="applicantDialog" aria-labelledby="applicantDialogTitle">
+  <form id="applicantForm">
+    <div class="dialog-head"><div><h2 id="applicantDialogTitle">Add applicant</h2><p class="section-subtitle">Keep the applicant's details and hiring status up to date.</p></div><button class="dialog-close" type="button" id="closeApplicantDialog" aria-label="Close applicant form">×</button></div>
+    <div class="dialog-body">
+      <p class="form-error" id="applicantFormError" role="alert" hidden></p>
+      <div class="form-grid">
+        <div class="form-field span-2"><label class="field-label" for="applicantName">Full name <span aria-hidden="true">*</span></label><input class="field-input" id="applicantName" name="name" autocomplete="name" maxlength="120" required></div>
+        <div class="form-field span-2"><label class="field-label" for="applicantPosition">Position applied <span aria-hidden="true">*</span></label><select class="field-input" id="applicantPosition" name="position" required><option value="">Loading positions…</option></select></div>
+        <div class="form-field"><label class="field-label" for="applicantSource">Source</label><select class="field-input" id="applicantSource" name="source"><option value="">Select source</option></select></div>
+        <div class="form-field"><label class="field-label" for="applicantSite">Location / site</label><select class="field-input" id="applicantSite" name="site"><option value="">Select location</option></select></div>
+        <div class="form-field"><label class="field-label" for="applicantEmail">Email <span class="optional">(optional)</span></label><input class="field-input" id="applicantEmail" name="email" type="email" autocomplete="email" maxlength="254"></div>
+        <div class="form-field"><label class="field-label" for="applicantPhone">Contact number <span class="optional">(optional)</span></label><input class="field-input" id="applicantPhone" name="phone" type="tel" autocomplete="tel" maxlength="40"></div>
+        <div class="form-field"><label class="field-label" for="applicantStatus">Status <span aria-hidden="true">*</span></label><select class="field-input" id="applicantStatus" name="status" required></select></div>
+        <div class="form-field"><label class="field-label" for="applicantDate">Date applied <span aria-hidden="true">*</span></label><input class="field-input" id="applicantDate" name="dateApplied" type="date" required></div>
+        <div class="form-field span-2"><label class="field-label" for="applicantRequirements">Requirements completed (%)</label><input class="field-input" id="applicantRequirements" name="requirements" type="number" min="0" max="100" step="1" value="0" required></div>
+      </div>
+    </div>
+    <div class="dialog-actions"><button type="button" class="btn-sm ghost" id="cancelApplicantDialog">Cancel</button><button type="submit" class="btn-sm primary" id="saveApplicant">Save applicant</button></div>
+  </form>
+</dialog>
+</body>
+</html>

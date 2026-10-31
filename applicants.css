@@ -1,0 +1,241 @@
+.applicant-status-overview {
+  padding: 0 20px 18px;
+  border-bottom: 1px solid #e8eef4;
+}
+.applicant-status-overview > p {
+  font-size: 11px;
+  color: #71869b;
+  margin: 0 0 10px;
+}
+.applicant-status-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(135px, 1fr));
+  gap: 9px;
+  max-height: none;
+  overflow: auto;
+  padding: 2px;
+}
+.applicant-status-card {
+  background: #f8fafc;
+  border: 1px solid #e1e8ef;
+  border-radius: 9px;
+  padding: 11px 13px;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  color: #415d76;
+  cursor: pointer;
+  min-height: 52px;
+}
+.applicant-status-card span {
+  font-size: 11px;
+  font-weight: 600;
+}
+.applicant-status-card strong {
+  font-size: 20px;
+  color: #173b5c;
+}
+.applicant-status-card[aria-pressed="true"] {
+  background: #eaf4f4;
+  border-color: #65a59e;
+  box-shadow: inset 3px 0 #267a72;
+}
+.applicant-dates-cell {
+  min-width: 190px;
+  max-width: 270px;
+  white-space: normal;
+}
+.applicant-date-applied {
+  font-size: 12px;
+}
+.applicant-stage-date {
+  display: block;
+  color: #285b74;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.6;
+  margin-top: 5px;
+}
+.applicant-date-history {
+  font-size: 11px;
+  margin-top: 7px;
+  color: #55738d;
+}
+.applicant-date-history summary {
+  cursor: pointer;
+}
+.applicant-date-history ul {
+  padding-left: 14px;
+  line-height: 1.8;
+}
+.applicant-status-hint {
+  font-size: 11px;
+  line-height: 1.6;
+  color: #476d89;
+  margin: 7px 0 0;
+}
+.applicant-status-hint:empty {
+  display: none;
+}
+.monthly-hired-card{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:28px 34px;margin-bottom:24px;min-height:156px;border:1px solid #cde5df;background:linear-gradient(110deg,#f2faf7,#fff);box-shadow:inset 5px 0 #247c69}
+.monthly-hired-card .stat-label{color:#327363;font-weight:700;letter-spacing:1.3px;margin:0 0 10px}.monthly-hired-card h2{margin:0;font-size:25px;letter-spacing:-.6px;color:#173c42}.monthly-hired-note{font-size:12px;color:#78918c;margin:10px 0 0}.monthly-hired-total{text-align:right;display:flex;flex-direction:column;gap:5px}.monthly-hired-total strong{font-size:64px;line-height:1;letter-spacing:-3px;color:#176c57;font-weight:700}.monthly-hired-total span{font-size:11px;color:#6d8c83}
+@media(max-width:600px){.monthly-hired-card{padding:24px 22px;gap:16px}.monthly-hired-card h2{font-size:21px}.monthly-hired-total strong{font-size:52px}.monthly-hired-note{max-width:190px;font-size:11px}}
+.applicants-filters {
+  align-items: flex-end;
+}
+.applicants-filters .field-input {
+  margin-bottom: 0;
+}
+.applicant-search {
+  flex: 1;
+}
+.applicants-filters > .filter-field {
+  min-width: 180px;
+}
+.applicants-filters > button {
+  min-height: 42px;
+}
+.applicant-name {
+  display: block;
+  font-weight: 600;
+}
+.applicant-ref,
+.applicant-email {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+  margin-top: 4px;
+}
+.applicant-name,
+.applicant-email {
+  overflow-wrap: anywhere;
+}
+.requirements-cell {
+  min-width: 112px;
+}
+.requirements-cell .progress-track {
+  height: 5px;
+  margin-top: 6px;
+}
+.applicants-storage-note {
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 16px;
+}
+#applicantDialog .dialog-head {
+  padding-right: 48px;
+}
+#applicantDialog .dialog-head h2 {
+  margin: 0 0 6px;
+}
+#applicantDialog .field-input {
+  margin-bottom: 0;
+}
+#applicantDialog {
+  max-width: 960px;
+}
+.applicant-section {
+  border: 1px solid #e3eaf2;
+  border-radius: 12px;
+  padding: 20px;
+  margin: 0 0 20px;
+  min-width: 0;
+}
+.applicant-section legend {
+  padding: 0 9px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #21415e;
+}
+.applicant-company-note {
+  font-size: 12px;
+  line-height: 1.7;
+  padding: 12px 15px;
+  border-radius: 8px;
+  background: #edf4fa;
+  color: #476179;
+  margin: 0 0 20px;
+}
+.applicant-document {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: 20px;
+  border-bottom: 1px solid #e9eef4;
+  padding: 17px 0;
+}
+.applicant-document:last-child {
+  border-bottom: 0;
+}
+.applicant-document .field-input {
+  min-width: 0;
+  width: 100%;
+  font-size: 12px;
+}
+.saved-documents {
+  margin-top: 8px;
+}
+.saved-document {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px 12px;
+  align-items: center;
+  font-size: 11px;
+  padding: 8px 0;
+}
+.saved-document > span {
+  width: 100%;
+  overflow-wrap: anywhere;
+  color: #445d73;
+}
+.saved-document small {
+  color: #8a99a7;
+}
+.saved-document button {
+  font-size: 11px;
+}
+.applicant-integration {
+  font-size: 12px;
+  line-height: 1.7;
+  color: #71849a;
+}
+.applicant-integration pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-height: 180px;
+  overflow: auto;
+}
+@media (max-width: 600px) {
+  .applicant-section {
+    padding: 14px;
+  }
+  .applicant-document {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 5px;
+  }
+  #applicantDialog .dialog-actions button {
+    flex: 1;
+  }
+}
+@media (max-width: 600px) {
+  .applicants-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .applicants-filters > .filter-field {
+    min-width: 0;
+    width: 100%;
+  }
+  .applicants-filters > button {
+    width: 100%;
+  }
+}
+@media(max-width:600px){.applicant-status-cards{max-height:220px}}
+
+.applicant-summary{display:grid;grid-template-columns:minmax(0,3fr) minmax(260px,1fr);gap:16px;margin-bottom:24px;align-items:stretch}
+.applicant-summary .monthly-hired-card{margin-bottom:0;flex-direction:column;align-items:flex-start;justify-content:space-between}
+.applicant-summary .monthly-hired-total{text-align:left}
+.applicant-summary .applicant-status-overview{padding:0;border-bottom:0;min-width:0}
+@media(max-width:1000px){.applicant-summary{grid-template-columns:1fr}.applicant-summary .monthly-hired-card{flex-direction:row;align-items:center}.applicant-summary .monthly-hired-total{text-align:right}}
+
+@media(min-width:1001px){.applicant-summary .applicant-status-overview{grid-column:1;grid-row:1}.applicant-summary .monthly-hired-card{grid-column:2;grid-row:1}}

@@ -1,214 +1,54 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Dashboard — Applicant Tracking System</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Users List — Applicant Tracking System</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="users.css"><link rel="stylesheet" href="app.css">
 </head>
 <body>
-
 <div class="app-shell">
-
-  <!-- Sidebar -->
-  <nav class="sidebar" id="sidebar">
-    <div class="sidebar-brand">
-      <div class="sidebar-brand-left">
-        <div class="sidebar-logo">CN</div>
-        <span class="sidebar-name">Applicant Tracking</span>
-      </div>
-      <button type="button" class="sidebar-toggle-btn" id="sidebarToggle" aria-label="Toggle sidebar" title="Toggle sidebar">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-          <line x1="9" y1="3" x2="9" y2="21"/>
-        </svg>
-      </button>
-    </div>
-
-    <a href="dashboard.html" class="nav-link active" title="Dashboard">
-      <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-      <span class="nav-text">Dashboard</span>
-    </a>
-    <a href="#" class="nav-link" title="Applicant Masterlist">
-      <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-      <span class="nav-text">Applicant Masterlist</span>
-    </a>
-    <a href="mrf-monitoring.html" class="nav-link" title="MRF Monitoring">
-      <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-      <span class="nav-text">MRF Monitoring</span>
-    </a>
-    <a href="users.html" class="nav-link" title="Users List">
-      <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 1 0 7.75"/></svg>
-      <span class="nav-text">Users List</span>
-    </a>
-    <a href="#" class="nav-link" title="Calendar">
-      <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-      <span class="nav-text">Calendar</span>
-    </a>
-    
-    <div class="sidebar-spacer"></div>
-
-    <a href="index.html" class="nav-link" id="logoutBtn" title="Log out">
-      <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-      <span class="nav-text">Log out</span>
-    </a>
-  </nav>
-
-  <main class="main">
-    <!-- Topbar -->
-    <div class="topbar">
-      <div>
-        <h1 id="userGreeting">Good afternoon, User</h1>
-        <p class="meta" id="realtimeMeta">HR Administrator · Loading time...</p>
-      </div>
-      <div class="avatar" id="userAvatar">JM</div>
-    </div>
-
-    <!-- Stat Grid -->
-    <div class="stat-grid">
-      <div class="card stat-card">
-        <div class="stat-label">SCREENED</div>
-        <div class="stat-value">0</div>
-      </div>
-      <div class="card stat-card">
-        <div class="stat-label">PHONE INTERVIEW</div>
-        <div class="stat-value">0</div>
-      </div>
-      <div class="card stat-card">
-        <div class="stat-label">FINAL INTERVIEW</div>
-        <div class="stat-value">0</div>
-      </div>
-      <div class="card stat-card">
-        <div class="stat-label">TOTAL APPLICANTS</div>
-        <div class="stat-value accent">0</div>
-      </div>
-    </div>
-
-    <!-- Analytics Panels -->
-    <div class="panel-row">
-      <div class="card panel">
-        <div class="panel-title">Applicants per Month</div>
-        <div class="bars">
-          <div class="bar" style="height:14%"></div>
-          <div class="bar" style="height:10%"></div>
-          <div class="bar" style="height:18%"></div>
-          <div class="bar" style="height:8%"></div>
-          <div class="bar" style="height:12%"></div>
-          <div class="bar" style="height:16%"></div>
-          <div class="bar" style="height:9%"></div>
-          <div class="bar" style="height:20%"></div>
-          <div class="bar highlight" style="height:100%"></div>
-          <div class="bar highlight" style="height:22%"></div>
-          <div class="bar" style="height:7%"></div>
-          <div class="bar" style="height:11%"></div>
-        </div>
-        <div class="bar-labels">
-          <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span>
-          <span>May</span><span>Jun</span><span>Jul</span><span>Aug</span>
-          <span class="highlight">Sep</span><span class="highlight">Oct</span>
-          <span>Nov</span><span>Dec</span>
-        </div>
-      </div>
-
-      <div class="card panel">
-        <div class="panel-title">Pipeline Status</div>
-        <div class="progress-row">
-          <div class="progress-head"><span>Final Interview</span><span>50%</span></div>
-          <div class="progress-track"><div class="progress-fill" style="width:50%"></div></div>
-        </div>
-        <div class="progress-row">
-          <div class="progress-head"><span>Ongoing Requirements</span><span>50%</span></div>
-          <div class="progress-track"><div class="progress-fill muted" style="width:50%"></div></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Applicants Table -->
-    <div class="table-card">
-      <div class="table-card-head">
-        <div class="panel-title" style="margin:0">All Applicants</div>
-        <button class="btn-sm primary">+ Add New</button>
-      </div>
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th><th>Applicant Name</th><th>Position Applied</th><th>Status</th><th>Date Applied</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td colspan="5" class="empty-state">No applicants to display yet</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-  </main>
+<nav class="sidebar" id="sidebar" aria-label="Main navigation">
+<div class="sidebar-brand"><div class="sidebar-brand-left"><div class="sidebar-logo">CN</div><span class="sidebar-name">Applicant Tracking</span></div><button type="button" class="sidebar-toggle-btn" id="sidebarToggle" aria-label="Toggle sidebar" title="Toggle sidebar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/></svg></button></div>
+<a href="dashboard.html" class="nav-link" title="Dashboard"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z"/></svg><span class="nav-text">Dashboard</span></a>
+<a href="applicant-masterlist.html" class="nav-link" title="Applicant Masterlist"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M8 13h8M8 17h5"/></svg><span class="nav-text">Applicant Masterlist</span></a>
+<a href="mrf-monitoring.html" class="nav-link" title="MRF Monitoring"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg><span class="nav-text">MRF Monitoring</span></a>
+<a href="users.html" hidden class="nav-link active" title="Users List" aria-current="page"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="9" cy="7" r="4"/><path d="M1 21v-2a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v2M17 3a4 4 0 0 1 0 8M23 21v-2a4 4 0 0 0-3-3.87"/></svg><span class="nav-text">Users List</span></a>
+<a href="calendar.html" class="nav-link" title="Calendar"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span class="nav-text">Calendar</span></a>
+<div class="sidebar-spacer"></div>
+<a href="index.html" class="nav-link" id="logoutBtn" title="Log out"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg><span class="nav-text">Log out</span></a>
+</nav>
+<main class="main">
+<div class="topbar"><div><p class="eyebrow">Workspace</p><h1>Users List</h1><p class="meta">View user accounts linked to your AdminID.</p></div><div class="page-actions"><button type="button" class="btn-sm primary" id="openAddUserBtn" hidden>+ Add User</button><button type="button" class="btn-sm ghost" id="refreshUsers">Refresh users</button><div class="avatar" id="userAvatar">AU</div></div></div>
+<div class="stat-grid">
+<div class="card stat-card"><div class="stat-label">TOTAL USERS</div><div class="stat-value accent" id="usersTotal">—</div></div>
+<div class="card stat-card"><div class="stat-label">ACTIVE</div><div class="stat-value positive" id="usersActive">—</div></div>
+<div class="card stat-card"><div class="stat-label">INACTIVE</div><div class="stat-value" id="usersInactive">—</div></div>
+<div class="card stat-card"><div class="stat-label">DATA SOURCE</div><div style="font-size:16px;font-weight:600" id="usersSource">Supabase</div></div>
 </div>
-
-<script>
-(function () {
-  // Sidebar Toggle
-  const sidebar = document.getElementById('sidebar');
-  const sidebarToggle = document.getElementById('sidebarToggle');
-
-  if (localStorage.getItem('ats_sidebar_collapsed') === 'true') {
-    sidebar.classList.add('collapsed');
-  }
-
-  sidebarToggle.addEventListener('click', function () {
-    sidebar.classList.toggle('collapsed');
-    localStorage.setItem('ats_sidebar_collapsed', sidebar.classList.contains('collapsed'));
-  });
-
-  // Logged-in Admin Greeting & Realtime Clock
-  const userGreeting = document.getElementById('userGreeting');
-  const realtimeMeta = document.getElementById('realtimeMeta');
-  const userAvatar = document.getElementById('userAvatar');
-
-  const savedUserJson = localStorage.getItem('ats_user');
-  let currentUser = null;
-  
-  if (savedUserJson) {
-    try { currentUser = JSON.parse(savedUserJson); } catch (e) {}
-  }
-
-  if (currentUser && currentUser.name) {
-    const fullName = currentUser.name;
-    const nameParts = fullName.trim().split(' ');
-    let initials = 'AU';
-    if (nameParts.length >= 2) {
-      initials = (nameParts[0][0] + nameParts[nameParts.length - 1][0]).toUpperCase();
-    } else if (nameParts.length === 1 && nameParts[0].length > 0) {
-      initials = nameParts[0].substring(0, 2).toUpperCase();
-    }
-    userAvatar.textContent = initials;
-
-    function updateClock() {
-      const now = new Date();
-      const hours = now.getHours();
-      let timeOfDay = 'day';
-      if (hours < 12) timeOfDay = 'morning';
-      else if (hours < 18) timeOfDay = 'afternoon';
-      else timeOfDay = 'evening';
-
-      userGreeting.textContent = `Good ${timeOfDay}, ${fullName}`;
-
-      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
-      realtimeMeta.textContent = `HR Administrator · ${now.toLocaleDateString('en-US', options)}`;
-    }
-
-    updateClock();
-    setInterval(updateClock, 1000);
-  } else {
-    userGreeting.textContent = 'Good day, Administrator';
-    realtimeMeta.textContent = 'HR Administrator · ' + new Date().toLocaleDateString('en-US');
-  }
-
-  document.getElementById('logoutBtn').addEventListener('click', function () {
-    localStorage.removeItem('ats_user');
-  });
-})();
-</script>
-
-</body>
-</html>
+<p class="form-error" id="usersError" role="alert" hidden></p>
+<section class="table-card" aria-labelledby="usersTitle">
+<div class="table-card-head"><div><h2 class="section-heading" id="usersTitle">Users directory</h2><p class="section-subtitle">Accounts registered in your applicant tracking system.</p></div></div>
+<div class="filters"><div class="filter-field"><label class="field-label" for="userSearch">Search users</label><input class="field-input" id="userSearch" type="search" placeholder="Name, username, or email"></div><div class="filter-field"><label class="field-label" for="userStatus">Status</label><select class="field-input" id="userStatus"><option value="">All statuses</option><option>Active</option><option>Inactive</option></select></div></div>
+<div class="table-scroll"><table><thead><tr><th scope="col">UserID</th><th scope="col">AdminID</th><th scope="col">User</th><th scope="col">Username</th><th scope="col">Role</th><th scope="col">Status</th><th scope="col">Created</th></tr></thead><tbody id="usersBody"><tr><td colspan="7" class="empty-state">Loading users…</td></tr></tbody></table></div>
+<div class="table-footer" id="usersCount" aria-live="polite">Connecting to Supabase…</div>
+</section>
+</main></div>
+<dialog class="app-dialog" id="addUserDialog" aria-labelledby="addUserTitle">
+<form id="addUserForm">
+<div class="dialog-head"><div><h2 id="addUserTitle">Add User</h2><p>Create a regular USER account linked to your AdminID.</p></div><button type="button" class="dialog-close" data-close-dialog aria-label="Close">×</button></div>
+<div class="dialog-body">
+<p class="form-error" id="addUserError" role="alert" hidden></p>
+<label class="field-label" for="newAdminID">AdminID</label><input class="field-input" id="newAdminID" readonly>
+<label class="field-label" for="newFullName">Full name</label><input class="field-input" id="newFullName" autocomplete="name" minlength="2" maxlength="200" required>
+<label class="field-label" for="newUsername">Username</label><input class="field-input" id="newUsername" autocomplete="off" pattern="[A-Za-z0-9_]{3,20}" title="3–20 letters, numbers, or underscores" required>
+<label class="field-label" for="newEmail">Email</label><input class="field-input" id="newEmail" type="email" autocomplete="email" maxlength="254" required>
+<label class="field-label" for="newPassword">Password</label><input class="field-input" id="newPassword" type="password" autocomplete="new-password" minlength="8" required>
+<label class="field-label" for="newConfirm">Confirm password</label><input class="field-input" id="newConfirm" type="password" autocomplete="new-password" minlength="8" required>
+<label class="field-label" for="newPhoto">Profile picture (optional, PNG/JPEG/WebP, up to 256 KB)</label><input class="field-input" id="newPhoto" type="file" accept="image/png,image/jpeg,image/webp">
+<p class="section-subtitle">Role: USER. UserID is generated when Supabase saves the account.</p>
+</div><div class="dialog-actions"><button type="button" class="btn-sm ghost" data-close-dialog>Cancel</button><button type="submit" class="btn-sm primary" id="saveUserBtn">Save User</button></div>
+</form></dialog>
+<script src="https://cdn.jsdelivr.net/npm/bcryptjs@2.4.3/dist/bcrypt.min.js"></script>
+<script src="app.js"></script><script src="users.js"></script>
+</body></html>

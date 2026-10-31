@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Calendar — Applicant Tracking System</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="app.css">
+<link rel="stylesheet" href="calendar.css">
+<script src="app.js" defer></script>
+<script src="calendar.js" defer></script>
+</head>
+<body>
+<div class="app-shell">
+  <nav class="sidebar" id="sidebar" aria-label="Main navigation">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-left"><div class="sidebar-logo">CN</div><span class="sidebar-name">Applicant Tracking</span></div>
+      <button type="button" class="sidebar-toggle-btn" id="sidebarToggle" aria-label="Toggle sidebar" title="Toggle sidebar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/></svg></button>
+    </div>
+    <a href="dashboard.html" class="nav-link" title="Dashboard"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg><span class="nav-text">Dashboard</span></a>
+    <a href="applicant-masterlist.html" class="nav-link" title="Applicant Masterlist"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg><span class="nav-text">Applicant Masterlist</span></a>
+    <a href="mrf-monitoring.html" class="nav-link" title="MRF Monitoring"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg><span class="nav-text">MRF Monitoring</span></a>
+    <a href="users.html" hidden class="nav-link" title="Users List"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M22 21v-2a4 4 0 0 0-3-3.87"/><circle cx="9" cy="7" r="4"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span class="nav-text">Users List</span></a>
+    <a href="calendar.html" class="nav-link active" title="Calendar" aria-current="page"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span class="nav-text">Calendar</span></a>
+    <div class="sidebar-spacer"></div>
+    <a href="index.html" class="nav-link" id="logoutBtn" title="Log out"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg><span class="nav-text">Log out</span></a>
+  </nav>
+  <main class="main calendar-main">
+    <div class="topbar">
+      <div><p class="calendar-eyebrow">PLAN YOUR HIRING</p><h1>Calendar</h1><p class="meta">Applicants, events, and meetings — all in one place.</p></div>
+      <div class="calendar-header-actions"><button class="btn-sm primary" type="button" id="addEventBtn">+ Add Event</button><div class="avatar" id="userAvatar">AU</div></div>
+    </div>
+    <div class="calendar-summary" aria-label="Displayed month totals">
+      <div class="card calendar-summary-item"><span class="calendar-dot applicant-dot"></span><div><span class="calendar-summary-label">Applicants this month</span><strong id="monthApplicantCount">0</strong></div></div>
+      <div class="card calendar-summary-item"><span class="calendar-dot event-dot"></span><div><span class="calendar-summary-label">Events this month</span><strong id="monthEventCount">0</strong></div></div>
+      <div class="card calendar-summary-item"><span class="calendar-dot meeting-dot"></span><div><span class="calendar-summary-label">Meetings this month</span><strong id="monthMeetingCount">0</strong></div></div>
+    </div>
+    <div class="calendar-layout">
+      <section class="card calendar-card" aria-labelledby="calendarMonth">
+        <div class="calendar-toolbar">
+          <h2 id="calendarMonth" aria-live="polite"></h2>
+          <div class="calendar-controls"><button type="button" class="btn-sm ghost" id="calendarToday">Today</button><button type="button" class="calendar-arrow" id="previousMonth" aria-label="Previous month">‹</button><button type="button" class="calendar-arrow" id="nextMonth" aria-label="Next month">›</button></div>
+        </div>
+        <div class="calendar-scroll" tabindex="0" aria-label="Month calendar; scroll horizontally on small screens">
+          <div class="calendar-weekdays" aria-hidden="true"><span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span></div>
+          <div class="calendar-grid" id="calendarGrid" role="group" aria-label="Choose a date"></div>
+        </div>
+        <div class="calendar-legend"><span><i class="calendar-dot applicant-dot"></i> Applicants</span><span><i class="calendar-dot event-dot"></i> Events</span><span><i class="calendar-dot meeting-dot"></i> Meetings</span><span class="calendar-legend-hint">Select a date to see details</span></div>
+      </section>
+      <aside class="card day-agenda" aria-labelledby="selectedDateLabel">
+        <div class="agenda-head"><p class="calendar-eyebrow">DAY AT A GLANCE</p><h2 id="selectedDateLabel"></h2><p id="selectedDateSummary" class="meta" aria-live="polite"></p></div>
+        <div id="dayAgenda"></div>
+        <button type="button" class="btn-sm ghost agenda-add" id="addSelectedEvent">+ Add to this day</button>
+      </aside>
+    </div>
+    <p class="calendar-storage-note">Applicant counts use the date applied. Events and meetings are saved in this browser.</p>
+    <p class="calendar-announcement" id="calendarAnnouncement" role="status" aria-live="polite"></p>
+  </main>
+</div>
+<dialog class="app-dialog calendar-dialog" id="eventDialog" aria-labelledby="eventDialogTitle">
+  <form id="eventForm">
+    <div class="calendar-dialog-head"><div><p class="calendar-eyebrow">KEEP YOUR TEAM ON SCHEDULE</p><h2 id="eventDialogTitle">Create event</h2><p class="meta">Add an event or meeting to your calendar.</p></div><button type="button" class="calendar-dialog-close" id="closeEventDialog" aria-label="Close event modal">×</button></div>
+    <div class="form-error" id="eventError" role="alert" hidden></div>
+    <label class="field-label" for="eventTitle">Title <span aria-hidden="true">*</span></label><input class="field-input" id="eventTitle" name="title" maxlength="160" placeholder="e.g. Final interview with applicant" required>
+    <div class="calendar-form-grid">
+      <div><label class="field-label" for="eventType">Type</label><select class="field-input" id="eventType" name="type"><option value="event">Event</option><option value="meeting">Meeting</option></select></div>
+      <div><label class="field-label" for="eventDate">Date <span aria-hidden="true">*</span></label><input class="field-input" id="eventDate" name="date" type="date" min="1900-01-01" max="9999-12-31" required></div>
+      <div><label class="field-label" for="eventStart">Start time <span class="optional">(optional)</span></label><input class="field-input" id="eventStart" name="startTime" type="time"></div>
+      <div><label class="field-label" for="eventEnd">End time <span class="optional">(optional)</span></label><input class="field-input" id="eventEnd" name="endTime" type="time"></div>
+    </div>
+    <label class="field-label" for="eventApplicant">Applicant <span class="optional">(optional)</span></label><select class="field-input" id="eventApplicant" name="applicantId"><option value="">No linked applicant</option></select>
+    <label class="field-label" for="eventLocation">Location or meeting link <span class="optional">(optional)</span></label><input class="field-input" id="eventLocation" name="location" maxlength="500" placeholder="Office, conference room, or meeting link">
+    <label class="field-label" for="eventDescription">Notes <span class="optional">(optional)</span></label><textarea class="field-input" id="eventDescription" name="description" rows="3" maxlength="2000" placeholder="Add an agenda or anything to prepare"></textarea>
+    <div class="calendar-dialog-actions"><button class="btn-sm ghost" type="button" id="cancelEventDialog">Cancel</button><button class="btn-sm primary" type="submit" id="saveEventBtn">Create event</button></div>
+  </form>
+</dialog>
+<dialog class="app-dialog calendar-dialog calendar-confirm-dialog" id="deleteEventDialog" aria-labelledby="deleteEventTitle">
+  <form id="deleteEventForm"><h2 id="deleteEventTitle">Delete this event?</h2><p class="meta" id="deleteEventDescription"></p><p class="form-error" id="deleteEventError" role="alert" hidden></p><div class="calendar-dialog-actions"><button type="button" class="btn-sm ghost" id="cancelDeleteEvent">Keep event</button><button type="submit" class="btn-sm calendar-delete-confirm">Delete event</button></div></form>
+</dialog>
+</body>
+</html>
