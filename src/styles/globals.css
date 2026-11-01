@@ -4,3 +4,5 @@
 .system-status h1 { color: #192a56; margin-bottom: 16px; }
 .runtime-error { position: fixed; z-index: 10000; inset: auto 16px 16px; padding: 16px; background: #fff4f2; border: 1px solid #e9a6a0; border-radius: 10px; color: #742b25; }
 .runtime-error button { padding: 8px 14px; border-radius: 6px; cursor: pointer; }
+
+@media(max-width:600px){.system-status{margin:24px 16px;padding:24px;max-width:calc(100% - 32px)}.login-panel{min-width:0}.login-shell input{font-size:16px;min-height:44px}}

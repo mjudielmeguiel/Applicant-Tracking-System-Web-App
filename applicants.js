@@ -10,22 +10,24 @@
   const statusTools = window.ApplicantStatusTools;
   const workflow = window.ApplicantWorkflow;
   const search = document.getElementById("applicantSearch");
-  const filter = document.getElementById("statusFilter");
+  const filter = {value:""};
   const rows = document.getElementById("applicantRows");
   const dialog = document.getElementById("applicantDialog");
   const form = document.getElementById("applicantForm");
   const definitions = window.ApplicantFieldDefinitions,
     documentTypes = window.ApplicantDocumentTypes;
   const groups = [...new Set(definitions.map((f) => f.group))];
+  const example=f=>({Name:'Juan Dela Cruz','Contact Number':'0917 123 4567','Email Address':'juan.delacruz@example.com','Current Address':'123 Mabini Street, Alabang, Muntinlupa',Remarks:'Example: Available for an interview on weekdays.','Ongoing Requirements Status':'Example: Awaiting NBI clearance.'}[f.column]||('Enter '+f.label.toLowerCase()));
   const controls = (definition) => {
     const f = definition,
-      attrs = `id="${f.id}" data-applicant-field="${esc(f.column)}" class="field-input" ${f.required ? "required" : ""} ${f.column === "Name" ? 'minlength="2"' : ""} ${f.type === "tel" ? 'pattern="[+()0-9 .-]{7,25}"' : ""}`;
+      attrs = `id="${f.id}" data-applicant-field="${esc(f.column)}" class="field-input" ${f.column === "Submission Date" ? 'readonly aria-describedby="submissionDateHelp"' : ""} ${f.required ? "required" : ""} ${f.column === "Name" ? 'minlength="2"' : ""} ${f.type === "tel" ? 'pattern="[+()0-9 .-]{7,25}"' : ""}`;
+    if(f.type==="gender")return `<select ${attrs}><option value="">Select gender</option><option>Male</option><option>Female</option></select>`;
     if (f.type === "response") return `<select ${attrs}><option value="Pending">Awaiting response / attendance</option><option value="Confirmed">Confirmed</option><option value="Attended">Attended</option><option value="Cancelled">Cancelled</option></select>`;
-    if (["position", "site", "source", "status"].includes(f.type))
+    if (["position", "site", "source", "status", "job"].includes(f.type))
       return `<select ${attrs}><option value="">Select ${esc(f.label)}</option></select>`;
     if (f.type === "textarea")
-      return `<textarea ${attrs} rows="3" maxlength="${f.max}"></textarea>`;
-    return `<input ${attrs} type="${f.type}" ${f.type === "number" ? 'min="1" step="1"' : `maxlength="${f.max}"`}>`;
+      return `<textarea ${attrs} rows="3" maxlength="${f.max}" placeholder="${esc(example(f))}"></textarea>`;
+    return `<input ${attrs} type="${f.type}" placeholder="${esc(example(f))}" ${f.type === "number" ? 'min="1" step="1"' : `maxlength="${f.max}"`}>`;
   };
   form.querySelector(".dialog-body").innerHTML =
     '<p class="form-error" id="applicantFormError" role="alert" hidden></p><p class="applicant-company-note" id="applicantCompanyNote"></p>' +
@@ -37,24 +39,30 @@
             .filter((f) => f.group === group)
             .map(
               (f) =>
-                `<div class="form-field ${f.type === "textarea" ? "span-2" : ""}"><label class="field-label" for="${f.id}">${esc(f.label)}${f.required ? " *" : ""}</label>${controls(f)}</div>`,
+                `<div ${f.type === "hidden" ? "hidden" : ""} class="form-field ${f.type === "textarea" ? "span-2" : ""}"><label class="field-label" for="${f.id}">${esc(f.label)}${f.required ? " *" : ""}</label>${controls(f)}${f.column === "Submission Date" ? '<p id="submissionDateHelp" class="applicant-status-hint">Recorded automatically when submitted. This date cannot be changed.</p>' : ""}</div>`,
             )
             .join("") +
           "</div></fieldset>",
       )
       .join("") +
-    '<fieldset class="applicant-section"><legend>Requirements & documents</legend><p class="section-subtitle">Add a status or reference and attach supporting documents. PDF, JPG, PNG, DOC, DOCX · up to 10 MB per file.</p>' +
+    '<fieldset class="applicant-section"><legend>Requirements & documents</legend><p class="section-subtitle">Choose a status for every requirement. Uploads are optional. Submitted, Verified, Accepted and Not required count as complete. PDF, JPG, PNG, DOC, DOCX · up to 10 MB per file.</p>' +
     documentTypes
       .map(
         (type, i) =>
-          `<div class="applicant-document"><div><label class="field-label" for="requirement_${i}">${esc(type)} status / reference</label><input class="field-input" id="requirement_${i}" data-applicant-field="${esc(type)}" maxlength="1000" placeholder="Pending, Submitted, Verified, or reference"><div id="savedDocuments_${i}" class="saved-documents"></div></div><div><label class="field-label" for="upload_${i}">Upload ${esc(type)}</label><input id="upload_${i}" class="field-input" type="file" data-document-type="${esc(type)}" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"></div></div>`,
+          `<div class="applicant-document"><div><label class="field-label" for="requirement_${i}">${esc(type)} status / reference</label><select class="field-input" id="requirement_${i}" data-applicant-field="${esc(type)}" required><option>Pending</option><option>Submitted</option><option>Verified</option><option>Accepted</option><option>Rejected</option><option>Not required</option></select><div id="savedDocuments_${i}" class="saved-documents"></div></div><div><label class="field-label" for="upload_${i}">Upload ${esc(type)}</label><input id="upload_${i}" class="field-input" type="file" data-document-type="${esc(type)}" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"></div></div>`,
       )
       .join("") +
-    '<div class="applicant-document applicant-id-photo"><div><h3>1×1 ID picture</h3><p class="section-subtitle">Square JPG/PNG · at least 300×300 pixels · up to 10 MB.</p><div id="idPhotoDocuments" class="saved-documents"></div></div><div><label class="field-label" for="idPhotoFile">Upload 1×1 ID picture</label><input class="field-input" id="idPhotoFile" type="file" accept=".jpg,.jpeg,.png"></div></div></fieldset><details class="applicant-integration"><summary>Integration & workbook source</summary><p id="applicantIdentity"></p><p>Name, email, contact, and position are also saved to FullName, Email, ContactNumber, and PositionApplied.</p><pre id="applicantExcelData"></pre></details>';
+    '<div class="applicant-document applicant-id-photo"><div><h3>1×1 ID picture</h3><p class="section-subtitle">Square JPG/PNG · at least 300×300 pixels · up to 10 MB.</p><div id="idPhotoDocuments" class="saved-documents"></div></div><div><label class="field-label" for="idPhotoFile">Upload 1×1 ID picture</label><input class="field-input" id="idPhotoFile" type="file" accept=".jpg,.jpeg,.png"></div></div></fieldset>';
   const formError = document.getElementById("applicantFormError");
+  const requirementSummary=document.createElement('div');requirementSummary.className='requirement-summary';requirementSummary.setAttribute('aria-live','polite');
+  form.querySelector('#requirement_0').closest('fieldset').querySelector('.section-subtitle').after(requirementSummary);
+  function refreshRequirementProgress(){const done=documentTypes.filter((type,i)=>{const value=document.getElementById('requirement_'+i).value;return value&&!/pending|missing|rejected|not submitted|not yet|follow.?up/i.test(value);}).length;const percent=Math.round(done/documentTypes.length*100);requirementSummary.innerHTML='<strong>'+(percent===100?'Requirements complete':done+' of '+documentTypes.length+' requirements complete')+'</strong><span>'+percent+'%</span><div class="progress-track" role="progressbar" aria-label="Requirements completion" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+percent+'"><div class="progress-fill" style="width:'+percent+'%"></div></div><small>'+(percent===100?'Completion date is recorded automatically when saved.':'Set a status for each requirement. Files can be attached later.')+'</small>';}
+  form.addEventListener('change',refreshRequirementProgress);
+
   const fields = {
     name: document.getElementById("applicantName"),
     position: document.getElementById("applicantPosition"),
+    job: document.getElementById("applicantJob"),
     source: document.getElementById("applicantSource"),
     site: document.getElementById("applicantSite"),
     email: document.getElementById("applicantEmail"),
@@ -69,37 +77,49 @@
     documents = [];
   const session = await window.ATS.ready;
 
-  function fillChoices(record) {
-    const positionStats = new Map(window.ATS.positionSummary().map(row => [row.name.trim().toLowerCase(), row]));
-    for (const [key, group] of [
-      ["position", "positions"],
-      ["source", "sources"],
-      ["site", "locations"],
-    ]) {
-      const selected = record ? record[key] || "" : fields[key].value;
-      const choices = window.ATS.catalogs?.[group] || [];
-      fields[key].innerHTML =
-        '<option value="">Select ' +
-        key +
-        "</option>" +
-        choices
-          .map(
-            (row) =>
-              '<option value="' +
-              esc(row.name) +
-              '">' +
-              esc(row.name) +
-              (key === "position"
-                ? " · " + (positionStats.get(row.name.trim().toLowerCase())?.applicants || 0) + " applicants · " + (positionStats.get(row.name.trim().toLowerCase())?.remaining || 0) + " slots remaining"
-                : "") +
-              "</option>",
-          )
-          .join("");
-      if (selected && !choices.some((row) => row.name === selected))
-        fields[key].add(new Option(selected + " (saved value)", selected));
-      fields[key].value = selected;
-    }
+  let jobChoices=[];
+  const jobField=fields.job.closest('.form-field');jobField.classList.add('span-2','recruitment-job-field');
+  const jobSearch=document.createElement('input');jobSearch.type='text';jobSearch.id='applicantJobSearch';jobSearch.className='field-input';jobSearch.placeholder='Search and select a job or site…';jobSearch.autocomplete='off';jobSearch.spellcheck=false;jobSearch.required=true;jobSearch.setAttribute('role','combobox');jobSearch.setAttribute('aria-autocomplete','list');jobSearch.setAttribute('aria-controls','applicantJobOptions');jobSearch.setAttribute('aria-expanded','false');
+  jobField.querySelector('label').htmlFor=jobSearch.id;fields.job.hidden=true;fields.job.required=false;fields.job.tabIndex=-1;fields.job.setAttribute('aria-hidden','true');
+  const picker=document.createElement('div');picker.className='applicant-job-picker';fields.job.before(picker);picker.append(jobSearch);
+  const arrow=document.createElement('button');arrow.type='button';arrow.className='job-picker-toggle';arrow.setAttribute('aria-label','Show available jobs');arrow.setAttribute('aria-controls','applicantJobOptions');arrow.innerHTML='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';picker.append(arrow);
+  const jobList=document.createElement('div');jobList.id='applicantJobOptions';jobList.className='job-picker-options';jobList.setAttribute('role','listbox');jobList.setAttribute('aria-label','Available jobs grouped by site');jobList.hidden=true;picker.append(jobList);
+  const grid=jobField.parentElement;[jobField,fields.dateApplied.closest('.form-field'),form.querySelector('[data-applicant-field="Submission Date"]').closest('.form-field'),fields.source.closest('.form-field'),fields.status.closest('.form-field')].forEach(block=>grid.append(block));
+  let pickerOpen=false,query='',committed='',matches=[],active=-1;
+  const normalized=value=>String(value).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+  function positionPicker(){if(!pickerOpen)return;const box=form.querySelector('.dialog-body').getBoundingClientRect(),input=jobSearch.getBoundingClientRect();const below=box.bottom-input.bottom-12,above=input.top-box.top-12,up=below<180&&above>below;picker.classList.toggle('opens-up',up);jobList.style.maxHeight=Math.max(96,Math.min(280,up?above:below))+'px';}
+  function activate(index){active=Math.max(0,Math.min(matches.length-1,index));jobList.querySelectorAll('[role=option]').forEach((node,i)=>node.classList.toggle('is-active',i===active));if(matches[active]){const id='job-option-'+active;jobSearch.setAttribute('aria-activedescendant',id);jobList.querySelector('#'+id)?.scrollIntoView({block:'nearest'});}else jobSearch.removeAttribute('aria-activedescendant');}
+  function renderJobOptions(){
+    const words=normalized(query).trim().split(/\s+/).filter(Boolean);matches=[...fields.job.options].filter(option=>option.value&&words.every(word=>normalized(option.textContent).includes(word)));
+    let site='';jobList.innerHTML=matches.map((option,index)=>{const job=jobChoices.find(item=>item.id===option.value),location=job?.site||currentRecord?.site||'Current assignment';let header='';if(location!==site){site=location;header='<div class="job-picker-site" role="presentation">'+esc(location)+'</div>';}return header+'<div class="job-picker-option" id="job-option-'+index+'" role="option" aria-selected="'+(option.value===committed)+'" data-job-choice="'+esc(option.value)+'"><span><strong>'+esc(job?.position_title||currentRecord?.position||option.textContent)+'</strong><small>'+esc(location)+'</small></span><span class="job-picker-slots">'+(job?job.remaining_slots+' available':'Saved assignment')+'</span></div>';}).join('')||'<p class="job-picker-empty">No available jobs match your search.</p>';active=-1;jobSearch.removeAttribute('aria-activedescendant');positionPicker();
   }
+  function closeJobPicker(restore=true){pickerOpen=false;jobList.hidden=true;jobSearch.setAttribute('aria-expanded','false');jobSearch.removeAttribute('aria-activedescendant');if(restore){fields.job.value=committed;jobSearch.value=fields.job.selectedOptions[0]?.value?fields.job.selectedOptions[0].textContent:'';jobSearch.setCustomValidity(fields.job.value?'':'Choose an available job and site.');}query='';}
+  function openJobPicker(){if(jobSearch.disabled)return;pickerOpen=true;query='';jobList.hidden=false;jobSearch.setAttribute('aria-expanded','true');renderJobOptions();}
+  function refreshJobPicker(){committed=fields.job.value;if(!pickerOpen||!query){jobSearch.value=committed?fields.job.selectedOptions[0]?.textContent||'':'';jobSearch.setCustomValidity(committed?'':'Choose an available job and site.');}if(pickerOpen)renderJobOptions();}
+  function chooseJob(value){fields.job.value=value;committed=value;fields.job.dispatchEvent(new Event('change',{bubbles:true}));query='';refreshJobPicker();closeJobPicker();jobSearch.focus();}
+  jobSearch.addEventListener('focus',()=>{openJobPicker();jobSearch.select();});jobSearch.addEventListener('click',()=>{if(!pickerOpen)openJobPicker();});
+  jobSearch.oninput=()=>{query=jobSearch.value;fields.job.value='';jobSearch.setCustomValidity('Choose a matching job and site from the list.');pickerOpen=true;jobList.hidden=false;jobSearch.setAttribute('aria-expanded','true');renderJobOptions();};
+  arrow.onclick=()=>{if(pickerOpen)closeJobPicker();else{jobSearch.focus();openJobPicker();jobSearch.select();}};
+  jobList.addEventListener('pointerdown',event=>event.preventDefault());jobList.onclick=event=>{const option=event.target.closest('[data-job-choice]');if(option)chooseJob(option.dataset.jobChoice);};
+  jobSearch.addEventListener('keydown',event=>{if(['ArrowDown','ArrowUp','Home','End'].includes(event.key)&& (pickerOpen||event.key.startsWith('Arrow'))){event.preventDefault();if(!pickerOpen)openJobPicker();activate(event.key==='Home'?0:event.key==='End'?matches.length-1:active+(event.key==='ArrowUp'?-1:1));}else if(event.key==='Enter'){event.preventDefault();if(!pickerOpen)openJobPicker();else if(matches.length)chooseJob(matches[active<0?0:active].value);}else if(event.key==='Escape'&&pickerOpen){event.preventDefault();event.stopPropagation();closeJobPicker();}else if(event.key==='Tab')closeJobPicker();});
+  document.addEventListener('pointerdown',event=>{if(pickerOpen&&!picker.contains(event.target))closeJobPicker();});picker.addEventListener('focusout',()=>setTimeout(()=>{if(pickerOpen&&!picker.contains(document.activeElement))closeJobPicker();},0));dialog.addEventListener('close',()=>closeJobPicker(false));form.querySelector('.dialog-body').addEventListener('scroll',positionPicker);window.addEventListener('resize',positionPicker);
+  function fillJobs(record=currentRecord){
+    record=record?.id?record:currentRecord;
+    const selected=fields.job.value||committed;
+    const current=record?.db?.JobOpeningID||jobChoices.find(job=>job.position_title===record?.position&&job.site===record?.site)?.id;
+    const choices=jobChoices.filter(job=>(job.remaining_slots>0||job.id===current));
+    choices.sort((a,b)=>a.site.localeCompare(b.site)||a.position_title.localeCompare(b.position_title));
+    fields.job.innerHTML='<option value="">Select an available job and site</option>'+choices.map(job=>'<option value="'+esc(job.id)+'">'+esc(job.site)+' — '+esc(job.position_title)+' · '+job.remaining_slots+' slots available'+(job.remaining_slots===0?' · Current assignment':'')+'</option>').join('');
+    if(record&&!current)fields.job.add(new Option((record.site||'No site recorded')+' — '+record.position+' · Current saved assignment','legacy-current'));
+    fields.job.value=choices.some(job=>job.id===selected)?selected:current&&choices.some(job=>job.id===current)?current:record&&!current?'legacy-current':'';
+    const job=jobChoices.find(job=>job.id===fields.job.value);if(job){fields.position.value=job.position_title;fields.site.value=job.site;}refreshJobPicker();
+  }
+  async function reloadJobs(){const result=await window.ATS.rpc('ats_jobs_list',{p_session_token:session.sessionToken});if(String(result.AdminID)!==String(session.AdminID)||!Array.isArray(result.jobs))throw Error('Available jobs could not be verified.');jobChoices=result.jobs;fillJobs();}
+  function fillChoices(record){
+    const selected=record?.source||fields.source.value;fields.source.innerHTML='<option value="">Select source</option>'+(window.ATS.catalogs?.sources||[]).map(row=>'<option value="'+esc(row.name)+'">'+esc(row.name)+'</option>').join('');if(selected&&![...fields.source.options].some(option=>option.value===selected))fields.source.add(new Option(selected+' (saved value)',selected));fields.source.value=selected;fillJobs(record||currentRecord);
+  }
+  fields.job.addEventListener('change',()=>{const job=jobChoices.find(job=>job.id===fields.job.value);if(job){fields.position.value=job.position_title;fields.site.value=job.site;}fields.job.setCustomValidity('');});
+  try{await reloadJobs();}catch(error){window.ATS.notify(error.message);}
   fillChoices();
   window.addEventListener("ats:catalogs-changed", () => fillChoices());
   window.addEventListener("ats:data-change", () => fillChoices());
@@ -107,7 +127,6 @@
   const options = statuses
     .map((status) => `<option value="${esc(status)}">${esc(status)}</option>`)
     .join("");
-  filter.insertAdjacentHTML("beforeend", options);
   fields.status.innerHTML = '<option value="">Select status</option>' + options;
   const pageUrl = new URL(window.location.href);
   if (statuses.includes(pageUrl.searchParams.get("status")))
@@ -193,10 +212,10 @@
         <td><span class="applicant-name">${esc(record.name || "Unnamed applicant")}</span><span class="applicant-ref">#${esc(shortId)}</span></td>
         <td>${esc(record.position || "—")}<span class="applicant-ref">${esc([record.source, record.site].filter(Boolean).join(" · "))}</span></td>
         <td>${esc(record.phone || "—")}${record.email ? `<span class="applicant-email">${esc(record.email)}</span>` : ""}</td>
-        <td><span class="record-badge ${statusTone(record.status)}">${esc(record.status || "Not recorded")}</span><div class="applicant-requirements-status"><span>Ongoing requirements status</span>${esc(String(record.db?.["Ongoing Requirements Status"] || record["Ongoing Requirements Status"] || "").trim() || "Not provided")}</div></td>
+        <td><span class="record-badge ${statusTone(record.status)}">${esc(record.status || "Not recorded")}</span><button type="button" class="applicant-requirements-status" data-requirement-activity="${esc(record.id)}"><span>Ongoing requirements status ↗</span>${esc(String(record.db?.["Ongoing Requirements Status"] || record["Ongoing Requirements Status"] || "").trim() || "View requirements updates")}</button></td>
         <td class="applicant-dates-cell">${statusTools.dates(record)}</td>
-        <td class="requirements-cell"><span>${progress}%</span><div class="progress-track" role="progressbar" aria-label="Requirements for ${esc(record.name)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${progress}"><div class="progress-fill" style="width:${progress}%"></div></div></td>
-        <td><button type="button" class="btn-sm ghost" data-edit="${esc(record.id)}" aria-label="Edit ${esc(record.name)}">Details / documents</button></td>
+        <td class="requirements-cell"><span>${progress === 100 ? "Complete · 100%" : progress + "%"}</span><div class="progress-track" role="progressbar" aria-label="Requirements for ${esc(record.name)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${progress}"><div class="progress-fill" style="width:${progress}%"></div></div></td>
+        <td><div class="applicant-row-actions"><button type="button" class="btn-sm applicant-manage" data-edit="${esc(record.id)}" aria-label="Manage ${esc(record.name)}">Manage applicant <span aria-hidden="true">↗</span></button></div></td>
       </tr>`;
       })
       .join("");
@@ -264,10 +283,11 @@
       const latest = documents.find(doc => doc.document_type === type && doc.latest !== false);
       if (latest) document.getElementById('requirement_' + i).value = latest.review_status || 'Submitted';
     });
+    refreshRequirementProgress();
     document.getElementById('idPhotoDocuments').innerHTML = documents.filter(doc => doc.document_type === 'ID PHOTO').map(documentRow).join('');
   }
   function documentRow(doc) {
-    return '<div class="saved-document review-document"><span>'+esc(doc.filename)+' <small>'+Math.ceil(doc.byte_size/1024)+' KB · '+esc(doc.review_status||'Submitted')+(doc.latest===false?' · Previous upload':'')+(doc.automated?' · Automatic check':'')+'</small>'+(doc.review_comment?'<small class="document-review-comment">'+esc(doc.review_comment)+'</small>':'')+'</span><div class="document-actions"><button type="button" class="link-btn" data-preview-document="'+esc(doc.id)+'" '+(!['application/pdf','image/png','image/jpeg'].includes(doc.mime_type)?'disabled':'')+'>Preview</button><button type="button" class="link-btn" data-download-document="'+esc(doc.id)+'">Download</button>'+(doc.latest!==false?'<button type="button" class="link-btn" data-review-document="'+esc(doc.id)+'">Review / comment</button>':'')+'<button type="button" class="link-btn" data-remove-document="'+esc(doc.id)+'">Remove</button></div></div>';
+    return '<div class="saved-document review-document"><span>'+esc(doc.filename)+' <small>'+Math.ceil(doc.byte_size/1024)+' KB · '+esc(doc.review_status||'Submitted')+(doc.latest===false?' · Previous upload':'')+(doc.automated?' · Automatic check':'')+'</small>'+(doc.review_comment?'<small class="document-review-comment">'+esc(doc.review_comment)+'</small>':'')+'</span><div class="document-actions"><button type="button" class="link-btn" data-preview-document="'+esc(doc.id)+'" '+(!['application/pdf','image/png','image/jpeg'].includes(doc.mime_type)?'disabled':'')+'>View document</button><button type="button" class="link-btn" data-download-document="'+esc(doc.id)+'">Download</button>'+(doc.latest!==false?'<button type="button" class="link-btn" data-review-document="'+esc(doc.id)+'">Review / comment</button>':'')+'<button type="button" class="link-btn" data-remove-document="'+esc(doc.id)+'">Remove</button></div></div>';
   }
   async function syncRequirementSummary() {
     await A.reloadApplicants();
@@ -308,7 +328,7 @@
     currentRecord = record || null;
     editingId = record?.id || null;
     draftId = record?.id || A.id();
-    form.reset();
+    form.reset();closeJobPicker(false);committed='';
     fillChoices(record || {});
     formError.hidden = true;
     formError.textContent = "";
@@ -317,13 +337,19 @@
       const input = document.getElementById(f.id);
       let value = row[f.column] ?? "";
       if (f.type === "datetime-local") value = f.column === "ScheduleDate" && value ? new Date(new Date(value).getTime()+8*3600000).toISOString().slice(0,16) : localDatetime(value);
+      if(f.column==="Gender"){const gender=String(value).trim().toLowerCase();value=["male","m"].includes(gender)?"Male":["female","f"].includes(gender)?"Female":"";}
       input.value = value;
     });
+    jobSearch.value="";fillChoices(record||{});
     fields.dateApplied.value = fields.dateApplied.value || A.today();
+    const submission=form.querySelector('[data-applicant-field="Submission Date"]');
+    if(!submission.value){const original=record?.db?.Date;const parts=new Intl.DateTimeFormat('en',{timeZone:'Asia/Manila',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(original?new Date(original):new Date());const get=type=>parts.find(part=>part.type===type)?.value;submission.value=get('year')+'-'+get('month')+'-'+get('day');}
     fields.status.value = statuses.includes(row.Status) ? row.Status : (statuses.find(status => statusTools.group(status) === statusTools.group(row.Status)) || "");
     statusTools.formOpened();
     documentTypes.forEach((type, i) => {
-      document.getElementById("requirement_" + i).value = row[type] || "";
+      const input=document.getElementById("requirement_"+i),value=row[type]||'Pending';
+      [...input.options].filter(option=>option.dataset.legacy).forEach(option=>option.remove());
+      if(![...input.options].some(option=>option.value===value)){const option=new Option(value,value);option.dataset.legacy='true';input.add(option);}input.value=value;
       document.getElementById("savedDocuments_" + i).textContent = "";
     });
     document.getElementById("applicantDialogTitle").textContent = record
@@ -332,40 +358,11 @@
     document.getElementById("saveApplicant").textContent = record
       ? "Save changes & uploads"
       : "Save applicant & documents";
-    document.getElementById("applicantIdentity").textContent =
-      "ApplicantID: " +
-      (record?.databaseId || "Assigned on save") +
-      " · AdminID: " +
-      session.AdminID +
-      " · Client reference: " +
-      draftId;
-    document.getElementById("applicantExcelData").textContent = JSON.stringify(
-      row.ExcelData || [],
-      null,
-      2,
-    );
-    document.getElementById("applicantCompanyNote").textContent =
-      "Checking company configuration…";
-    workflow.open(record);
+    document.getElementById('applicantCompanyNote').textContent='AdminID '+session.AdminID+' · Applicant details and documents are shared only within this workspace.';
+    workflow.open(record);refreshRequirementProgress();
     A.openDialog(dialog);
     fields.name.focus();
-    A.rpc("ats_mrf_context", { p_session_token: session.sessionToken })
-      .then((context) => {
-        document.getElementById("applicantCompanyNote").textContent =
-          context.companyConfigured
-            ? "CompanyID: " +
-              context.CompanyID +
-              " · Records and documents are shared only within AdminID " +
-              session.AdminID +
-              "."
-            : "AdminID " +
-              session.AdminID +
-              " · CompanyID is optional and not configured. Applicant details and documents stay within this AdminID.";
-      })
-      .catch((error) => {
-        document.getElementById("applicantCompanyNote").textContent =
-          error.message;
-      });
+    reloadJobs().catch(error=>{formError.textContent=error.message;formError.hidden=false;});
     loadDocuments().catch((error) => {
       formError.textContent =
         "Existing documents could not load: " + error.message;
@@ -435,10 +432,9 @@
       changes[type] =
         document.getElementById("requirement_" + i).value.trim() || null;
     });
+    if(changes.JobOpeningID==="legacy-current")delete changes.JobOpeningID;
     if (!workflow.prepareChanges(changes)) return;
     if (currentRecord?.databaseId) changes.ExpectedStageVersion = Number(currentRecord.db?.StageVersion || 0);
-    if (!changes.DateApplied)
-      changes.DateApplied = new Date(changes.Date + "T00:00:00").toISOString();
     lockForm(true);
     document.getElementById("saveApplicant").textContent =
       "Saving applicant to Supabase…";
@@ -604,15 +600,15 @@
       .addEventListener("click", () => window.ATS.closeDialog(dialog));
   });
   rows.addEventListener("click", (event) => {
-    const editButton = event.target.closest("[data-edit]");
+    const activityButton=event.target.closest('[data-requirement-activity]');if(activityButton){const record=applicants().find(item=>String(item.id)===activityButton.dataset.requirementActivity);if(record)A.openRequirementActivity?.(record.databaseId,record.name);return;}
+    const editButton = event.target.closest("[data-edit],[data-view-documents]");
     if (!editButton) return;
     const record = applicants().find(
-      (item) => String(item.id) === editButton.dataset.edit,
+      (item) => String(item.id) === (editButton.dataset.edit||editButton.dataset.viewDocuments),
     );
-    if (record) openForm(record);
+    if(record){openForm(record);if(editButton.dataset.viewDocuments)workflow.showDocuments();}
   });
   search.addEventListener("input", render);
-  filter.addEventListener("change", render);
   document
     .getElementById("clearApplicantFilters")
     .addEventListener("click", () => {
@@ -679,9 +675,9 @@
     const linkedApplicant = applicants().find(
       (record) => String(record.id) === linkedApplicantId,
     );
-    if (linkedApplicant) openForm(linkedApplicant);
+    if (linkedApplicant) {openForm(linkedApplicant);if(pageUrl.searchParams.get("documents")==="1")workflow.showDocuments();}
     else if (pageUrl.searchParams.get("add") === "1") openForm();
-    pageUrl.searchParams.delete("applicant");
+    pageUrl.searchParams.delete("applicant");pageUrl.searchParams.delete("documents");
     pageUrl.searchParams.delete("add");
     history.replaceState(null, "", pageUrl);
   }

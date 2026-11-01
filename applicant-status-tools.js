@@ -144,17 +144,7 @@
         button.append(title, value);
         button.setAttribute("aria-label", label + ": " + count + " applicants");
         button.addEventListener("click", () => {
-          if (!status) filter.value = "";
-          else {
-            const option = [...filter.options].find(
-              (o) => o.value && group(o.value) === status,
-            );
-            if (option) filter.value = option.value;
-            else {
-              filter.add(new Option(status, status));
-              filter.value = status;
-            }
-          }
+          filter.value=status;
           render();
         });
         host.append(button);
@@ -190,7 +180,7 @@
             `<li><strong>${A.escape(stageLabels[field])}</strong> ${A.escape(formatted(row[field]))}</li>`,
         )
         .join("");
-      return `<span class="applicant-date-applied">Applied: ${A.escape(record.dateApplied ? A.formatDate(record.dateApplied) : "—")}</span>${stage}${row.ScheduleDate ? `<span class="applicant-ref">Response: ${A.escape(row.ScheduleResponse || "Pending")}</span>` : ""}${changed}${entries ? `<details class="applicant-date-history"><summary>Stage dates</summary><ul>${entries}</ul></details>` : ""}`;
+      return `<span class="applicant-date-applied">Applied: ${A.escape(record.dateApplied ? A.formatDate(record.dateApplied) : "—")}</span>${stage}${row.ScheduleDate ? `<span class="applicant-ref">Response: ${A.escape(row.ScheduleResponse || "Pending")}</span>` : ""}${changed}${entries ? `<details class="applicant-date-history"><summary>Applicant flow</summary><ul>${entries}</ul></details>` : ""}`;
     },
     validateContacts(current, records) {
       const inputEmail = document.getElementById("applicantEmail"),

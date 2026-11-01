@@ -35,7 +35,13 @@ const job={id:'11111111-1111-4111-8111-111111111111',position_title:'Driver',sit
   });
   const page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));return page;
  }
- const hr=await pageFor(true);await hr.goto(base+'/job-openings');await hr.locator('#createJobPost').click();
+ const hr=await pageFor(true);await hr.goto(base+'/job-openings');await hr.locator('#postJob').waitFor();await hr.setViewportSize({width:1800,height:1000});
+ await hr.locator('.public-post-panel').waitFor();assert.equal(await hr.locator('.requirement-activity').count(),0);
+ const layout=await hr.evaluate(()=>{const box=s=>document.querySelector(s).getBoundingClientRect().toJSON();return {activity:box('.dashboard-main-panels'),jobs:box('.dashboard-positions'),links:box('.public-post-panel'),post:box('#postJob'),refresh:box('#refreshPositionCounts')};});
+ assert.ok(layout.links.x>=layout.jobs.right);assert.ok(Math.abs(layout.links.y-layout.jobs.y)<3);assert.ok(Math.abs(layout.post.y-layout.refresh.y)<3);assert.ok(layout.post.x>layout.jobs.x+layout.jobs.width/2);
+ await fs.mkdir('test-results',{recursive:true});await hr.screenshot({path:'test-results/job-workspace-desktop.png',fullPage:true});
+ await hr.setViewportSize({width:390,height:844});assert.ok(await hr.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await hr.screenshot({path:'test-results/job-workspace-mobile.png',fullPage:true});
+ await hr.getByRole('button',{name:/Notifications/}).click();await hr.getByRole('button',{name:'Requirements updates ↗'}).click();await hr.locator('.requirement-activity-modal[open]').waitFor();assert.match(await hr.locator('#requirementModalItems').innerText(),/No requirements activity/);await hr.getByRole('button',{name:'Close requirements activity'}).click();await hr.locator('#createJobPost').click();
  await hr.locator('#jobPostTitle').fill('Join our operations team');await hr.locator('#jobPostLimit').fill('50');await hr.locator('#jobPostDuration').selectOption('3');assert.equal(await hr.locator('#jobPostWebsite').inputValue(),'https://applicant-tracking-system-web-app-chi.vercel.app');await hr.getByRole('button',{name:'Generate link',exact:true}).click();await hr.locator('#generatedJobPostLink').waitFor({state:'visible'});
  assert.equal(await hr.locator('#generatedJobPostLink').inputValue(),'https://applicant-tracking-system-web-app-chi.vercel.app/jobs/'+token);assert.equal(await hr.locator('#openGeneratedJobPost').getAttribute('href'),'https://applicant-tracking-system-web-app-chi.vercel.app/jobs/'+token);assert.equal(state.create.p_limit,50);assert.ok(Date.parse(state.create.p_expires_at)>Date.now()+2*86400000);assert.ok(Date.parse(state.create.p_expires_at)<=Date.now()+7*86400000);
  await hr.getByRole('button',{name:'Close public post form'}).click();

@@ -7,7 +7,8 @@
   const escape = A.escape;
   const dayKey = A.dateKey;
   const parseDate = (value) => new Date(value + 'T12:00:00');
-  let selectedDate = A.today();
+  const requestedDate=new URLSearchParams(location.search).get('date');
+  let selectedDate = requestedDate&&/^\d{4}-\d{2}-\d{2}$/.test(requestedDate)&&Number(requestedDate.slice(0,4))>=1900&&dayKey(parseDate(requestedDate))===requestedDate?requestedDate:A.today();
   let displayedMonth = new Date(parseDate(selectedDate).getFullYear(), parseDate(selectedDate).getMonth(), 1, 12);
   let editingId = null;
   let deletingId = null;
@@ -72,7 +73,7 @@
       html += countChip(counts.applicants.length, 'applicant', 'applicant-count');
       html += countChip(counts.events.length, 'event', 'event-count');
       html += countChip(counts.meetings.length, 'meeting', 'meeting-count');
-      html += countChip(counts.appointments.length, 'appointment', 'meeting-count');
+      const stages=new Map();counts.appointments.forEach(item=>stages.set(item.stageStatus||'Appointment',(stages.get(item.stageStatus||'Appointment')||0)+1));stages.forEach((total,status)=>{html+='<span class="calendar-day-count status-marker '+A.applicantStatusTone(status)+'" title="'+escape(status)+': '+total+'"><span class="calendar-chip-number">'+total+'</span><span class="calendar-chip-label"> '+escape(status.replace(/^For /,''))+'</span></span>';});
       html += '</button>';
     }
     $('calendarGrid').innerHTML = html;
@@ -97,6 +98,7 @@
         const end = timeLabel(event.endTime);
         const time = start ? start + (end ? ' – ' + end : '') : 'All day';
         html += '<article class="agenda-record"><div class="agenda-record-head"><h3>' + escape(event.title || 'Untitled event') + '</h3><span class="agenda-kind ' + kind + '">' + (event.type === 'appointment' ? 'Appointment' : kind === 'meeting' ? 'Meeting' : 'Event') + '</span></div><p>' + escape(time) + '</p>';
+        if(event.stageStatus)html+='<p><span class="record-badge '+A.applicantStatusTone(event.stageStatus)+'">'+escape(event.stageStatus)+'</span></p>';
         if (applicant) html += '<p>Applicant: <a href="applicant-masterlist.html?applicant=' + encodeURIComponent(applicant.id) + '">' + escape(applicant.name) + '</a></p>';
         if (event.location) html += '<p>' + escape(event.location) + '</p>';
         if (event.description) html += '<p>' + escape(event.description) + '</p>';

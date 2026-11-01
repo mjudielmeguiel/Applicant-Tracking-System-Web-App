@@ -14,7 +14,6 @@ const definitions = [
   ['Contact Number', 'Contact number', 'tel', 25], ['Current Address', 'Current address', 'textarea', 2000],
   ['Gender', 'Gender', 'select', 120], ['JobOpeningID', 'Job opening and location', 'select', 120],
   ['Source', 'How did you hear about us?', 'select', 120],
-  ['Notes', 'Additional information', 'textarea', 2000],
 ] as const;
 
 export default function ApplicationForm() {

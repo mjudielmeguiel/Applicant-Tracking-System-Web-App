@@ -47,7 +47,7 @@
 
     const now = new Date();
     const time = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-    const upcoming = [...events, ...ATS.applicantAppointments().filter(item => item.response !== 'Attended')].filter(event => event.date > today() || (event.date === today() && (!event.startTime || (event.endTime || event.startTime) >= time))).sort((a, b) => `${a.date}${a.startTime || ''}`.localeCompare(`${b.date}${b.startTime || ''}`)).slice(0, 4);
+    const upcoming = [...events, ...ATS.applicantAppointments().filter(item => !['Attended','Recorded'].includes(item.response))].filter(event => event.date > today() || (event.date === today() && (!event.startTime || (event.endTime || event.startTime) >= time))).sort((a, b) => `${a.date}${a.startTime || ''}`.localeCompare(`${b.date}${b.startTime || ''}`)).slice(0, 4);
     document.getElementById('upcomingSchedule').innerHTML = upcoming.length ? upcoming.map(event => {
       const date = new Date(`${event.date}T12:00:00`);
       const applicant = applicants.find(person => person.id === event.applicantId);

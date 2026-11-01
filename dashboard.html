@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
   <title>Dashboard — Applicant Tracking System</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
   <link rel="stylesheet" href="styles.css">
@@ -11,6 +11,8 @@
   <script src="dashboard.js" defer></script>
   <script src="jobs.js" defer></script>
   <link rel="stylesheet" href="jobs.css">
+<link rel="stylesheet" href="responsive.css">
+<link rel="stylesheet" href="status-colors.css">
 </head>
 <body>
 <div class="app-shell">
@@ -31,13 +33,9 @@
   </nav>
   <main class="main">
     <header class="topbar">
-      <div><h1 id="userGreeting">Welcome, Administrator</h1><p class="meta" id="realtimeMeta"></p></div>
-      <div class="avatar" id="userAvatar">AD</div>
+      <div><p class="eyebrow">Your hiring workspace</p><h1>Recruitment overview</h1><p class="section-subtitle">A clear view of your applicants, pipeline, and upcoming schedule.</p></div>
+      <div class="page-actions"><div class="avatar" id="userAvatar">AD</div></div>
     </header>
-    <div class="page-heading">
-      <div><p class="eyebrow">Your hiring workspace</p><h2>Recruitment overview</h2><p>A clear view of your applicants, pipeline, and upcoming schedule.</p></div>
-      <div class="page-actions"><a class="btn-sm ghost" href="calendar.html?add=1">+ Add event</a><a class="btn-sm primary" href="applicant-masterlist.html?add=1">+ Add applicant</a></div>
-    </div>
     <section class="stat-grid" aria-label="Applicant summary">
       <div class="card stat-card"><span class="stat-symbol" aria-hidden="true">◎</span><div class="stat-label">TOTAL APPLICANTS</div><div class="stat-value accent" id="totalCount">0</div><div class="stat-note">Across your hiring pipeline</div></div>
       <div class="card stat-card"><span class="stat-symbol" aria-hidden="true">✓</span><div class="stat-label">SCREENED</div><div class="stat-value" id="screenedCount">0</div><div class="stat-note">Ready for the next step</div></div>
@@ -57,7 +55,7 @@
     </div>
     <div class="panel-row">
       <section class="table-card" aria-labelledby="recentTitle">
-        <div class="table-card-head"><div><h2 id="recentTitle">Recent applicants</h2><p class="section-subtitle">The latest additions to your masterlist</p></div><a href="applicant-masterlist.html" class="btn-sm ghost">View all →</a></div>
+        <div class="table-card-head"><div><h2 id="recentTitle">Recent applicants</h2><p class="section-subtitle">The latest additions to your masterlist</p></div><div class="page-actions"><a href="applicant-masterlist.html" class="btn-sm ghost">View all →</a><a class="btn-sm primary" href="applicant-masterlist.html?add=1">+ Add applicant</a></div></div>
         <div class="table-scroll"><table><thead><tr><th scope="col">Applicant</th><th scope="col">Position</th><th scope="col">Status</th><th scope="col">Date applied</th></tr></thead><tbody id="recentApplicants"></tbody></table></div>
         <div class="table-footer" id="applicantSummary">0 applicants</div>
       </section>

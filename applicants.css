@@ -244,3 +244,31 @@
 .applicant-parts{display:flex;gap:7px;flex-wrap:wrap;margin:0 0 10px}.applicant-parts button{padding:9px 11px;border:1px solid var(--line);border-radius:7px;background:#f8fafc;color:var(--ink);font-size:11px;cursor:pointer}.applicant-parts button[aria-selected=true]{background:var(--blue-600);color:var(--brand-contrast,#fff);border-color:var(--blue-600)}.applicant-part-label{font-size:11px;color:var(--muted);margin:0 0 18px}.followup-toggle{display:flex;gap:9px;align-items:flex-start;font-size:12px;line-height:1.6;margin-bottom:16px}.followup-toggle input{margin-top:3px}.followup-policy select{max-width:320px}.applicant-stage-history{margin-bottom:20px}.applicant-stage-history h3{font-size:13px;margin:0 0 12px}.applicant-stage-history article{display:flex;flex-direction:column;gap:5px;padding:12px;border-bottom:1px solid var(--line);font-size:12px}.applicant-stage-history article span{font-size:11px;color:var(--muted)}#applicantStageHistory{font-size:12px;color:var(--muted);max-height:250px;overflow:auto}#applicantNext[hidden]{display:none}@media(max-width:600px){.applicant-parts{display:grid;grid-template-columns:1fr 1fr}.applicant-parts button{text-align:left}.applicant-parts button:last-child{grid-column:1/-1}}
 #applicantDialog{overflow:hidden}#applicantForm{display:flex;flex-direction:column;max-height:90dvh}#applicantDialog .dialog-head,#applicantDialog .dialog-actions{flex-shrink:0}#applicantDialog .dialog-body{min-height:0;overflow-y:auto;overscroll-behavior:contain}#applicantDialog .applicant-parts{position:sticky;top:0;background:#fff;z-index:3;padding:8px 0;box-shadow:0 -10px 0 #fff}
 .document-actions{display:flex;flex-wrap:wrap;gap:10px}.review-document{display:block!important}.document-review-comment{display:block;color:#9d2929;white-space:pre-wrap;line-height:1.6}.document-preview-dialog{width:min(1000px,94vw);max-width:1000px}.document-preview-dialog .dialog-body{min-height:300px}.document-preview-dialog img{display:block;max-width:100%;max-height:75dvh;object-fit:contain;margin:auto}.document-preview-dialog iframe{width:100%;height:72dvh;border:0}.applicant-id-photo{border-top:1px solid #dce3ef;padding-top:18px;margin-top:18px}
+
+.appointment-options{margin-top:18px;border-top:1px solid var(--line);padding-top:16px}.appointment-options>summary{cursor:pointer;font-size:12px;font-weight:600;line-height:1.6}.appointment-options>.applicant-section{margin-top:18px}#currentStatusDateNote{margin:0 0 16px;line-height:1.6}
+
+#applicantJobSearch{margin-bottom:0}.applicant-row-actions{display:flex;flex-wrap:wrap;gap:8px}
+
+.applicant-job-picker{position:relative;width:100%}
+.applicant-job-picker #applicantJobSearch{padding-right:50px;min-height:44px;width:100%;text-overflow:ellipsis}
+.job-picker-toggle{position:absolute;right:1px;top:1px;bottom:1px;width:44px;display:grid;place-items:center;border:0;border-left:1px solid var(--line);border-radius:0 7px 7px 0;background:#edf2f8;color:var(--ink)}
+.job-picker-options{position:absolute;z-index:25;top:calc(100% + 6px);left:0;right:0;max-height:280px;overflow-y:auto;overscroll-behavior:contain;background:white;border:1px solid #c8d4e5;border-radius:10px;box-shadow:0 12px 32px #192a5626;padding:6px}
+.opens-up .job-picker-options{top:auto;bottom:calc(100% + 6px)}
+.job-picker-site{font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--muted);padding:10px 12px 6px;overflow-wrap:anywhere}
+.job-picker-option{display:flex;justify-content:space-between;align-items:center;gap:16px;min-height:52px;padding:12px;border-radius:7px;cursor:pointer}
+.job-picker-option:hover,.job-picker-option.is-active{background:#edf2f8;outline:1px solid #ced9e8}
+.job-picker-option[aria-selected=true]{background:#f2f5fa}
+.job-picker-option strong{font-size:13px;display:block;color:var(--ink);overflow-wrap:anywhere}
+.job-picker-option small{display:block;font-size:11px;margin-top:5px;color:var(--muted)}
+.job-picker-slots{font-size:11px;color:#176c55;background:#eaf5ef;padding:5px 8px;border-radius:5px;white-space:nowrap}
+.job-picker-empty{padding:14px;font-size:12px;color:var(--muted)}
+.recruitment-job-field{margin-bottom:2px}
+@media(max-width:600px){.job-picker-option{gap:8px;padding:10px}.job-picker-slots{font-size:10px;padding:5px}.job-picker-options{border-radius:8px}}
+
+.document-actions .link-btn{min-height:44px;padding:8px 10px}.applicant-row-actions{min-width:150px}
+
+.applicant-status-card[aria-pressed="true"]{background:#f1f4f9;border-color:var(--brand-color,#192a56);box-shadow:inset 3px 0 var(--brand-color,#192a56)}.applicant-status-card[aria-pressed="true"] span,.applicant-status-card[aria-pressed="true"] strong{color:var(--ink)}
+
+.applicant-manage{display:inline-flex;align-items:center;justify-content:center;gap:12px;min-height:40px;border:1px solid #d5dfed;border-radius:10px;background:#f4f7fc;color:var(--primary,#192a56);font-weight:600;white-space:nowrap;transition:background .15s,box-shadow .15s}.applicant-manage:hover{background:#e9eef8;box-shadow:0 3px 10px #192a5614}.applicant-manage:focus-visible{outline:2px solid #192a56;outline-offset:3px}.requirement-summary{display:grid;grid-template-columns:1fr auto;gap:10px;background:#f4f7fc;border:1px solid #dce5f2;border-radius:12px;padding:16px;margin:16px 0}.requirement-summary .progress-track,.requirement-summary small{grid-column:1/-1}.requirement-summary small{color:#61738f}
+
+button.applicant-requirements-status{display:block;text-align:left;background:transparent;border:0;border-radius:6px;padding:4px 0;cursor:pointer;font-family:inherit}button.applicant-requirements-status:hover{color:var(--primary,#192a56);text-decoration:underline}button.applicant-requirements-status:focus-visible{outline:2px solid #192a56;outline-offset:4px}

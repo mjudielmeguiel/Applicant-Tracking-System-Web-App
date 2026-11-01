@@ -45,7 +45,7 @@ async function prepare() {
     'applicants.js', 'calendar.js', 'company.js', 'dashboard.js', 'jobs.js', 'jobs.css', 'job-posts.js', 'invite.js',
     'notifications.js', 'profile-images.js', 'profile.js',
     'settings.js', 'user-invitations.js', 'users.js', 'invitation-admin.js',
-    'app.css', 'applicants.css', 'calendar.css', 'company.css', 'invitation.css',
+    'app.css', 'responsive.css', 'status-colors.css', 'applicants.css', 'calendar.css', 'company.css', 'invitation.css',
     'notifications.css', 'profile.css', 'settings.css', 'styles.css', 'users.css'
   ];
   for (const file of assets) await fs.copyFile(path.join(root, file), path.join(root, 'public', file));

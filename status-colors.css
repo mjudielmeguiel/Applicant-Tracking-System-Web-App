@@ -1,0 +1,24 @@
+/* Shared status palette: labels remain visible alongside color. */
+.status-default,.status-inactive{--status-ink:#475569;--status-bg:#f1f5f9;--status-solid:#64748b}
+.status-orientation{--status-ink:#334155;--status-bg:#e8edf4;--status-solid:#475569}
+.status-final-interview{--status-ink:#306216;--status-bg:#e9f6df;--status-solid:#5a8e31}
+.status-phone-interview{--status-ink:#9a3412;--status-bg:#ffeddc;--status-solid:#dd6b32}
+.status-f2f-interview{--status-ink:#61398d;--status-bg:#f0e7fa;--status-solid:#8252b4}
+.status-online-interview{--status-ink:#6d28a0;--status-bg:#f5e8ff;--status-solid:#a258c4}
+.status-pooling{--status-ink:#075985;--status-bg:#e0f2fe;--status-solid:#2495c3}
+.status-exam{--status-ink:#426217;--status-bg:#eef7dc;--status-solid:#80a72b}
+.status-job-offer{--status-ink:#9f372c;--status-bg:#ffe7df;--status-solid:#d27662}
+.status-hired{--status-ink:#1e4a94;--status-bg:#e3efff;--status-solid:#3875cf}
+.status-deployed{--status-ink:#116044;--status-bg:#dff5e9;--status-solid:#23845e}
+.status-rejected{--status-ink:#991b1b;--status-bg:#fee2e2;--status-solid:#c92b2b}
+.status-backout{--status-ink:#8a2639;--status-bg:#ffe4e8;--status-solid:#b53b51}
+.status-no-show{--status-ink:#9a3b16;--status-bg:#ffeadc;--status-solid:#ca5d28}
+.status-no-answer{--status-ink:#9f1239;--status-bg:#ffe4ed;--status-solid:#c83661}
+.status-resigned{--status-ink:#843e50;--status-bg:#f7e5eb;--status-solid:#a55e72}
+.status-screened{--status-ink:#294a75;--status-bg:#e8effa;--status-solid:#557baa}
+.status-hr-avatar{--status-ink:#155e75;--status-bg:#dff4f6;--status-solid:#2b94a4}
+.status-ongoing{--status-ink:#854d0e;--status-bg:#fef3c7;--status-solid:#b89023}
+.record-badge[class*="status-"],.calendar-day-count.status-marker{color:var(--status-ink);background-color:var(--status-bg)}
+.progress-fill[class*="status-"]{background-color:var(--status-solid)}
+.calendar-day-count.status-marker{border-left:3px solid var(--status-solid)}
+#viewStatusCalendar{margin-bottom:8px}

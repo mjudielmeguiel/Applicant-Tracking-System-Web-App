@@ -123,12 +123,17 @@
     'For Job Offer', 'For Phone Interview', 'For Online Interview', 'Hired', 'RESIGNED'
   ];
   ATS.applicantInterviewStatuses = ['Phone Interview','Final Interview','For Phone Interview','For Final Interview','For F2F Interview','For Online Interview'];
-  ATS.applicantStatusTone = status => ['Hired','Deployed','Job Offer','For Job Offer'].includes(status) ? 'success'
-    : ['Rejected','Inactive','No Show','Backout','No Answer','RESIGNED'].includes(status) ? 'danger'
-    : ['Pooling','For Pooling','For Exam'].includes(status) ? 'warning' : '';
+  ATS.applicantStatusTone = status => {
+    const key=String(status||'default').trim().toLowerCase().replace(/^for\s+/,'').replace(/[^a-z0-9]+/g,'-');
+    return 'status-'+(['orientation','final-interview','phone-interview','f2f-interview','online-interview','pooling','exam','job-offer','hired','deployed','rejected','backout','no-show','no-answer','resigned','screened','inactive','hr-avatar','ongoing'].includes(key)?key:'default');
+  };
+  ATS.paintStatus=(node,status)=>{if(!node)return;[...node.classList].filter(name=>name.startsWith('status-')&&name!=='status-colored').forEach(name=>node.classList.remove(name));node.classList.add('status-colored',ATS.applicantStatusTone(status));};
   const userLinks = document.querySelectorAll('a[href="users.html"]');
-  userLinks.forEach(link => { link.hidden = true; });
   ATS.isAdmin = account => account?.accountType === 'admin' && [1, 2].includes(Number(account.roleId)) && account.status === 'Active';
+  // Paint navigation immediately from the last session, then reconcile with ats_me.
+  // This only controls presentation; privileged operations still require server verification.
+  const navigationAccount=getUser();
+  userLinks.forEach(link => { link.hidden = !navigationAccount?.sessionToken || !ATS.isAdmin(navigationAccount); });
   ATS.rpc = async function (name, parameters) {
     const response = await fetch('https://wqshrjlcjqbjqcophvfv.supabase.co/rest/v1/rpc/' + name, {
       method: 'POST', headers: { apikey: 'sb_publishable_2QWxapvC5t_KHq-0u35d1w_kK-ah1eN', 'Content-Type': 'application/json' },
@@ -197,10 +202,18 @@
     })).sort((a,b) => b.applicants - a.applicants || a.name.localeCompare(b.name));
   };
   ATS.applicantAppointments = function () {
-    return read('ats_applicants').filter(record => record.db?.ScheduleDate && record.db.ScheduleResponse !== 'Cancelled' && !Number.isNaN(Date.parse(record.db.ScheduleDate))).map(record => {
-      const date = new Date(new Date(record.db.ScheduleDate).getTime() + 8 * 3600000).toISOString();
-      return {id:'appointment-'+record.id,type:'appointment',applicantId:record.id,date:date.slice(0,10),startTime:date.slice(11,16),title:(record.db.ScheduleType || 'Appointment')+' · '+record.name,response:record.db.ScheduleResponse || 'Pending'};
-    });
+    const stages={'PHONE INTERVIEW DATE':'For Phone Interview','FINAL INTERVIEW DATE':'For Final Interview','F2F INTERVIEW DATE':'For F2F Interview','ONLINE INTERVIEW DATE':'For Online Interview','ORIENTATION DATE':'For Orientation','EXAM DATE':'For Exam','JOB OFFER DATE':'For Job Offer'};
+    const result=[];
+    read('ats_applicants').forEach(record=>{
+      const row=record.db||{},stamp=row.ScheduleDate&&!Number.isNaN(Date.parse(row.ScheduleDate))?new Date(new Date(row.ScheduleDate).getTime()+8*3600000).toISOString():null;
+      const scheduledStage=row.ScheduleType||record.status,tone=ATS.applicantStatusTone(scheduledStage);
+      if(stamp&&row.ScheduleResponse!=='Cancelled')result.push({id:'appointment-'+record.id,type:'appointment',applicantId:record.id,date:stamp.slice(0,10),startTime:stamp.slice(11,16),title:scheduledStage+' · '+record.name,stageStatus:scheduledStage,response:row.ScheduleResponse||'Pending',location:record.site||row.Site||''});
+      Object.entries(stages).forEach(([column,status])=>{
+        const date=String(row[column]||'').slice(0,10);if(!/^\d{4}-\d{2}-\d{2}$/.test(date))return;
+        if(stamp&&stamp.slice(0,10)===date&&tone===ATS.applicantStatusTone(status))return;
+        result.push({id:'stage-'+column+'-'+record.id,type:'appointment',applicantId:record.id,date,startTime:'',title:status+' · '+record.name,stageStatus:status,response:ATS.applicantStatusTone(record.status)===ATS.applicantStatusTone(status)?'Pending':'Recorded',location:record.site||row.Site||''});
+      });
+    });return result;
   };
   ATS.normalizeApplicant = row => {
     const keys=['NBI','POLICE','SSS','PHILHEALTH','PAG IBIG','TIN','MEDICAL','DIPLOMA','TOR','RESUME'];
@@ -208,7 +221,7 @@
     return { id: row.ClientRecordID || 'db-'+row.ApplicantID, databaseId:row.ApplicantID, AdminID:row.AdminID,
       name:row.FullName||row.Name||(row.ApplicationInvitationID?'Incomplete application':''),position:row.PositionApplied||row.Position||'',source:row.Source||'',site:row.Site||'',
       email:row.Email||row['Email Address']||'',phone:row.ContactNumber||row['Contact Number']||'',status:row.Status||(row.WorkbookImportID?'Not recorded':'Screened'),
-      dateApplied:row.Date||String(row.DateApplied||'').slice(0,10),requirements:done*10,db:row };
+      dateApplied:row.Date||row['Submission Date']||'',requirements:done*10,db:row };
   };
   ATS.reloadApplicants = async function () {
     const session=await ATS.ready;if(!session)return [];
@@ -235,19 +248,27 @@
   const toggle = document.getElementById('sidebarToggle');
   if (sidebar && toggle) {
     try { sidebar.classList.toggle('collapsed', localStorage.getItem('ats_sidebar_collapsed') === 'true'); } catch (error) { /* Browsing can continue without saved preferences. */ }
+    const compact=matchMedia('(max-width: 1024px)'),main=document.querySelector('.main');
+    const backdrop=document.createElement('button');backdrop.type='button';backdrop.className='mobile-nav-backdrop';backdrop.setAttribute('aria-label','Close navigation');backdrop.tabIndex=-1;backdrop.hidden=true;document.body.append(backdrop);
     function updateToggle() {
-      const collapsed = sidebar.classList.contains('collapsed');
-      toggle.setAttribute('aria-expanded', String(!collapsed));
-      toggle.setAttribute('aria-controls', 'sidebar');
-      toggle.setAttribute('aria-label', collapsed ? 'Expand sidebar' : 'Collapse sidebar');
-      toggle.title = collapsed ? 'Expand sidebar' : 'Collapse sidebar';
+      const expanded=compact.matches?sidebar.classList.contains('mobile-expanded'):!sidebar.classList.contains('collapsed');
+      toggle.setAttribute('aria-expanded',String(expanded));toggle.setAttribute('aria-controls','sidebar');toggle.setAttribute('aria-label',expanded?'Collapse sidebar':'Expand sidebar');toggle.title=expanded?'Collapse sidebar':'Expand sidebar';
+      const overlay=compact.matches&&expanded;backdrop.hidden=!overlay;document.body.classList.toggle('mobile-nav-open',overlay);if(main)main.inert=overlay;
     }
+    function closeMobile(restore=false){sidebar.classList.remove('mobile-expanded');updateToggle();if(restore)toggle.focus();}
     updateToggle();
-    toggle.addEventListener('click', () => {
-      sidebar.classList.toggle('collapsed');
+    toggle.addEventListener('click',()=>{
+      if(compact.matches)sidebar.classList.toggle('mobile-expanded');else{sidebar.classList.toggle('collapsed');try{localStorage.setItem('ats_sidebar_collapsed',String(sidebar.classList.contains('collapsed')));}catch{}}
       updateToggle();
-      try { localStorage.setItem('ats_sidebar_collapsed', String(sidebar.classList.contains('collapsed'))); } catch (error) { /* Optional preference. */ }
     });
+    backdrop.addEventListener('click',()=>closeMobile(true));
+    sidebar.addEventListener('click',event=>{if(compact.matches&&event.target.closest('a'))closeMobile();});
+    document.addEventListener('keydown',event=>{
+      if(!compact.matches||!sidebar.classList.contains('mobile-expanded'))return;
+      if(event.key==='Escape'){event.preventDefault();closeMobile(true);}
+      if(event.key==='Tab'){const controls=[...sidebar.querySelectorAll('a[href],button:not(:disabled)')].filter(node=>node.getClientRects().length&&!node.hidden);const first=controls[0],last=controls[controls.length-1];if(event.shiftKey&&document.activeElement===first){event.preventDefault();last?.focus();}else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first?.focus();}}
+    });
+    compact.addEventListener('change',()=>closeMobile());
     sidebar.setAttribute('aria-label', 'Main navigation');
     sidebar.querySelectorAll('.nav-link').forEach(link => {
       link.setAttribute('aria-label', link.title || link.textContent.trim());
@@ -259,6 +280,7 @@
   const name = typeof user?.name === 'string' && user.name.trim() ? user.name.trim() : 'Administrator';
   const avatar = document.getElementById('userAvatar');
   if (avatar) {
+    avatar.setAttribute('role','button');avatar.setAttribute('aria-disabled','true');
     const parts = name.split(/\s+/);
     avatar.textContent = parts.length > 1 ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase() : name.slice(0, 2).toUpperCase();
     avatar.title = name;
@@ -273,8 +295,10 @@
   }
   updateClock();
   if (document.getElementById('realtimeMeta')) setInterval(updateClock, 30000);
+  let loggingOut=false;
   document.getElementById('logoutBtn')?.addEventListener('click', async event => {
     event.preventDefault();
+    if(loggingOut)return;loggingOut=true;event.currentTarget.setAttribute('aria-disabled','true');
     const token = getUser()?.sessionToken;
     try { localStorage.removeItem('ats_user'); } catch (_) { /* Continue to sign-in. */ }
     userLinks.forEach(link => { link.hidden = true; });

@@ -1,0 +1,87 @@
+/* A persistent navigation rail on Android phones and tablets. */
+.app-shell,.app-shell .main,.app-shell .topbar>div,.app-shell .table-card,.app-shell .panel,.app-shell .page-actions{min-width:0}
+.mobile-nav-backdrop{position:fixed;inset:0;z-index:300;background:#0b1e3d70;border:0;padding:0;cursor:pointer;touch-action:manipulation}
+.mobile-nav-open{overflow:hidden}
+.app-shell .table-scroll,.app-shell .job-table-wrap{max-width:100%;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
+@media(max-width:1024px){
+  .app-shell{display:flex;flex-direction:row;min-height:100dvh;width:100%}
+  .app-shell .sidebar,.app-shell .sidebar.collapsed{position:fixed;inset:0 auto 0 0;z-index:310;display:flex;flex-direction:column;align-items:stretch;flex-wrap:nowrap;width:72px;height:100dvh;padding:calc(12px + env(safe-area-inset-top)) 8px calc(12px + env(safe-area-inset-bottom));gap:4px;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scrollbar-width:thin}
+  .app-shell .main{margin-left:72px;width:calc(100% - 72px);max-width:none;flex:1;padding:24px;min-height:100dvh}
+  .app-shell .sidebar .sidebar-brand,.app-shell .sidebar.collapsed .sidebar-brand{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:10px;padding:0 0 12px;flex:none}
+  .app-shell .sidebar .sidebar-brand-left,.app-shell .sidebar.collapsed .sidebar-brand-left{display:flex!important;align-items:center;min-width:0}
+  .app-shell .sidebar .sidebar-name,.app-shell .sidebar.collapsed .sidebar-name{display:none!important}
+  .app-shell .sidebar .sidebar-logo{width:32px;height:32px;flex:none}
+  .app-shell .sidebar .sidebar-toggle-btn{display:grid;place-items:center;min-width:44px;min-height:44px;padding:10px;border-radius:8px}
+  .app-shell .sidebar .nav-link,.app-shell .sidebar.collapsed .nav-link{display:flex;flex:none;flex-direction:row;align-items:center;justify-content:center;min-height:48px;width:100%;padding:12px 8px;margin:0;border-radius:9px;font-size:13px;white-space:normal;text-align:left}
+  .app-shell .sidebar .nav-text{display:none!important}
+  .app-shell .sidebar .nav-icon{width:22px;height:22px;flex:none}
+  .app-shell .sidebar .sidebar-spacer{display:block;min-height:16px;flex:1}
+  .app-shell .sidebar #logoutBtn{position:static;inset:auto;font-size:13px;flex-direction:row;padding:12px 8px}
+  .app-shell .sidebar #logoutBtn .nav-icon{width:22px;height:22px}
+  .app-shell .sidebar .company-edit{font-size:0;min-height:44px;margin:0 0 8px;padding:10px;width:100%;flex:none}
+  .app-shell .sidebar .company-edit:after{content:'⚙';font-size:20px}
+  .app-shell .sidebar.mobile-expanded{width:min(280px,calc(100vw - 32px));padding-inline:14px;box-shadow:12px 0 40px #0b1e3d30}
+  .app-shell .sidebar.mobile-expanded .sidebar-brand{flex-direction:row;justify-content:space-between;gap:12px;padding:0 0 22px}
+  .app-shell .sidebar.mobile-expanded .sidebar-brand-left{gap:10px;flex:1}
+  .app-shell .sidebar.mobile-expanded .sidebar-name{display:block!important;font-size:13px;line-height:1.5}
+  .app-shell .sidebar.mobile-expanded .nav-text{display:block!important;line-height:1.5}
+  .app-shell .sidebar.mobile-expanded .nav-link{justify-content:flex-start;gap:12px;padding-inline:12px}
+  .app-shell .sidebar.mobile-expanded .company-edit{font-size:12px;justify-content:center}
+  .app-shell .sidebar.mobile-expanded .company-edit:after{content:none}
+  .app-shell .btn-sm,.app-dialog .btn-sm,.app-shell .activity-bell,.app-shell .avatar{min-height:44px}
+  .app-shell .avatar,.app-shell .activity-bell{width:44px;flex:none}
+  .app-shell .field-input,.app-dialog .field-input,.calendar-dialog input,.calendar-dialog select,.calendar-dialog textarea{font-size:16px;min-height:44px;max-width:100%;min-width:0}
+  .app-shell .topbar{align-items:flex-start;flex-wrap:wrap}
+  .app-shell .topbar h1{overflow-wrap:anywhere;line-height:1.4}
+  .app-shell .page-actions{gap:8px;flex-wrap:wrap}
+  .app-dialog,.calendar-dialog{max-height:calc(100dvh - 24px);max-width:calc(100vw - 24px);overscroll-behavior:contain;overflow:auto}
+  .dialog-close,.calendar-dialog-close{width:44px;height:44px;min-width:44px}
+  .app-shell .calendar-arrow{width:44px;height:44px}
+}
+@media(max-width:600px){
+  .app-shell .main{padding:18px 12px}
+  .app-shell .topbar,.app-shell .topbar:has(>.page-actions){display:flex;flex-direction:column;align-items:stretch;gap:14px}
+  .app-shell .topbar>div:first-child{width:100%}
+  .app-shell .topbar>.page-actions{width:100%;justify-content:flex-end}
+  .app-shell .topbar>.page-actions .avatar{margin-left:0}
+  .app-shell .topbar>.page-actions>.btn-sm{flex:1 1 auto}
+  .app-shell .topbar h1{font-size:18px}
+  .app-shell .page-heading{margin:24px 0 18px;gap:16px}
+  .app-shell .page-heading h1,.app-shell .page-heading h2{font-size:22px;line-height:1.3;overflow-wrap:anywhere}
+  .app-shell .page-heading>.page-actions,.app-shell .table-card-head>.page-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%}
+  .app-shell .page-heading>.page-actions>.btn-sm,.app-shell .table-card-head>.page-actions>.btn-sm{padding:10px 8px;white-space:normal;text-align:center}
+  .app-shell .page-heading>.page-actions>.primary:last-child:nth-child(odd),.app-shell .table-card-head>.page-actions>.primary:last-child:nth-child(odd){grid-column:1/-1}
+  .app-shell .panel,.app-shell .table-card-head{padding:16px 12px}
+  .app-shell .filters{padding:14px 12px;gap:12px}
+  .app-shell .filters>.filter-field{flex:1 1 100%;width:100%;min-width:0}
+  .app-shell .filters>.btn-sm{width:100%}
+  .app-shell .stat-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .app-shell .stat-card{padding:14px 10px;min-width:0}
+  .app-shell .stat-label{font-size:9px;line-height:1.5;overflow-wrap:anywhere}
+  .app-shell .stat-symbol{display:none}
+  .app-shell .stat-value{font-size:26px}
+  .app-shell .section-heading{align-items:flex-start;gap:12px}
+  .app-shell .section-heading>.page-actions{width:100%}
+  .app-shell .section-heading>.page-actions>.btn-sm{flex:1 1 auto;white-space:normal}
+  .app-shell .monthly-hired-card{flex-wrap:wrap;min-width:0;padding:20px 16px}
+  .app-shell .monthly-hired-note{max-width:100%}
+  .app-shell .applicant-status-cards{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .app-shell .applicant-invite-row,.invitation-list-item{flex-wrap:wrap;overflow-wrap:anywhere}
+  .app-shell .job-controls{grid-template-columns:minmax(0,1fr)}
+  .app-shell .job-position-grid{grid-template-columns:minmax(0,1fr)}
+  .app-shell .job-table-wrap{display:block}
+  .app-shell .public-post-row .page-actions{display:grid;grid-template-columns:1fr;width:100%}
+  .app-shell .calendar-toolbar{align-items:flex-start;gap:12px;flex-wrap:wrap}
+  .app-shell .calendar-controls{flex-wrap:wrap;gap:6px}
+  .app-dialog .dialog-head,.app-dialog .dialog-body{padding:18px 16px}
+  .app-dialog .dialog-actions{padding:14px 16px;gap:8px}
+  .app-dialog .dialog-actions>.btn-sm{flex:1;white-space:normal}
+  .app-dialog .form-grid{grid-template-columns:minmax(0,1fr)}
+  body .activity-panel{left:84px;right:12px;top:12px;width:auto;max-height:calc(100dvh - 24px)}
+}
+
+@media(max-width:1024px){.app-dialog .job-checks label{display:flex;align-items:center;gap:8px;min-height:44px;min-width:0;overflow-wrap:anywhere}.app-dialog .job-checks input{width:18px;height:18px;flex:none}.app-dialog .applicant-parts button{min-height:44px}.app-shell .sidebar-toggle-btn{touch-action:manipulation}.app-shell .nav-link{touch-action:manipulation}}
+
+@media(pointer:coarse){.app-shell .btn-sm,.app-dialog .btn-sm,.app-shell .activity-bell,.app-shell .avatar{min-height:44px}.app-shell .avatar,.app-shell .activity-bell{width:44px;flex:none}.app-dialog .dialog-close,.calendar-dialog-close,.app-shell .calendar-arrow{min-width:44px;min-height:44px}.app-shell .field-input,.app-dialog .field-input{font-size:16px;min-height:44px}}
+
+@media(max-width:1024px){.app-shell .sidebar:not(.mobile-expanded) .company-edit{font-size:0}}@media(max-width:600px){.app-shell .empty-state{text-align:left;white-space:normal}.app-shell .table-scroll::after,.app-shell .job-table-wrap::after{content:"Swipe sideways to see all columns";display:block;position:sticky;left:0;padding:12px;font-size:11px;line-height:1.5;color:var(--muted);background:var(--surface);max-width:100%}.dashboard-positions .job-position-grid:not(.job-table-wrap){max-height:none;overflow:visible}}
