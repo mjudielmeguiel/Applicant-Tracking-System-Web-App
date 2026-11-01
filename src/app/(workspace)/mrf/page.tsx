@@ -1,3 +1,2 @@
-import Screen from '@/components/Screen';
-export const metadata = { title: 'MRF Monitoring' };
-export default function MrfPage() { return <Screen name="mrf" />; }
+import { redirect } from 'next/navigation';
+export default function MrfPage() { redirect('/job-openings'); }

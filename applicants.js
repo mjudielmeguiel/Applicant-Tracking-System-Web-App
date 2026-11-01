@@ -50,7 +50,7 @@
           `<div class="applicant-document"><div><label class="field-label" for="requirement_${i}">${esc(type)} status / reference</label><input class="field-input" id="requirement_${i}" data-applicant-field="${esc(type)}" maxlength="1000" placeholder="Pending, Submitted, Verified, or reference"><div id="savedDocuments_${i}" class="saved-documents"></div></div><div><label class="field-label" for="upload_${i}">Upload ${esc(type)}</label><input id="upload_${i}" class="field-input" type="file" data-document-type="${esc(type)}" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"></div></div>`,
       )
       .join("") +
-    '</fieldset><details class="applicant-integration"><summary>Integration & workbook source</summary><p id="applicantIdentity"></p><p>Name, email, contact, and position are also saved to FullName, Email, ContactNumber, and PositionApplied.</p><pre id="applicantExcelData"></pre></details>';
+    '<div class="applicant-document applicant-id-photo"><div><h3>1×1 ID picture</h3><p class="section-subtitle">Square JPG/PNG · at least 300×300 pixels · up to 10 MB.</p><div id="idPhotoDocuments" class="saved-documents"></div></div><div><label class="field-label" for="idPhotoFile">Upload 1×1 ID picture</label><input class="field-input" id="idPhotoFile" type="file" accept=".jpg,.jpeg,.png"></div></div></fieldset><details class="applicant-integration"><summary>Integration & workbook source</summary><p id="applicantIdentity"></p><p>Name, email, contact, and position are also saved to FullName, Email, ContactNumber, and PositionApplied.</p><pre id="applicantExcelData"></pre></details>';
   const formError = document.getElementById("applicantFormError");
   const fields = {
     name: document.getElementById("applicantName"),
@@ -259,13 +259,50 @@
     documentTypes.forEach((type, i) => {
       document.getElementById("savedDocuments_" + i).innerHTML = documents
         .filter((doc) => doc.document_type === type)
-        .map(
-          (doc) =>
-            `<div class="saved-document"><span>${esc(doc.filename)} <small>${Math.ceil(doc.byte_size / 1024)} KB</small></span><button type="button" class="link-btn" data-download-document="${esc(doc.id)}">Download</button><button type="button" class="link-btn" data-remove-document="${esc(doc.id)}">Remove</button></div>`,
-        )
+        .map(documentRow)
         .join("");
+      const latest = documents.find(doc => doc.document_type === type && doc.latest !== false);
+      if (latest) document.getElementById('requirement_' + i).value = latest.review_status || 'Submitted';
     });
+    document.getElementById('idPhotoDocuments').innerHTML = documents.filter(doc => doc.document_type === 'ID PHOTO').map(documentRow).join('');
   }
+  function documentRow(doc) {
+    return '<div class="saved-document review-document"><span>'+esc(doc.filename)+' <small>'+Math.ceil(doc.byte_size/1024)+' KB · '+esc(doc.review_status||'Submitted')+(doc.latest===false?' · Previous upload':'')+(doc.automated?' · Automatic check':'')+'</small>'+(doc.review_comment?'<small class="document-review-comment">'+esc(doc.review_comment)+'</small>':'')+'</span><div class="document-actions"><button type="button" class="link-btn" data-preview-document="'+esc(doc.id)+'" '+(!['application/pdf','image/png','image/jpeg'].includes(doc.mime_type)?'disabled':'')+'>Preview</button><button type="button" class="link-btn" data-download-document="'+esc(doc.id)+'">Download</button>'+(doc.latest!==false?'<button type="button" class="link-btn" data-review-document="'+esc(doc.id)+'">Review / comment</button>':'')+'<button type="button" class="link-btn" data-remove-document="'+esc(doc.id)+'">Remove</button></div></div>';
+  }
+  async function syncRequirementSummary() {
+    await A.reloadApplicants();
+    const updated=A.remoteApplicants.find(row=>row.databaseId===currentRecord?.databaseId);
+    if(!updated)return;
+    for(const key of ['Ongoing Requirements Status','REQUIREMENTS COMPLETION DATE']){
+      const input=form.querySelector('[data-applicant-field="'+key+'"]');if(input)input.value=updated.db[key]||'';
+    }
+  }
+  const previewDialog=document.createElement('dialog');previewDialog.className='app-dialog document-preview-dialog';
+  previewDialog.innerHTML='<div class="dialog-head"><h2>Document preview</h2><button type="button" class="dialog-close" aria-label="Close preview">×</button></div><div class="dialog-body"></div>';
+  document.body.append(previewDialog);let previewUrl='';
+  previewDialog.querySelector('button').onclick=()=>previewDialog.close();
+  previewDialog.addEventListener('close',()=>{if(previewUrl)URL.revokeObjectURL(previewUrl);previewUrl='';previewDialog.querySelector('.dialog-body').replaceChildren();});
+  async function previewDocument(doc){
+    const result=await documentRequest({action:'preview',sessionToken:session.sessionToken,documentId:doc.id});
+    const url=new URL(result.url);if(url.origin!=='https://wqshrjlcjqbjqcophvfv.supabase.co')throw Error('Invalid private preview URL.');
+    const response=await fetch(url);if(!response.ok)throw Error('Preview could not be loaded.');
+    if(previewUrl)URL.revokeObjectURL(previewUrl);previewUrl=URL.createObjectURL(await response.blob());
+    const element=document.createElement(doc.mime_type==='application/pdf'?'iframe':'img');
+    element.src=previewUrl;if(element instanceof HTMLImageElement)element.alt=doc.filename;else element.title=doc.filename;
+    previewDialog.querySelector('h2').textContent=doc.filename;previewDialog.querySelector('.dialog-body').replaceChildren(element);previewDialog.showModal();
+  }
+  const reviewDialog=document.createElement('dialog');reviewDialog.className='app-dialog';reviewDialog.id='documentReviewDialog';
+  reviewDialog.innerHTML='<form><div class="dialog-head"><h2>Review requirement</h2><button type="button" class="dialog-close" aria-label="Close review">×</button></div><div class="dialog-body"><p id="reviewFilename"></p><label class="field-label" for="documentReviewStatus">Review status</label><select id="documentReviewStatus" class="field-input"><option>Submitted</option><option>Accepted</option><option>Rejected</option></select><label class="field-label" for="documentReviewComment">Comment / replacement instructions</label><textarea id="documentReviewComment" class="field-input" maxlength="2000" placeholder="Example: The SSS image is blurry. Please upload a clearer image."></textarea><p class="section-subtitle">Rejected files require a comment. Rejection reopens this requirement on the applicant link.</p><p class="form-error" role="alert" hidden></p></div><div class="dialog-actions"><button type="submit" class="btn-sm primary">Save review</button></div></form>';
+  document.body.append(reviewDialog);let reviewingDocument=null;
+  reviewDialog.querySelector('.dialog-close').onclick=()=>reviewDialog.close();
+  reviewDialog.querySelector('#documentReviewStatus').onchange=()=>{reviewDialog.querySelector('#documentReviewComment').required=reviewDialog.querySelector('#documentReviewStatus').value==='Rejected';};
+  reviewDialog.querySelector('form').onsubmit=async event=>{
+    event.preventDefault();if(!reviewingDocument)return;const button=event.submitter,error=reviewDialog.querySelector('.form-error');button.disabled=true;error.hidden=true;
+    try{
+      await A.rpc('ats_document_review',{p_session_token:session.sessionToken,p_document_id:reviewingDocument.id,p_status:reviewDialog.querySelector('#documentReviewStatus').value,p_comment:reviewDialog.querySelector('#documentReviewComment').value.trim()});
+      await loadDocuments();await syncRequirementSummary();render();reviewDialog.close();A.notify('Requirement review saved.');
+    }catch(reason){error.textContent=reason.message;error.hidden=false;}finally{button.disabled=false;}
+  };
   function openForm(record) {
     if (saving) return;
     currentRecord = record || null;
@@ -369,6 +406,8 @@
         file: document.getElementById("upload_" + i).files[0],
       }))
       .filter((item) => item.file);
+    selected.forEach(item => item.inputId = 'upload_' + item.index);
+    if (document.getElementById('idPhotoFile').files[0]) selected.push({type:'ID PHOTO',index:-1,inputId:'idPhotoFile',file:document.getElementById('idPhotoFile').files[0]});
     for (const { file } of selected) {
       if (
         file.size < 1 ||
@@ -426,6 +465,7 @@
       window.dispatchEvent(
         new CustomEvent("ats:data-change", { detail: { key } }),
       );
+      const automaticRejections = [];
       for (let n = 0; n < selected.length; n++) {
         const item = selected[n];
         document.getElementById("saveApplicant").textContent =
@@ -444,10 +484,12 @@
         const result = await documentRequest(upload);
         if (!result.saved)
           throw Error("Upload was not confirmed for " + item.type);
-        document.getElementById("upload_" + item.index).value = "";
+        document.getElementById(item.inputId).value = "";
         const status = document.getElementById("requirement_" + item.index);
-        if (!status.value) status.value = "Submitted";
+        if (status) status.value = result.review_status || "Submitted";
+        if (result.review_status === 'Rejected') automaticRejections.push(item.type + ': ' + result.review_comment);
       }
+      if (automaticRejections.length) throw Error('Images automatically rejected: ' + automaticRejections.join('; '));
       await Promise.all([A.reloadApplicants(), A.reloadCatalogs()]);
       render();
       A.closeDialog(dialog);
@@ -465,7 +507,7 @@
           ? "Applicant details were saved. Keep this form open and retry any remaining uploads. "
           : "") + statusTools.serverError(error);
       formError.hidden = false;
-      if (detailsSaved) await loadDocuments().catch(() => {});
+      if (detailsSaved) {await loadDocuments().catch(() => {});await syncRequirementSummary().catch(() => {});}
     } finally {
       lockForm(false);
       document.getElementById("saveApplicant").textContent =
@@ -475,6 +517,15 @@
     }
   });
   form.addEventListener("click", async (event) => {
+    const preview=event.target.closest('[data-preview-document]'),review=event.target.closest('[data-review-document]');
+    if(preview||review){
+      if(saving)return;const doc=documents.find(item=>item.id===(preview?.dataset.previewDocument||review?.dataset.reviewDocument));if(!doc)return;
+      try{
+        if(preview)await previewDocument(doc);
+        else{reviewingDocument=doc;reviewDialog.querySelector('#reviewFilename').textContent=doc.filename;reviewDialog.querySelector('#documentReviewStatus').value=doc.review_status||'Submitted';reviewDialog.querySelector('#documentReviewComment').value=doc.review_comment||'';reviewDialog.querySelector('#documentReviewComment').required=doc.review_status==='Rejected';reviewDialog.querySelector('.form-error').hidden=true;reviewDialog.showModal();}
+      }catch(reason){formError.textContent=reason.message;formError.hidden=false;}
+      return;
+    }
     const download = event.target.closest("[data-download-document]"),
       remove = event.target.closest("[data-remove-document]");
     if ((!download && !remove) || saving) return;

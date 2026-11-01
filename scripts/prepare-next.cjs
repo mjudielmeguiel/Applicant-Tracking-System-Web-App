@@ -38,13 +38,15 @@ async function prepare() {
       styles, scripts
     };
   }
+  // Remove retired published MRF controllers from earlier builds.
+  for (const file of ['mrf.js','mrf-store.js','mrf.css']) await fs.rm(path.join(root,'public',file),{force:true});
   const assets = [
     'app.js', 'applicant-fields.js', 'applicant-status-tools.js', 'applicant-workflow.js',
-    'applicants.js', 'calendar.js', 'company.js', 'dashboard.js', 'invite.js',
-    'mrf-store.js', 'mrf.js', 'notifications.js', 'profile-images.js', 'profile.js',
+    'applicants.js', 'calendar.js', 'company.js', 'dashboard.js', 'jobs.js', 'jobs.css', 'job-posts.js', 'invite.js',
+    'notifications.js', 'profile-images.js', 'profile.js',
     'settings.js', 'user-invitations.js', 'users.js', 'invitation-admin.js',
     'app.css', 'applicants.css', 'calendar.css', 'company.css', 'invitation.css',
-    'mrf.css', 'notifications.css', 'profile.css', 'settings.css', 'styles.css', 'users.css'
+    'notifications.css', 'profile.css', 'settings.css', 'styles.css', 'users.css'
   ];
   for (const file of assets) await fs.copyFile(path.join(root, file), path.join(root, 'public', file));
   await fs.cp(path.join(root, 'assets'), path.join(root, 'public', 'assets'), { recursive: true });

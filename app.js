@@ -6,7 +6,7 @@
   })[character]);
   const dateKey = date => [date.getFullYear(), String(date.getMonth() + 1).padStart(2, '0'), String(date.getDate()).padStart(2, '0')].join('-');
   let verifiedAccount = null;
-  const sharedRecordKeys = new Set(['ats_applicants', 'ats_events', 'ats_mrfs']);
+  const sharedRecordKeys = new Set(['ats_applicants', 'ats_events']);
   function recordStorageKey(key) {
     if (!sharedRecordKeys.has(key)) return key;
     const id = verifiedAccount?.AdminID;
@@ -204,7 +204,7 @@
   };
   ATS.normalizeApplicant = row => {
     const keys=['NBI','POLICE','SSS','PHILHEALTH','PAG IBIG','TIN','MEDICAL','DIPLOMA','TOR','RESUME'];
-    const done=keys.filter(key=>row[key]&&!/pending|missing|not submitted|not yet|follow.?up/i.test(row[key])).length;
+    const done=keys.filter(key=>row[key]&&!/pending|missing|rejected|not submitted|not yet|follow.?up/i.test(row[key])).length;
     return { id: row.ClientRecordID || 'db-'+row.ApplicantID, databaseId:row.ApplicantID, AdminID:row.AdminID,
       name:row.FullName||row.Name||(row.ApplicationInvitationID?'Incomplete application':''),position:row.PositionApplied||row.Position||'',source:row.Source||'',site:row.Site||'',
       email:row.Email||row['Email Address']||'',phone:row.ContactNumber||row['Contact Number']||'',status:row.Status||(row.WorkbookImportID?'Not recorded':'Screened'),

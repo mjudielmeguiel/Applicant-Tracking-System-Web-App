@@ -24,7 +24,7 @@ Open http://localhost:3000. For production:
         (workspace)/
           dashboard/page.tsx
           applicants/page.tsx
-          mrf/page.tsx
+          job-openings/page.tsx
           users/page.tsx
           calendar/page.tsx
         invite/page.tsx
@@ -77,7 +77,7 @@ URL fragments are preserved:
 | /index.html | / |
 | /dashboard.html | /dashboard |
 | /applicant-masterlist.html | /applicants |
-| /mrf-monitoring.html | /mrf |
+| /mrf-monitoring.html | /job-openings |
 | /users.html | /users |
 | /calendar.html | /calendar |
 | /invite.html | /invite |
@@ -116,4 +116,14 @@ Its older smoke suite is retained as npm run test:legacy and is separate from
 the Next.js checks.
 
 Applicant invitation forms use the React route /apply. See APPLICANT-INVITATIONS.md
-for configurable limits, required fields, autosaved drafts and deadline submission.
+for required fields, autosaved application information and requirements uploads.
+
+DOCUMENT-REVIEWS.md describes the current requirements-only workflow: per-file
+reviews, replacement comments, private previews, automatic JPG/PNG quality
+rejection and the applicant's separate 1×1 ID-picture upload.
+
+## Current recruitment workflow
+
+Job Openings replaces MRF Monitoring. The MRF database table/data have been removed as requested. Job cards combine position, location, live slots, description and configurable requirements. Applicant invitation details are optional; deadlines are 1–7 days from first opening, with overdue requirements held for HR review. See JOBS-AND-DEADLINES.md and APPLICANT-INVITATIONS.md.
+
+Public social-media job-post links: Job Openings → Create public post link. Set an applicant limit and expiry up to seven days. Applicants browse current vacancies and submit basic information. HR can view the linked applicants after expiry. See PUBLIC-JOB-POSTS.md.

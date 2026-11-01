@@ -14,13 +14,6 @@
   function render() {
     const applicants = read('ats_applicants');
     const events = read('ats_events');
-    const positions = ATS.positionSummary().filter(position => position.remaining > 0);
-    const countError = document.getElementById('positionCountsError');
-    countError.hidden = !ATS.catalogError;
-    if (ATS.catalogError) countError.textContent = 'Position counts could not be loaded from Supabase. Refresh counts to try again.';
-    document.getElementById('jobPositionCards').innerHTML = ATS.catalogError ? '' : positions.map(position =>
-      `<article class="job-position-card" data-position="${escape(position.name)}"><h3>${escape(position.name)}</h3><div class="job-position-counts"><div><strong data-position-applicants>${position.applicants}</strong><span>Applicants</span></div><div><strong data-position-remaining>${position.remaining}</strong><span>Remaining slots</span></div></div><p>${position.filled} filled · ${position.totalSlots} total slots</p></article>`
-    ).join('') || (ATS.catalogError ? '' : '<p class="inline-empty">No job positions with available slots. Update total job slots in Settings when vacancies open.</p>');
     document.getElementById('totalCount').textContent = applicants.length;
     const count = status => applicants.filter(applicant => applicant.status === status).length;
     document.getElementById('screenedCount').textContent = count('Screened');
