@@ -40,3 +40,34 @@
 
 .jobs-page{grid-template-columns:minmax(0,1fr) 340px;grid-template-areas:"header header" "positions links"}.jobs-page>.dashboard-main-panels{display:none}.jobs-page>.public-post-panel{position:sticky;top:24px;padding:20px}.jobs-page .public-post-panel>.section-heading{display:flex;flex-direction:column;align-items:stretch;gap:14px}.jobs-page .public-post-panel>.section-heading>.page-actions{display:flex;flex-wrap:wrap;gap:8px}.jobs-page .public-post-row{flex-direction:column}.jobs-page .public-post-row .page-actions{display:grid;grid-template-columns:1fr 1fr}.jobs-page .public-post-panel .btn-sm{white-space:normal;text-align:center}.jobs-page #jobPostList{max-height:calc(100dvh - 380px);min-height:100px}.jobs-page .public-post-row h3{overflow-wrap:anywhere}@media(max-width:1200px){.jobs-page{grid-template-columns:minmax(0,1fr);grid-template-areas:"header" "links" "positions"}.jobs-page>.public-post-panel{position:static}.jobs-page #jobPostList{max-height:320px}}
 .jobs-page{align-content:start;grid-auto-rows:min-content}
+
+/* Recruiter-led cards on the internal Job Openings workspace. */
+.jobs-page .job-listing-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;border:0;padding:0;overflow:visible;max-width:100%;align-items:start}
+.job-position-card .job-creator{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+.job-creator-avatar{display:grid;place-items:center;flex:none;width:48px;height:48px;border-radius:50%;background:#edf2f8;color:var(--blue-600);font-weight:700;font-size:16px}
+.job-creator>div{min-width:0}.job-creator strong{display:block;font-size:14px;line-height:1.5;overflow-wrap:anywhere}.job-creator>div>span{display:block;font-size:11px;line-height:1.5;color:var(--muted);margin-top:3px}
+.jobs-page .job-position-card{padding:20px;border:1px solid var(--line);border-radius:18px;background:var(--surface);box-shadow:0 3px 14px #192a5605;min-width:0;overflow-wrap:anywhere}
+.jobs-page .job-card-heading h3{font-size:19px;line-height:1.4;margin:0}
+.jobs-page .job-position-card .job-site{margin:12px 0 10px}
+.jobs-page .job-position-card .job-address{min-width:0;max-width:none;font-size:12px;color:var(--muted)}
+.jobs-page .job-position-card .job-position-counts{padding:14px 0;margin:14px 0;border-block:1px solid var(--line-soft)}
+.jobs-page .job-position-card .occupied-applicants,.jobs-page .job-row-details{min-width:0}
+.job-card-actions{border-top:1px solid var(--line-soft);margin-top:16px;padding-top:6px;display:flex;gap:8px;flex-wrap:wrap;align-items:start}.job-card-actions .job-row-details{width:100%}.job-card-actions .btn-sm{min-height:40px;border-radius:9px}
+@media(max-width:1550px){.jobs-page .job-listing-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:650px){.jobs-page .job-listing-grid{grid-template-columns:minmax(0,1fr)}}
+.job-creator-avatar{position:relative;overflow:hidden}.job-creator-avatar img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:50%;background:var(--surface)}
+.job-creator-avatar .job-avatar-person{display:block;width:36px;height:36px;fill:currentColor;color:var(--blue-600,#192a56)}
+
+/* Switch between vacancies and public links instead of crowding the workspace. */
+.jobs-page{display:flex;flex-direction:column;gap:20px}
+.job-workspace-switch{order:0;display:flex;align-self:flex-start;gap:4px;padding:5px;border:1px solid var(--line);border-radius:12px;background:var(--surface);max-width:100%}
+.job-workspace-switch button{min-height:44px;padding:10px 22px;border:0;border-radius:8px;background:transparent;color:var(--muted);font:inherit;font-size:13px;font-weight:600}
+.job-workspace-switch button[aria-selected=true]{background:var(--blue-600);color:#fff;box-shadow:0 2px 6px #192a561a}
+.jobs-page>.dashboard-positions,.jobs-page>.public-post-panel{order:1;width:100%;position:static}
+.jobs-page>.public-post-panel>.section-heading{flex-direction:row;align-items:center;justify-content:space-between}
+.jobs-page #jobPostList{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;max-height:none;overflow:visible;min-height:0}
+.jobs-page .public-post-row{border:1px solid var(--line);border-radius:14px;padding:20px;min-width:0;justify-content:space-between}
+.jobs-page .public-post-row .page-actions{width:100%}
+@media(max-width:1100px){.jobs-page #jobPostList{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:650px){.job-workspace-switch{align-self:stretch}.job-workspace-switch button{flex:1;padding-inline:12px}.jobs-page #jobPostList{grid-template-columns:minmax(0,1fr)}.jobs-page>.public-post-panel>.section-heading{flex-direction:column;align-items:stretch}}
+.job-workspace-switch{order:1}.jobs-page>.dashboard-positions,.jobs-page>.public-post-panel{order:2}

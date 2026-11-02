@@ -38,3 +38,27 @@
 .public-job-modal-note{margin:14px 0;font-size:12px}
 @media(max-width:600px){.public-job-modal{width:calc(100% - 20px);max-height:calc(100dvh - 24px)}.public-job-modal-head{padding:18px 18px 16px}.public-job-modal-head h2{font-size:18px}.public-job-modal-body{padding:18px}.public-job-modal .application-grid{grid-template-columns:minmax(0,1fr);gap:14px}.public-job-modal .application-grid .field-input{font-size:16px}}
 
+/* Public vacancy cards emphasize the real recruiter and position. */
+.public-job-post{max-width:1180px}
+.public-job-post .application-positions>div{grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.public-job-post .public-job-card{display:flex;flex-direction:column;gap:16px;padding:22px;border:1px solid #dce3ef;border-radius:18px;background:#fff;min-width:0;height:100%;box-shadow:0 3px 14px #192a5605}
+.public-job-post .public-job-card:hover{box-shadow:0 8px 24px #192a5612;transform:translateY(-2px)}
+.public-job-post .public-job-card span{margin:0;white-space:normal;overflow-wrap:anywhere}
+.public-job-card .public-job-person{display:flex;align-items:center;gap:12px}
+.public-job-card .public-job-avatar{display:grid;place-items:center;flex:none;width:48px;height:48px;border-radius:50%;background:#edf2f8;color:#192a56;font-size:17px;font-weight:700}
+.public-job-card .public-job-person-copy{display:flex;flex-direction:column;gap:3px;min-width:0}
+.public-job-card .public-job-creator{color:#192a56;font-size:15px;font-weight:700;line-height:1.4}
+.public-job-card .public-job-byline{font-size:11px;color:#64748b}
+.public-job-card .public-job-position{font-size:20px;line-height:1.35;overflow-wrap:anywhere}
+.public-job-card .public-job-tags{display:flex;flex-wrap:wrap;gap:7px}
+.public-job-card .public-job-tags>span{font-size:11px;line-height:1.4;border-radius:20px;padding:6px 10px;background:#edf2f8;color:#192a56;font-weight:600}
+.public-job-card .public-job-tags .public-job-slots{background:#edf6f2;color:#176752}
+.public-job-card .public-job-description{font-size:13px;line-height:1.65;color:#64748b;white-space:pre-wrap}
+.public-job-card .public-job-address{font-size:12px;line-height:1.5}
+.public-job-card .public-job-card-footer{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:auto;padding-top:16px;border-top:1px solid #eef2f7}
+.public-job-card .public-job-accepting{font-size:11px;color:#176752}
+.public-job-card .public-job-card-footer .public-job-apply{font-size:12px;white-space:nowrap;color:#192a56;font-weight:700}
+@media(max-width:1000px){.public-job-post .application-positions>div{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.public-job-post .application-positions>div{grid-template-columns:minmax(0,1fr)}.public-job-post .public-job-card{padding:20px}}
+@media(prefers-reduced-motion:reduce){.public-job-post .public-job-card:hover{transform:none}}
+.public-job-card .public-job-avatar{position:relative;overflow:hidden}.public-job-avatar svg{width:36px;height:36px;fill:currentColor}.public-job-avatar img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:50%;background:#fff}
