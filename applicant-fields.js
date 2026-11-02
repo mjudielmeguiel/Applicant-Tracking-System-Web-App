@@ -44,6 +44,7 @@ window.ApplicantFieldDefinitions = [
     "required": false,
     "max": 2000
   },
+  {column:"Birthdate",label:"Birthdate",type:"date",group:"Personal details",id:"applicantBirthdate",required:false,max:10},
   {
     "column": "Date",
     "label": "Date applied",

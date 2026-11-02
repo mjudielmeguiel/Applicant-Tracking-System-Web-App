@@ -140,6 +140,11 @@
       body: JSON.stringify(parameters)
     });
     const result = response.status === 204 ? null : await response.json();
+    if (!response.ok && result?.code==='28000' && parameters?.p_session_token && getUser()?.sessionToken===parameters.p_session_token) {
+      try{localStorage.removeItem('ats_user');}catch{}
+      userLinks.forEach(link=>{link.hidden=true;});
+      location.replace('index.html?session=ended');
+    }
     if (!response.ok) throw Object.assign(new Error(result?.code === 'PGRST202' ? 'Supabase setup is required. Run supabase-users-setup.sql in SQL Editor.' : result?.message || 'Supabase request failed.'), { code: result?.code });
     return result;
   };

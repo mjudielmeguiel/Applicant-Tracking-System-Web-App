@@ -18,16 +18,17 @@ const session = { id: 7, AdminID: 7, name: 'Test Admin', username: 'test_admin',
   const browser = await chromium.launch({ headless: true, ...(process.platform === 'win32' ? { channel: 'msedge' } : {}) });
   const context = await browser.newContext();
   const errors = [];
-  let savedJob = null, verificationGate=null;
+  let savedJob = null, verificationGate=null, expireJobs=false;
   const jobs = [{id:'job-1',position_title:'Driver',site:'ALABANG',address:'123 Delivery Road, Alabang',occupied_applicants:[{id:80,name:'Occupied Driver',status:'Hired'}],description:'Deliver goods safely.',remaining_slots:2,total_slots:3,filled_count:1,applicant_count:4,required_documents:['SSS','ID PHOTO'],status:'Open',state:'Open',creator_name:'Test Admin',can_edit:true},{id:'job-2',position_title:'Checker',site:'PASIG',address:'45 Warehouse Road, Pasig',occupied_applicants:[{id:81,name:'Occupied Checker',status:'Deployed'}],description:'Check orders.',remaining_slots:0,total_slots:1,filled_count:1,applicant_count:1,required_documents:['SSS'],status:'Occupied',state:'Open',creator_name:'Other recruiter',can_edit:false}];
   jobs.push({...jobs[0],id:'job-3',site:'MIGHTY MART',address:'78 Mart Road, Manila',occupied_applicants:[],filled_count:0,applicant_count:0,total_slots:2,remaining_slots:2});
-  await context.addInitScript(value => localStorage.setItem('ats_user', JSON.stringify(value)), session);
+  await context.addInitScript(value => {if(!location.search.includes('session=ended'))localStorage.setItem('ats_user', JSON.stringify(value));}, session);
   const mockRequest=async route => {
     const url = new URL(route.request().url());
     if (url.origin === base || url.protocol === 'file:') return route.continue();
     if (url.hostname === 'cdn.jsdelivr.net') return route.fulfill({ contentType: 'text/javascript', body: url.pathname.includes('supabase') ? 'window.supabase={createClient:()=>({rpc:async()=>({data:null,error:null})})};' : 'window.dcodeIO={bcrypt:{}};' });
     if (url.hostname.endsWith('.supabase.co')) {
       const name = url.pathname.split('/').pop();
+      if(name==='ats_jobs_list'&&expireJobs)return route.fulfill({status:401,json:{code:'28000',message:'Your session expired. Please sign in again.'}});
       if(name==='ats_me'&&verificationGate)await verificationGate;
       if(name==='ats_job_save'){const args=route.request().postDataJSON();savedJob=args.p_job;const index=jobs.findIndex(j=>j.id===args.p_id);if(index>=0)jobs[index]={...jobs[index],...savedJob,remaining_slots:savedJob.state==='Occupied'?0:Math.max(0,savedJob.total_slots-jobs[index].filled_count),status:savedJob.state==='Occupied'?'Occupied':'Open'};else jobs.push({...savedJob,id:'new-job',remaining_slots:savedJob.total_slots,filled_count:0,applicant_count:0,status:savedJob.state,creator_name:'Test Admin',can_edit:true});return route.fulfill({json:{saved:true}});}
       const responses = {
@@ -116,6 +117,7 @@ const session = { id: 7, AdminID: 7, name: 'Test Admin', username: 'test_admin',
       }
       await mobile.close();
     }
+    expireJobs=true;await page.goto(base+'/job-openings');await page.waitForURL(/session=ended/);assert.equal(await page.evaluate(()=>localStorage.getItem('ats_user')),null);expireJobs=false;
     await page.goto(base + '/not-a-real-page');
     assert.match(await page.locator('h1').innerText(), /Page not found/);
     assert.deepEqual(errors, []);

@@ -54,6 +54,11 @@
       .join("") +
     '<div class="applicant-document applicant-id-photo"><div><h3>1×1 ID picture</h3><p class="section-subtitle">Square JPG/PNG · at least 300×300 pixels · up to 10 MB.</p><div id="idPhotoDocuments" class="saved-documents"></div></div><div><label class="field-label" for="idPhotoFile">Upload 1×1 ID picture</label><input class="field-input" id="idPhotoFile" type="file" accept=".jpg,.jpeg,.png"></div></div></fieldset>';
   const formError = document.getElementById("applicantFormError");
+  const birthdate=form.querySelector('#applicantBirthdate');birthdate.max=new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Manila',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+  birthdate.closest('.form-field').insertAdjacentHTML('afterend','<div class="form-field"><label class="field-label" for="applicantAge">Age</label><input id="applicantAge" class="field-input" readonly placeholder="Calculated from birthdate"></div>');
+  function refreshAge(){const today=new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Manila',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date()),dob=birthdate.value;document.getElementById('applicantAge').value=dob&&dob<=today?Number(today.slice(0,4))-Number(dob.slice(0,4))-(today.slice(5)<dob.slice(5)?1:0):'';}
+  birthdate.addEventListener('input',refreshAge);
+
   const requirementSummary=document.createElement('div');requirementSummary.className='requirement-summary';requirementSummary.setAttribute('aria-live','polite');
   form.querySelector('#requirement_0').closest('fieldset').querySelector('.section-subtitle').after(requirementSummary);
   function refreshRequirementProgress(){const done=documentTypes.filter((type,i)=>{const value=document.getElementById('requirement_'+i).value;return value&&!/pending|missing|rejected|not submitted|not yet|follow.?up/i.test(value);}).length;const percent=Math.round(done/documentTypes.length*100);requirementSummary.innerHTML='<strong>'+(percent===100?'Requirements complete':done+' of '+documentTypes.length+' requirements complete')+'</strong><span>'+percent+'%</span><div class="progress-track" role="progressbar" aria-label="Requirements completion" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+percent+'"><div class="progress-fill" style="width:'+percent+'%"></div></div><small>'+(percent===100?'Completion date is recorded automatically when saved.':'Set a status for each requirement. Files can be attached later.')+'</small>';}
@@ -75,6 +80,7 @@
     draftId = null,
     saving = false,
     documents = [];
+  const inviteExisting=document.createElement('button');inviteExisting.type='button';inviteExisting.id='inviteExistingApplicant';inviteExisting.className='btn-sm ghost';inviteExisting.textContent='Invite to complete details & requirements';inviteExisting.onclick=()=>{if(currentRecord?.databaseId){if(window.ATS.inviteExistingApplicant)window.ATS.inviteExistingApplicant(currentRecord);else A.notify('Invitation settings are still loading. Please try again.');}};document.getElementById('applicantCompanyNote').after(inviteExisting);
   const session = await window.ATS.ready;
 
   let jobChoices=[];
@@ -209,7 +215,7 @@
         const shortId =
           record.databaseId || String(record.id).slice(-6).toUpperCase();
         return `<tr>
-        <td><span class="applicant-name">${esc(record.name || "Unnamed applicant")}</span><span class="applicant-ref">#${esc(shortId)}</span></td>
+        <td><div class="applicant-person"><span class="applicant-photo" data-applicant-photo="${esc(record.databaseId||'')}" data-name="${esc(record.name||'Applicant')}">${esc((record.name||'A').trim().slice(0,2).toUpperCase())}</span><div><span class="applicant-name">${esc(record.name || "Unnamed applicant")}</span><span class="applicant-ref">#${esc(shortId)}</span></div></div></td>
         <td>${esc(record.position || "—")}<span class="applicant-ref">${esc([record.source, record.site].filter(Boolean).join(" · "))}</span></td>
         <td>${esc(record.phone || "—")}${record.email ? `<span class="applicant-email">${esc(record.email)}</span>` : ""}</td>
         <td><span class="record-badge ${statusTone(record.status)}">${esc(record.status || "Not recorded")}</span><button type="button" class="applicant-requirements-status" data-requirement-activity="${esc(record.id)}"><span>Ongoing requirements status ↗</span>${esc(String(record.db?.["Ongoing Requirements Status"] || record["Ongoing Requirements Status"] || "").trim() || "View requirements updates")}</button></td>
@@ -219,9 +225,14 @@
       </tr>`;
       })
       .join("");
+    showApplicantPhotos();
   }
 
   const A = window.ATS;
+  let applicantPhotos=new Map();const photoUrls=new Map();
+  const photoObserver=new IntersectionObserver(entries=>{for(const entry of entries){if(!entry.isIntersecting)continue;photoObserver.unobserve(entry.target);const node=entry.target,doc=applicantPhotos.get(node.dataset.applicantPhoto);if(!doc)continue;const cached=photoUrls.get(doc);const request=cached&&cached.until>Date.now()?Promise.resolve(cached.url):documentRequest({action:'preview',sessionToken:session.sessionToken,documentId:doc}).then(result=>{const url=new URL(result.url);if(url.origin!=='https://wqshrjlcjqbjqcophvfv.supabase.co')throw Error('Invalid photo URL');photoUrls.set(doc,{url:url.href,until:Date.now()+45000});return url.href;});request.then(url=>{if(!node.isConnected||applicantPhotos.get(node.dataset.applicantPhoto)!==doc)return;const img=document.createElement('img');img.src=url;img.alt=node.dataset.name+' 1×1 ID picture';img.onerror=()=>{node.textContent=node.dataset.name.slice(0,2).toUpperCase();};node.replaceChildren(img);}).catch(()=>{});}});
+  function showApplicantPhotos(){photoObserver.disconnect();rows.querySelectorAll('[data-applicant-photo]').forEach(node=>{if(applicantPhotos.has(node.dataset.applicantPhoto))photoObserver.observe(node);else node.textContent=(node.dataset.name||'A').slice(0,2).toUpperCase();});}
+  async function loadApplicantPhotos(){try{const result=await A.rpc('ats_applicant_photos',{p_session_token:session.sessionToken});if(String(result.AdminID)!==String(session.AdminID)||!Array.isArray(result.photos))return;applicantPhotos=new Map(result.photos.map(row=>[String(row.applicantId),row.documentId]));showApplicantPhotos();}catch{}}
   function localDatetime(value) {
     if (!value) return "";
     const d = new Date(value);
@@ -359,7 +370,7 @@
       ? "Save changes & uploads"
       : "Save applicant & documents";
     document.getElementById('applicantCompanyNote').textContent='AdminID '+session.AdminID+' · Applicant details and documents are shared only within this workspace.';
-    workflow.open(record);refreshRequirementProgress();
+    inviteExisting.hidden=!record?.databaseId;workflow.open(record);refreshRequirementProgress();refreshAge();
     A.openDialog(dialog);
     fields.name.focus();
     reloadJobs().catch(error=>{formError.textContent=error.message;formError.hidden=false;});
@@ -669,7 +680,7 @@
   }
   window.addEventListener('focus', refreshStages);
   setInterval(refreshStages, 60000);
-  render();
+  render();void loadApplicantPhotos();window.addEventListener('ats:activity-refresh',loadApplicantPhotos);
   const linkedApplicantId = pageUrl.searchParams.get("applicant");
   if (linkedApplicantId !== null || pageUrl.searchParams.get("add") === "1") {
     const linkedApplicant = applicants().find(

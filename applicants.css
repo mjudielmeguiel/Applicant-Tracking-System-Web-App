@@ -272,3 +272,7 @@
 .applicant-manage{display:inline-flex;align-items:center;justify-content:center;gap:12px;min-height:40px;border:1px solid #d5dfed;border-radius:10px;background:#f4f7fc;color:var(--primary,#192a56);font-weight:600;white-space:nowrap;transition:background .15s,box-shadow .15s}.applicant-manage:hover{background:#e9eef8;box-shadow:0 3px 10px #192a5614}.applicant-manage:focus-visible{outline:2px solid #192a56;outline-offset:3px}.requirement-summary{display:grid;grid-template-columns:1fr auto;gap:10px;background:#f4f7fc;border:1px solid #dce5f2;border-radius:12px;padding:16px;margin:16px 0}.requirement-summary .progress-track,.requirement-summary small{grid-column:1/-1}.requirement-summary small{color:#61738f}
 
 button.applicant-requirements-status{display:block;text-align:left;background:transparent;border:0;border-radius:6px;padding:4px 0;cursor:pointer;font-family:inherit}button.applicant-requirements-status:hover{color:var(--primary,#192a56);text-decoration:underline}button.applicant-requirements-status:focus-visible{outline:2px solid #192a56;outline-offset:4px}
+
+#inviteExistingApplicant{margin-bottom:18px;min-height:42px;border-radius:9px}
+
+.applicant-person{display:flex;align-items:center;gap:12px}.applicant-photo{flex:none;width:44px;height:44px;border-radius:10px;display:grid;place-items:center;background:#edf2f8;color:#192a56;overflow:hidden;font-size:12px;font-weight:600}.applicant-photo img{width:100%;height:100%;object-fit:cover}
