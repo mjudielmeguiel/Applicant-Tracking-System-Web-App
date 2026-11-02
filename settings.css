@@ -123,3 +123,6 @@
 }
 
 .company-settings-entry{display:flex;align-items:center;justify-content:space-between;gap:16px}.company-settings-entry .btn-sm{flex-shrink:0;min-height:42px;border-radius:10px}@media(max-width:600px){.company-settings-entry{align-items:stretch;flex-direction:column}}
+
+/* Destructive workspace actions require password verification on the server. */
+.workspace-danger{margin:0 26px 26px;padding:20px;border:1px solid #e6a5a5;border-radius:10px;background:#fff7f7}.workspace-danger h3{margin:0 0 8px;color:#922626}.workspace-danger p{font-size:13px;line-height:1.6}.workspace-danger select,.workspace-danger input{width:100%;margin:6px 0 14px}.workspace-danger label{display:block;font-size:13px}.workspace-danger .danger-submit{background:#a52828;color:white;border:1px solid #a52828;min-height:42px}.workspace-danger .danger-submit:disabled{opacity:.5;cursor:not-allowed}@media(max-width:700px){.workspace-danger{margin:0 18px 18px}}

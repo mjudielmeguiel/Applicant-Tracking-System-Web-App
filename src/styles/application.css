@@ -17,3 +17,24 @@
 .applicant-guide-heading{display:flex;justify-content:space-between;align-items:start;gap:16px}.applicant-guide-heading label{font-size:12px;min-width:130px}.applicant-guide-heading select{margin-top:5px}.applicant-guide ol{padding-left:22px}.applicant-guide li{margin:10px 0;line-height:1.7;font-size:13px}.requirements-final-actions{display:flex;flex-wrap:wrap;gap:12px;border-top:1px solid #dce4ef;padding-top:22px;margin-top:24px}.requirements-final-actions>p{width:100%;font-size:12px;color:#65748b}@media(max-width:500px){.applicant-guide-heading{flex-direction:column}.requirements-final-actions>button{width:100%}}
 
 .application-language-bar{display:flex;align-items:center;justify-content:flex-end;gap:14px;margin:0 0 22px;padding:12px 0;border-bottom:1px solid #e1e7f0}.application-language-bar>span{font-size:12px;color:#62728c}.application-language-switch{display:flex;gap:4px;padding:4px;background:#edf2f8;border:1px solid #dce4ef;border-radius:11px}.application-language-switch button{min-height:40px;min-width:90px;padding:8px 16px;border:0;border-radius:8px;background:transparent;color:#192a56;font:inherit;font-size:13px;font-weight:600;cursor:pointer}.application-language-switch button[aria-pressed=true]{background:#192a56;color:white;box-shadow:0 2px 5px #192a5620}.application-language-switch button:focus-visible{outline:2px solid #192a56;outline-offset:2px}@media(max-width:500px){.application-language-bar{justify-content:space-between;flex-wrap:wrap;gap:8px}.application-language-switch button{min-width:80px;min-height:44px}}
+
+/* Keep the application header visible and scroll only the form content. */
+.public-job-modal{max-width:720px;max-height:calc(100dvh - 40px);border-radius:20px;overflow:hidden}
+.public-job-modal[open]{display:flex;flex-direction:column}
+.public-job-modal-head{flex:none;gap:16px;padding:22px 24px;background:#fff;align-items:flex-start}
+.public-job-modal-head>div{flex:1;min-width:0}
+.public-job-modal-head h2{margin:0 0 6px;line-height:1.35;font-size:20px;overflow-wrap:anywhere}
+.public-job-modal-head p{margin:8px 0 0;line-height:1.5}
+.public-job-modal-head>button{width:36px;min-width:36px;height:36px;min-height:36px;border:1px solid #d7dee8;border-radius:10px;padding:0;flex:none}
+.public-job-modal-body{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#b9c5d5 transparent;padding:22px 24px 24px}
+.public-job-modal-body fieldset{min-width:0;margin:0}
+.public-job-modal legend{margin:0 0 12px;line-height:1.5}
+.public-job-modal .application-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 18px;margin-top:0}
+.public-job-modal .application-grid>div{min-width:0}
+.public-job-modal .application-grid>div:last-child{grid-column:1/-1}
+.public-job-modal .field-label{display:block;margin:0 0 7px;font-size:12px;line-height:1.4}
+.public-job-modal .application-grid .field-input{display:block;width:100%;min-width:0;min-height:44px;margin:0;padding:11px 12px;border:1px solid #d7dee8;border-radius:10px;background-color:#fff;color:#192a56;box-sizing:border-box}
+.public-job-modal .application-grid input[readonly]{background:#f4f7fb;color:#64748b}
+.public-job-modal-note{margin:14px 0;font-size:12px}
+@media(max-width:600px){.public-job-modal{width:calc(100% - 20px);max-height:calc(100dvh - 24px)}.public-job-modal-head{padding:18px 18px 16px}.public-job-modal-head h2{font-size:18px}.public-job-modal-body{padding:18px}.public-job-modal .application-grid{grid-template-columns:minmax(0,1fr);gap:14px}.public-job-modal .application-grid .field-input{font-size:16px}}
+

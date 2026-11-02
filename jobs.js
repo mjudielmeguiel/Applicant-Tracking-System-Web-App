@@ -36,9 +36,10 @@
   }
   async function refresh() {
     if (loading) return; loading = true;
+    const stopLoading=A.startLoading(cards,'Loading job openings');
     refreshButton.disabled=true;refreshButton.setAttribute('aria-busy','true');
     await (async()=>{try {const result=await rpc('ats_jobs_list');if(String(result.AdminID)!==String(session.AdminID)||!Array.isArray(result.jobs))throw Error('Invalid job response.');jobs=result.jobs;render();$('positionCountsError').hidden=true;} catch(e){$('positionCountsError').textContent=e.message;$('positionCountsError').hidden=false;}})();
-    loading=false;refreshButton.disabled=false;refreshButton.removeAttribute('aria-busy');
+    stopLoading();loading=false;refreshButton.disabled=false;refreshButton.removeAttribute('aria-busy');
   }
   async function open(job = null, title = '') {
     editing=job; $('jobForm').reset();$('jobDialogTitle').textContent=job?'Edit job opening':'Post a job';

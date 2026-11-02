@@ -95,6 +95,7 @@ const session = { id: 7, AdminID: 7, name: 'Test Admin', username: 'test_admin',
     assert.equal(await page.locator('#inviteHandoverWarning').isVisible(), true);
     await page.goto(base + '/index.html?invitation=created');
     await page.waitForFunction(() => window.supabase);
+    await page.waitForFunction(()=>document.getElementById('invitationNotice')?.textContent.includes('account was created'));
     assert.match(await page.locator('#invitationNotice').innerText(), /account was created/);
     assert.equal(new URL(page.url()).search, '?invitation=created');
 
@@ -117,6 +118,16 @@ const session = { id: 7, AdminID: 7, name: 'Test Admin', username: 'test_admin',
       }
       await mobile.close();
     }
+    await page.goto(base+'/job-openings');await page.locator('#createJobPost').click();
+    await page.locator('#jobPostDialog').screenshot({path:'test-results/rounded-post-form.png'});
+    await page.evaluate(()=>{window.stopPreviewLoading=ATS.startLoading(document.querySelector('#jobPostDialog .dialog-body'),'Loading form');});
+    assert.equal(await page.locator('#jobPostDialog .ats-skeleton').isVisible(),true);
+    await page.locator('#jobPostDialog').screenshot({path:'test-results/form-skeleton.png'});
+    await page.evaluate(()=>{window.stopPreviewLoading();document.querySelector('#jobPostDialog').close();window.deletionChoice=ATS.confirmDelete('Delete Account','Are you sure you want to delete your account?');});
+    await page.locator('.delete-confirm-dialog').screenshot({path:'test-results/delete-confirmation.png'});
+    assert.equal(await page.locator('#cancelDeletion').evaluate(el=>document.activeElement===el),true);
+    await page.locator('#cancelDeletion').click();assert.equal(await page.evaluate(()=>window.deletionChoice),false);
+    await page.evaluate(()=>{window.deletionChoice=ATS.confirmDelete('Delete records','This action cannot be undone.');});await page.locator('#confirmDeletion').click();assert.equal(await page.evaluate(()=>window.deletionChoice),true);
     expireJobs=true;await page.goto(base+'/job-openings');await page.waitForURL(/session=ended/);assert.equal(await page.evaluate(()=>localStorage.getItem('ats_user')),null);expireJobs=false;
     await page.goto(base + '/not-a-real-page');
     assert.match(await page.locator('h1').innerText(), /Page not found/);

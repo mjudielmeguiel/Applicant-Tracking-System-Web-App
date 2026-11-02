@@ -41,7 +41,7 @@
     return dialog;
   }
 
-  const userDialog = makeDialog('inviteUserDialog', 'Invite a user', 'One regular USER account · linked to AdminID ' + A.escape(session.AdminID) + ' · expiry is set in Settings.', 'createInvitationForm',
+  const userDialog = makeDialog('inviteUserDialog', 'Invite a user', 'One regular USER account · linked to AdminID ' + A.escape(session.AdminID) + ' · the link expiry is shown after creation.', 'createInvitationForm',
     '<p class="form-error" id="createInviteError" role="alert" hidden></p><label class="field-label" for="prefillInviteName">Full name (optional prefill)</label><input class="field-input" id="prefillInviteName" maxlength="200"><label class="field-label" for="prefillInviteUsername">Username (optional prefill)</label><input class="field-input" id="prefillInviteUsername" pattern="[A-Za-z0-9_]{3,20}" title="3–20 letters, numbers or underscores"><label class="field-label" for="prefillInviteEmail">Recipient email (optional)</label><input class="field-input" id="prefillInviteEmail" type="email" maxlength="254"><p class="section-subtitle">If specified, the recipient must use this email. No verification email is sent.</p><label class="field-label" for="prefillInvitePhoto">Profile picture (optional)</label><input class="field-input" id="prefillInvitePhoto" type="file" accept="image/png,image/jpeg,image/webp"><div class="invitation-result" id="invitationResult" hidden><label class="field-label" for="generatedInviteLink">Share this invitation link</label><input class="field-input invitation-link" id="generatedInviteLink" readonly><p class="invitation-expiry" id="generatedInviteExpiry"></p><button type="button" class="btn-sm ghost" id="copyInviteLink">Copy link</button></div>',
     'Create user invitation');
   const handoverDialog = makeDialog('adminHandoverDialog', 'Transfer admin access', 'Create a one-time link for a replacement admin on AdminID ' + A.escape(session.AdminID) + '.', 'createAdminHandoverForm',
@@ -115,7 +115,7 @@
     createLink({
       dialog: handoverDialog, formId: 'createAdminHandoverForm', submit: adminForm.querySelector('[type="submit"]'),
       resultId: 'handoverResult', linkId: 'generatedHandoverLink', expiryId: 'handoverExpiry', errorId: 'handoverError',
-      rpcName: 'ats_admin_handover_create', expiresText: 'The link expiry is set in Settings. Only share it with the replacement admin.',
+      rpcName: 'ats_admin_handover_create', expiresText: 'The link expiry is shown above. Only share it with the replacement admin.',
       args: () => ({ p_session_token: session.sessionToken, p_current_password: $('adminHandoverDialog', 'confirmCurrentAdminPassword').value, p_full_name: $('adminHandoverDialog', 'handoverName').value.trim(), p_username: $('adminHandoverDialog', 'handoverUsername').value.trim(), p_email: $('adminHandoverDialog', 'handoverEmail').value.trim(), p_profile_picture: input.dataset.photo || null })
     });
   };

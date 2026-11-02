@@ -117,6 +117,21 @@
     }
   };
 
+  // Shared loading placeholders follow the existing workspace palette.
+  ATS.startLoading=(target,label='Loading content')=>{
+    if(!target)return ()=>{};
+    const skeleton=document.createElement('div');skeleton.className='ats-skeleton';skeleton.setAttribute('role','status');skeleton.setAttribute('aria-label',label);
+    skeleton.innerHTML='<div class="skeleton-heading"><span class="skeleton-circle"></span><div><span class="skeleton-line"></span><span class="skeleton-line short"></span></div></div><span class="skeleton-block"></span><span class="skeleton-line"></span><span class="skeleton-line medium"></span><span class="skeleton-line short"></span>';
+    const previousBusy=target.getAttribute('aria-busy');target.setAttribute('aria-busy','true');target.classList.add('ats-loading');target.append(skeleton);
+    return ()=>{skeleton.remove();if(!target.querySelector(':scope > .ats-skeleton')){target.classList.remove('ats-loading');if(previousBusy===null)target.removeAttribute('aria-busy');else target.setAttribute('aria-busy',previousBusy);}};
+  };
+  ATS.confirmDelete=(title,description)=>new Promise(resolve=>{
+    const dialog=document.createElement('dialog');dialog.className='app-dialog delete-confirm-dialog';dialog.setAttribute('aria-labelledby','deleteConfirmTitle');
+    dialog.innerHTML='<div class="delete-confirm-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7M14 10v7"/></svg></div><h2 id="deleteConfirmTitle"></h2><p></p><div class="delete-confirm-actions"><button type="button" class="btn-sm danger" id="confirmDeletion">Delete</button><button type="button" class="btn-sm ghost" id="cancelDeletion">Cancel</button></div>';
+    dialog.querySelector('h2').textContent=title;dialog.querySelector('p').textContent=description;document.body.append(dialog);
+    const finish=value=>{dialog.close();dialog.remove();resolve(value);};dialog.querySelector('#confirmDeletion').onclick=()=>finish(true);dialog.querySelector('#cancelDeletion').onclick=()=>finish(false);dialog.oncancel=event=>{event.preventDefault();finish(false);};dialog.showModal();dialog.querySelector('#cancelDeletion').focus();
+  });
+
   ATS.applicantStatuses = [
     'For Orientation', 'For Final Interview', 'Rejected', 'Backout', 'No Show',
     'No Answer', 'For F2F Interview', 'Deployed', 'For Pooling', 'For Exam',
