@@ -1,7 +1,7 @@
 import { createClient } from 'npm:@supabase/supabase-js@2.118.0';
 import { imageQuality } from './image-quality.ts';
 const cors = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'apikey, authorization, content-type', 'Access-Control-Allow-Methods': 'POST, OPTIONS' };
-const kinds = ['NBI','POLICE','SSS','PHILHEALTH','PAG IBIG','TIN','MEDICAL','DIPLOMA','TOR','RESUME','ID PHOTO'];
+
 const bucket = 'applicant-documents';
 const respond = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { ...cors, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' } });
 async function boundedBody(req: Request) {
@@ -42,7 +42,7 @@ export function documentHandler(mode: 'staff' | 'invitation') {
       const sessionToken = String(form.get('sessionToken') || '');
       const invitationToken = String(form.get('invitationToken') || '');
       const kind = String(form.get('documentType') || ''), file = form.get('file');
-      if (!kinds.includes(kind) || !(file instanceof File)) throw Error('Choose a valid document category and file.');
+      if (!kind.trim() || kind.length>80 || /[\u0000-\u001f\u007f]/.test(kind) || !(file instanceof File)) throw Error('Choose a valid document category and file.');
       const { data: access, error: denied } = mode === 'staff'
         ? await client.rpc('ats_document_access', { p_session_token: sessionToken, p_applicant_id: String(form.get('applicantId') || ''), p_document_id: null })
         : await client.rpc('ats_application_upload_access', { p_token: invitationToken });

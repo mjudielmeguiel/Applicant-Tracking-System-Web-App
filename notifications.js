@@ -120,13 +120,7 @@
       button.dataset.activityId = row.id;
       const initials = document.createElement("span");
       initials.className = "activity-initials";
-      initials.textContent = row.actor_name
-        .trim()
-        .split(/\s+/)
-        .slice(0, 2)
-        .map((p) => p[0])
-        .join("")
-        .toUpperCase();
+      initials.innerHTML = "<svg class=\"account-person-icon\" viewBox=\"0 0 64 64\" aria-hidden=\"true\"><circle cx=\"32\" cy=\"18\" r=\"11\"/><ellipse cx=\"32\" cy=\"47\" rx=\"22\" ry=\"13\"/></svg>";
       const copy = document.createElement("span");
       copy.className = "activity-copy";
       const label = document.createElement("span");

@@ -21,34 +21,34 @@
 <a href="index.html" class="nav-link" id="logoutBtn" title="Log out"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg><span class="nav-text">Log out</span></a>
 </nav>
 <main class="main">
-<div class="topbar"><div><p class="eyebrow">Workspace</p><h1>Users List</h1><p class="meta">View user accounts linked to your AdminID.</p></div><div class="page-actions"><button type="button" class="btn-sm primary" id="openAddUserBtn" hidden>+ Add User</button><button type="button" class="btn-sm ghost" id="refreshUsers">Refresh users</button><div class="avatar" id="userAvatar" role="button" aria-disabled="true">AU</div></div></div>
+<div class="topbar"><div><p class="eyebrow">Workspace</p><h1>Users List</h1><p class="meta">Manage user accounts in your workspace.</p></div><div class="page-actions"><button type="button" class="btn-sm primary" id="openAddUserBtn" hidden>+ Add User</button><button type="button" class="btn-sm ghost" id="refreshUsers">Refresh users</button><div class="avatar" id="userAvatar" role="button" aria-disabled="true">AU</div></div></div>
 <div class="stat-grid">
 <div class="card stat-card"><div class="stat-label">TOTAL USERS</div><div class="stat-value accent" id="usersTotal">—</div></div>
-<div class="card stat-card"><div class="stat-label">ACTIVE</div><div class="stat-value positive" id="usersActive">—</div></div>
-<div class="card stat-card"><div class="stat-label">INACTIVE</div><div class="stat-value" id="usersInactive">—</div></div>
+<button type="button" class="card stat-card user-status-card" data-user-filter="online" aria-label="Show online users" aria-pressed="false"><span class="stat-label">ONLINE</span><span class="stat-value positive" id="usersOnline">—</span></button>
+<button type="button" class="card stat-card user-status-card" data-user-filter="offline" aria-label="Show offline users" aria-pressed="false"><span class="stat-label">OFFLINE</span><span class="stat-value" id="usersOffline">—</span></button>
 <div class="card stat-card"><div class="stat-label">DATA SOURCE</div><div style="font-size:16px;font-weight:600" id="usersSource">Supabase</div></div>
 </div>
 <p class="form-error" id="usersError" role="alert" hidden></p>
 <section class="table-card" aria-labelledby="usersTitle">
 <div class="table-card-head"><div><h2 class="section-heading" id="usersTitle">Users directory</h2><p class="section-subtitle">Accounts registered in your applicant tracking system.</p></div></div>
-<div class="filters"><div class="filter-field"><label class="field-label" for="userSearch">Search users</label><input class="field-input" id="userSearch" type="search" placeholder="Name, username, or email"></div><div class="filter-field"><label class="field-label" for="userStatus">Status</label><select class="field-input" id="userStatus"><option value="">All statuses</option><option>Active</option><option>Inactive</option></select></div></div>
-<div class="table-scroll"><table><thead><tr><th scope="col">UserID</th><th scope="col">AdminID</th><th scope="col">User</th><th scope="col">Username</th><th scope="col">Role</th><th scope="col">Status</th><th scope="col">Created</th></tr></thead><tbody id="usersBody"><tr><td colspan="7" class="empty-state">Loading users…</td></tr></tbody></table></div>
+<div class="filters"><div class="filter-field"><label class="field-label" for="userSearch">Search users</label><input class="field-input" id="userSearch" type="search" placeholder="Name, username, or email"></div><div class="filter-field"><label class="field-label" for="userStatus">Status</label><select class="field-input" id="userStatus"><option value="">All statuses</option><option value="online">Online</option><option value="offline">Offline</option></select></div></div>
+<div class="table-scroll"><table><thead><tr><th scope="col">User</th><th scope="col">Username</th><th scope="col">Role</th><th scope="col">Status</th><th scope="col">Created</th><th scope="col">Actions</th></tr></thead><tbody id="usersBody"><tr><td colspan="6" class="empty-state">Loading users…</td></tr></tbody></table></div>
 <div class="table-footer" id="usersCount" aria-live="polite">Connecting to Supabase…</div>
 </section>
 </main></div>
 <dialog class="app-dialog" id="addUserDialog" aria-labelledby="addUserTitle">
 <form id="addUserForm">
-<div class="dialog-head"><div><h2 id="addUserTitle">Add User</h2><p>Create a regular USER account linked to your AdminID.</p></div><button type="button" class="dialog-close" data-close-dialog aria-label="Close">×</button></div>
+<div class="dialog-head"><div><h2 id="addUserTitle">Add User</h2><p>Create a user account in your workspace.</p></div><button type="button" class="dialog-close" data-close-dialog aria-label="Close">×</button></div>
 <div class="dialog-body">
 <p class="form-error" id="addUserError" role="alert" hidden></p>
-<label class="field-label" for="newAdminID">AdminID</label><input class="field-input" id="newAdminID" readonly>
+
 <label class="field-label" for="newFullName">Full name</label><input class="field-input" id="newFullName" autocomplete="name" minlength="2" maxlength="200" required>
 <label class="field-label" for="newUsername">Username</label><input class="field-input" id="newUsername" autocomplete="off" pattern="[A-Za-z0-9_]{3,20}" title="3–20 letters, numbers, or underscores" required>
 <label class="field-label" for="newEmail">Email</label><input class="field-input" id="newEmail" type="email" autocomplete="email" maxlength="254" required>
 <label class="field-label" for="newPassword">Password</label><input class="field-input" id="newPassword" type="password" autocomplete="new-password" minlength="8" required>
 <label class="field-label" for="newConfirm">Confirm password</label><input class="field-input" id="newConfirm" type="password" autocomplete="new-password" minlength="8" required>
 <label class="field-label" for="newPhoto">Profile picture (optional, PNG/JPEG/WebP up to 10 MB, resized before saving)</label><input class="field-input" id="newPhoto" type="file" accept="image/png,image/jpeg,image/webp">
-<p class="section-subtitle">Role: USER. UserID is generated when Supabase saves the account.</p>
+<p class="section-subtitle">New accounts start with the USER role.</p>
 </div><div class="dialog-actions"><button type="button" class="btn-sm ghost" data-close-dialog>Cancel</button><button type="submit" class="btn-sm primary" id="saveUserBtn">Save User</button></div>
 </form></dialog>
 <script src="https://cdn.jsdelivr.net/npm/bcryptjs@2.4.3/dist/bcrypt.min.js"></script>

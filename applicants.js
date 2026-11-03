@@ -61,7 +61,9 @@
 
   const requirementSummary=document.createElement('div');requirementSummary.className='requirement-summary';requirementSummary.setAttribute('aria-live','polite');
   form.querySelector('#requirement_0').closest('fieldset').querySelector('.section-subtitle').after(requirementSummary);
-  function refreshRequirementProgress(){const done=documentTypes.filter((type,i)=>{const value=document.getElementById('requirement_'+i).value;return value&&!/pending|missing|rejected|not submitted|not yet|follow.?up/i.test(value);}).length;const percent=Math.round(done/documentTypes.length*100);requirementSummary.innerHTML='<strong>'+(percent===100?'Requirements complete':done+' of '+documentTypes.length+' requirements complete')+'</strong><span>'+percent+'%</span><div class="progress-track" role="progressbar" aria-label="Requirements completion" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+percent+'"><div class="progress-fill" style="width:'+percent+'%"></div></div><small>'+(percent===100?'Completion date is recorded automatically when saved.':'Set a status for each requirement. Files can be attached later.')+'</small>';}
+  let requirementPlan=null;
+  function refreshRequirementProgress(){if(requirementPlan){const required=requirementPlan.requiredDocuments;const done=required.filter(type=>{const index=documentTypes.indexOf(type);const status=index>=0?document.getElementById('requirement_'+index).value:document.querySelector('[data-custom-status="'+CSS.escape(type)+'"]')?.value||requirementPlan.statuses[type];return /^(submitted|verified|accepted|not required)$/i.test(status||'');}).length;const percent=Math.round(done/required.length*100);requirementSummary.innerHTML='<strong>'+done+' of '+required.length+' requirements submitted</strong><span>'+percent+'%</span><div class="progress-track"><div class="progress-fill" style="width:'+percent+'%"></div></div><small>Uses this applicant’s required checklist, including HR confirmations and custom documents.</small>';return;}
+const done=documentTypes.filter((type,i)=>{const value=document.getElementById('requirement_'+i).value;return value&&!/pending|missing|rejected|not submitted|not yet|follow.?up/i.test(value);}).length;const percent=Math.round(done/documentTypes.length*100);requirementSummary.innerHTML='<strong>'+(percent===100?'Requirements complete':done+' of '+documentTypes.length+' requirements complete')+'</strong><span>'+percent+'%</span><div class="progress-track" role="progressbar" aria-label="Requirements completion" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+percent+'"><div class="progress-fill" style="width:'+percent+'%"></div></div><small>'+(percent===100?'Completion date is recorded automatically when saved.':'Set a status for each requirement. Files can be attached later.')+'</small>';}
   form.addEventListener('change',refreshRequirementProgress);
 
   const fields = {
@@ -80,6 +82,20 @@
     draftId = null,
     saving = false,
     documents = [];
+  const requirementSection=document.getElementById('idPhotoDocuments').closest('fieldset');
+  const customize=document.createElement('button');customize.type='button';customize.id='customizeApplicantRequirements';customize.className='btn-sm ghost';customize.textContent='Customize applicant requirements';requirementSummary.after(customize);
+  const customRows=document.createElement('div');customRows.id='customApplicantRequirements';requirementSection.append(customRows);
+  const requirementEditor=document.createElement('dialog');requirementEditor.className='app-dialog';requirementEditor.id='applicantRequirementEditor';requirementEditor.innerHTML='<form id="applicantRequirementPlanForm"><div class="dialog-head"><div><h2>Customize applicant requirements</h2><p>Choose required documents, add document names, and record HR status for this applicant only.</p></div><button type="button" class="dialog-close" aria-label="Close requirements editor">×</button></div><div class="dialog-body"><div id="applicantRequirementPlanRows"></div><label class="field-label" for="newApplicantRequirement">New document name</label><div class="page-actions"><input class="field-input" id="newApplicantRequirement" maxlength="80" placeholder="e.g. Employment certificate"><button type="button" class="btn-sm ghost" id="addApplicantRequirement">Add requirement</button></div><p class="form-error" id="applicantRequirementPlanError" role="alert" hidden></p></div><div class="dialog-actions"><button type="submit" class="btn-sm primary">Save applicant requirements</button></div></form>';document.body.append(requirementEditor);
+  let planBusy=false,planDraft=[];
+  const requirementStatuses=['Pending','Submitted','Verified','Accepted','Rejected','Not required'];
+  function renderPlanEditor(){document.getElementById('applicantRequirementPlanRows').innerHTML=planDraft.map((item,index)=>'<div class="applicant-plan-row"><label><input type="checkbox" data-plan-required="'+index+'" '+(item.required?'checked':'')+'> '+esc(item.name)+'</label><select class="field-input" aria-label="'+esc(item.name)+' HR status" data-plan-status="'+index+'">'+requirementStatuses.map(status=>'<option '+(item.status===status?'selected':'')+'>'+status+'</option>').join('')+'</select></div>').join('');}
+  function readPlanEditor(){planDraft.forEach((item,index)=>{item.required=document.querySelector('[data-plan-required="'+index+'"]').checked;item.status=document.querySelector('[data-plan-status="'+index+'"]').value;});}
+  function applyRequirementPlan(){if(!requirementPlan)return;documentTypes.forEach((type,index)=>{const row=document.getElementById('requirement_'+index).closest('.applicant-document');row.hidden=!requirementPlan.requiredDocuments.includes(type);const status=requirementPlan.statuses[type];if(status&&requirementStatuses.includes(status))document.getElementById('requirement_'+index).value=status;});document.querySelector('.applicant-id-photo').hidden=!requirementPlan.requiredDocuments.includes('ID PHOTO');customRows.innerHTML=requirementPlan.requiredDocuments.filter(type=>!documentTypes.includes(type)&&type!=='ID PHOTO').map((type,index)=>'<div class="applicant-document"><div><label class="field-label">'+esc(type)+' HR status</label><select class="field-input" data-custom-status="'+esc(type)+'">'+requirementStatuses.map(status=>'<option '+(requirementPlan.statuses[type]===status?'selected':'')+'>'+status+'</option>').join('')+'</select><div class="saved-documents">'+documents.filter(doc=>doc.document_type===type).map(documentRow).join('')+'</div></div><div><label class="field-label" for="customRequirementUpload_'+index+'">Upload '+esc(type)+'</label><input class="field-input" type="file" id="customRequirementUpload_'+index+'" data-custom-upload="'+esc(type)+'" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"></div></div>').join('');customRows.querySelectorAll('select').forEach(input=>input.onchange=refreshRequirementProgress);refreshRequirementProgress();}
+  customize.onclick=async()=>{if(!currentRecord?.databaseId){A.notify('Save the applicant before customizing requirements.');return;}customize.disabled=true;try{const data=await A.rpc('ats_applicant_requirements',{p_session_token:session.sessionToken,p_applicant_id:currentRecord.databaseId});if(!Array.isArray(data.requiredDocuments))throw Error('The requirements checklist could not be loaded.');requirementPlan=data;const names=[...new Set([...documentTypes,'ID PHOTO',...data.requiredDocuments])];planDraft=names.map(name=>({name,required:data.requiredDocuments.includes(name),status:data.statuses[name]||'Pending'}));document.getElementById('applicantRequirementPlanError').hidden=true;renderPlanEditor();requirementEditor.showModal();}catch(error){A.notify(error.message);}finally{customize.disabled=false;}};
+  requirementEditor.querySelector('.dialog-close').onclick=()=>{if(!planBusy)requirementEditor.close();};requirementEditor.oncancel=event=>{if(planBusy)event.preventDefault();};
+  document.getElementById('addApplicantRequirement').onclick=()=>{readPlanEditor();const input=document.getElementById('newApplicantRequirement'),name=input.value.trim().toUpperCase();if(!name||planDraft.some(item=>item.name===name))return;planDraft.push({name,required:true,status:'Pending'});input.value='';renderPlanEditor();};
+  document.getElementById('applicantRequirementPlanForm').onsubmit=async event=>{event.preventDefault();if(planBusy)return;readPlanEditor();const required=planDraft.filter(item=>item.required);const error=document.getElementById('applicantRequirementPlanError');if(!required.length){error.textContent='Choose at least one required document.';error.hidden=false;return;}planBusy=true;requirementEditor.querySelectorAll('button,input,select').forEach(el=>el.disabled=true);try{requirementPlan=await A.rpc('ats_applicant_requirements',{p_session_token:session.sessionToken,p_applicant_id:currentRecord.databaseId,p_required:required.map(item=>item.name),p_statuses:Object.fromEntries(required.map(item=>[item.name,item.status]))});requirementEditor.close();await loadDocuments();await syncRequirementSummary();A.notify('Applicant requirements updated. Their application link uses the same checklist.');}catch(reason){error.textContent=reason.message;error.hidden=false;}finally{planBusy=false;requirementEditor.querySelectorAll('button,input,select').forEach(el=>el.disabled=false);}};
+
   const inviteExisting=document.createElement('button');inviteExisting.type='button';inviteExisting.id='inviteExistingApplicant';inviteExisting.className='btn-sm ghost';inviteExisting.textContent='Invite to complete details & requirements';inviteExisting.onclick=()=>{if(currentRecord?.databaseId){if(window.ATS.inviteExistingApplicant)window.ATS.inviteExistingApplicant(currentRecord);else A.notify('Invitation settings are still loading. Please try again.');}};document.getElementById('applicantCompanyNote').after(inviteExisting);
   const session = await window.ATS.ready;
 
@@ -215,7 +231,7 @@
         const shortId =
           record.databaseId || String(record.id).slice(-6).toUpperCase();
         return `<tr>
-        <td><div class="applicant-person"><span class="applicant-photo" data-applicant-photo="${esc(record.databaseId||'')}" data-name="${esc(record.name||'Applicant')}">${esc((record.name||'A').trim().slice(0,2).toUpperCase())}</span><div><span class="applicant-name">${esc(record.name || "Unnamed applicant")}</span><span class="applicant-ref">#${esc(shortId)}</span></div></div></td>
+        <td><div class="applicant-person"><span class="applicant-photo" data-applicant-photo="${esc(record.databaseId||'')}" data-name="${esc(record.name||'Applicant')}">${esc((record.name||'A').trim().slice(0,2).toUpperCase())}</span><div><span class="applicant-name">${esc(record.name || "Unnamed applicant")}</span><span class="applicant-ref">#${esc(shortId)}</span><span class="applicant-added-by">Added by ${esc(record.db?.AddedByName||"Recruitment team")}</span></div></div></td>
         <td>${esc(record.position || "—")}<span class="applicant-ref">${esc([record.source, record.site].filter(Boolean).join(" · "))}</span></td>
         <td>${esc(record.phone || "—")}${record.email ? `<span class="applicant-email">${esc(record.email)}</span>` : ""}</td>
         <td><span class="record-badge ${statusTone(record.status)}">${esc(record.status || "Not recorded")}</span><button type="button" class="applicant-requirements-status" data-requirement-activity="${esc(record.id)}"><span>Ongoing requirements status ↗</span>${esc(String(record.db?.["Ongoing Requirements Status"] || record["Ongoing Requirements Status"] || "").trim() || "View requirements updates")}</button></td>
@@ -280,12 +296,15 @@
     return result;
   }
   async function loadDocuments() {
+    const requestedApplicant=currentRecord?.databaseId;
     documents = currentRecord?.databaseId
       ? await A.rpc("ats_applicant_documents", {
           p_session_token: session.sessionToken,
           p_applicant_id: currentRecord.databaseId,
         })
       : [];
+    if(currentRecord?.databaseId!==requestedApplicant)return;
+    if(requestedApplicant){const plan=await A.rpc("ats_applicant_requirements",{p_session_token:session.sessionToken,p_applicant_id:requestedApplicant});if(currentRecord?.databaseId!==requestedApplicant)return;requirementPlan=Array.isArray(plan?.requiredDocuments)?plan:null;}
     documentTypes.forEach((type, i) => {
       document.getElementById("savedDocuments_" + i).innerHTML = documents
         .filter((doc) => doc.document_type === type)
@@ -295,7 +314,7 @@
       if (latest) document.getElementById('requirement_' + i).value = latest.review_status || 'Submitted';
     });
     refreshRequirementProgress();
-    document.getElementById('idPhotoDocuments').innerHTML = documents.filter(doc => doc.document_type === 'ID PHOTO').map(documentRow).join('');
+    document.getElementById('idPhotoDocuments').innerHTML = documents.filter(doc => doc.document_type === 'ID PHOTO').map(documentRow).join('');applyRequirementPlan();
   }
   function documentRow(doc) {
     return '<div class="saved-document review-document"><span>'+esc(doc.filename)+' <small>'+Math.ceil(doc.byte_size/1024)+' KB · '+esc(doc.review_status||'Submitted')+(doc.latest===false?' · Previous upload':'')+(doc.automated?' · Automatic check':'')+'</small>'+(doc.review_comment?'<small class="document-review-comment">'+esc(doc.review_comment)+'</small>':'')+'</span><div class="document-actions"><button type="button" class="link-btn" data-preview-document="'+esc(doc.id)+'" '+(!['application/pdf','image/png','image/jpeg'].includes(doc.mime_type)?'disabled':'')+'>View document</button><button type="button" class="link-btn" data-download-document="'+esc(doc.id)+'">Download</button>'+(doc.latest!==false?'<button type="button" class="link-btn" data-review-document="'+esc(doc.id)+'">Review / comment</button>':'')+'<button type="button" class="link-btn" data-remove-document="'+esc(doc.id)+'">Remove</button></div></div>';
@@ -357,6 +376,7 @@
     if(!submission.value){const original=record?.db?.Date;const parts=new Intl.DateTimeFormat('en',{timeZone:'Asia/Manila',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(original?new Date(original):new Date());const get=type=>parts.find(part=>part.type===type)?.value;submission.value=get('year')+'-'+get('month')+'-'+get('day');}
     fields.status.value = statuses.includes(row.Status) ? row.Status : (statuses.find(status => statusTools.group(status) === statusTools.group(row.Status)) || "");
     statusTools.formOpened();
+    requirementPlan=null;customRows.replaceChildren();documentTypes.forEach((type,index)=>document.getElementById("requirement_"+index).closest(".applicant-document").hidden=false);document.querySelector(".applicant-id-photo").hidden=false;
     documentTypes.forEach((type, i) => {
       const input=document.getElementById("requirement_"+i),value=row[type]||'Pending';
       [...input.options].filter(option=>option.dataset.legacy).forEach(option=>option.remove());
@@ -414,7 +434,8 @@
         file: document.getElementById("upload_" + i).files[0],
       }))
       .filter((item) => item.file);
-    selected.forEach(item => item.inputId = 'upload_' + item.index);
+    form.querySelectorAll('[data-custom-upload]').forEach(input=>{if(input.files[0])selected.push({type:input.dataset.customUpload,index:-2,inputId:input.id,file:input.files[0]});});
+    selected.forEach(item => item.inputId = item.inputId || 'upload_' + item.index);
     if (document.getElementById('idPhotoFile').files[0]) selected.push({type:'ID PHOTO',index:-1,inputId:'idPhotoFile',file:document.getElementById('idPhotoFile').files[0]});
     for (const { file } of selected) {
       if (
@@ -472,6 +493,7 @@
       window.dispatchEvent(
         new CustomEvent("ats:data-change", { detail: { key } }),
       );
+      if(requirementPlan){const statuses=Object.fromEntries([...customRows.querySelectorAll('[data-custom-status]')].map(input=>[input.dataset.customStatus,input.value]));if(Object.keys(statuses).length)await A.rpc('ats_applicant_requirements',{p_session_token:session.sessionToken,p_applicant_id:row.ApplicantID,p_required:requirementPlan.requiredDocuments,p_statuses:statuses});}
       const automaticRejections = [];
       for (let n = 0; n < selected.length; n++) {
         const item = selected[n];

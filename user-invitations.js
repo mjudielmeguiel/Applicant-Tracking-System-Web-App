@@ -14,7 +14,7 @@
   inviteUser.type = 'button';
   inviteUser.className = 'btn-sm ghost';
   inviteUser.textContent = 'Invite User';
-  actions.prepend(inviteUser);
+  actions.prepend(inviteUser);inviteUser.disabled=A.userQuota?.remaining===0;window.addEventListener('ats:account-quota',event=>{inviteUser.disabled=event.detail.remaining===0;});
 
   const inviteAdmin = document.createElement('button');
   inviteAdmin.id = 'openAdminHandover';

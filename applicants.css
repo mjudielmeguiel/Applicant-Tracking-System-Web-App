@@ -276,3 +276,4 @@ button.applicant-requirements-status{display:block;text-align:left;background:tr
 #inviteExistingApplicant{margin-bottom:18px;min-height:42px;border-radius:9px}
 
 .applicant-person{display:flex;align-items:center;gap:12px}.applicant-photo{flex:none;width:44px;height:44px;border-radius:10px;display:grid;place-items:center;background:#edf2f8;color:#192a56;overflow:hidden;font-size:12px;font-weight:600}.applicant-photo img{width:100%;height:100%;object-fit:cover}
+.applicant-plan-row{display:grid;grid-template-columns:minmax(0,1fr) 170px;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid var(--line-soft)}.applicant-plan-row label{font-size:13px;font-weight:600;overflow-wrap:anywhere}.applicant-plan-row input{accent-color:var(--blue-600)}#customizeApplicantRequirements{margin:12px 0 18px}#newApplicantRequirement{flex:1;min-width:140px}@media(max-width:500px){.applicant-plan-row{grid-template-columns:1fr;gap:8px}}

@@ -77,6 +77,12 @@
 
 .user-info-name { font-weight: 600; font-size: 13.5px; color: var(--ink); }
 .user-info-email { font-size: 12px; color: var(--muted-light); margin-top: 2px; }
+.user-status-card { color: inherit; text-align: left; font: inherit; }
+.user-status-card > span { display: block; }
+.user-status-card[aria-pressed="true"] { outline: 2px solid var(--blue-600); outline-offset: -2px; }
+.user-status-card:hover { border-color: var(--blue-600); }
+.user-connection { min-width: 160px; }
+.user-last-seen { display: block; margin-top: 6px; color: var(--muted); font-size: 11px; line-height: 1.5; }
 
 .kebab-wrap { position: relative; display: inline-block; }
 
@@ -128,3 +134,6 @@
 .handover-warning p { margin:7px 0 0; }
 .handover-confirm { display:flex; align-items:flex-start; gap:9px; margin-top:14px; font-size:13px; line-height:1.5; }
 .handover-confirm input { margin-top:3px; }
+.managed-user-identity{padding:18px;background:var(--bg);border:1px solid var(--line-soft);border-radius:12px;margin-bottom:22px;overflow-wrap:anywhere}.managed-user-identity strong{font-size:18px}.managed-user-identity p{font-size:13px;color:var(--muted);line-height:1.6;margin:6px 0}.managed-user-security{margin-top:24px;padding-top:20px;border-top:1px solid var(--line)}.managed-user-security h3{font-size:14px}.managed-user-security p{font-size:13px;line-height:1.7;color:var(--muted);margin:12px 0}.managed-user-security .btn-sm{margin:4px 6px 4px 0}#manageUserDialog .form-error,#manageUserDialog .form-success{margin-top:16px}
+.managed-user-identity{display:flex;align-items:center;gap:18px}.managed-user-photo{width:72px;height:72px;flex:none;border-radius:50%}.managed-user-copy{min-width:0}.user-directory-avatar .account-person-icon{width:70%;height:70%}
+.user-quota-panel{display:flex;justify-content:space-between;gap:18px;align-items:center;flex-wrap:wrap;border:1px solid var(--line);border-radius:14px;padding:20px 24px;background:var(--surface);margin-bottom:22px}.user-quota-panel strong{font-size:14px}.user-quota-panel p{font-size:13px;margin:8px 0}.user-quota-panel small{font-size:11px;color:var(--muted);line-height:1.6}.user-quota-panel .field-input{width:140px;margin:0}.user-quota-panel label{font-size:12px}.user-quota-panel .form-error{width:100%}@media(max-width:600px){.user-quota-panel{padding:18px}.user-quota-panel .page-actions{width:100%}}

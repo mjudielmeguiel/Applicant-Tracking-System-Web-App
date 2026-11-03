@@ -7,10 +7,10 @@ import ApplicantInstructions from '@/components/ApplicantInstructions';
 import ApplicationPreview from '@/components/ApplicationPreview';
 
 type Draft = Record<string, string>;
-type Inviter = { name?: string; photo?: string; role?: string; email?: string; contact?: string };
+type Inviter = { presence?: string; name?: string; photo?: string; role?: string; email?: string; contact?: string };
 type Document = { id: string; type: string; filename: string; size: number; mime_type?: string; review_status?: string; review_comment?: string; automated?: boolean; latest?: boolean; file_available?: boolean };
 type Job = {id: string; position_title: string; site: string; address?: string; description: string; remaining_slots: number; required_documents: string[]};
-type Context = { closed?: boolean; existingApplicant?: boolean; expired?: boolean; companyInfo?: {name?: string; logo?: string; address?: string}; jobs?: Job[]; job?: Partial<Job>; fixedJob?: string; requirementsDays?: number; requirementsDeadline?: string; serverNow?: string; phase: 'application' | 'requirements'; status?: string; company: string; draft?: Draft; revision?: number; required?: string[]; instructions?: string; choices?: Record<string, string[]>; positions?: { name: string; remaining_slots: number }[]; inviter?: Inviter; requiredDocuments?: string[]; documents?: Document[] };
+type Context = { closed?: boolean; existingApplicant?: boolean; expired?: boolean; companyInfo?: {name?: string; logo?: string; address?: string}; jobs?: Job[]; job?: Partial<Job>; fixedJob?: string; requirementsDays?: number; requirementsDeadline?: string; serverNow?: string; phase: 'application' | 'requirements'; status?: string; company: string; draft?: Draft; revision?: number; required?: string[]; instructions?: string; choices?: Record<string, string[]>; positions?: { name: string; remaining_slots: number }[]; inviter?: Inviter; requiredDocuments?: string[]; requirementStatuses?: Record<string,string>; documents?: Document[] };
 type Saved = { closed?: boolean; expired?: boolean; phase?: string; revision: number; issues?: string[]; status?: string };
 const definitions = [
   ['Name', 'Full name', 'text', 120], ['Email Address', 'Email address', 'email', 254],
@@ -24,6 +24,7 @@ export default function ApplicationForm() {
   const fieldLabels:Record<string,string>={Name:'Buong pangalan','Email Address':'Email address','Contact Number':'Numero ng telepono','Current Address':'Kasalukuyang tirahan',Gender:'Kasarian',Birthdate:'Petsa ng kapanganakan',JobOpeningID:'Trabaho at lokasyon',Source:'Saan mo nalaman ang trabahong ito?'};
   const tr=(en:string,tl:string)=>language==='tl'?tl:en;
   const requirementsReview=useRef<HTMLDialogElement>(null);
+  const requirementsConfirmation=useRef<HTMLDialogElement>(null);
   const [finalizing,setFinalizing]=useState(false);
   const [context, setContext] = useState<Context | null>(null);
   const [draft, setDraft] = useState<Draft>({});
@@ -56,7 +57,7 @@ export default function ApplicationForm() {
     history.replaceState(null, '', location.pathname);
     setError('');
     setPreview(null);
-    setMessage(language==='tl'?'Naisumite na ang lahat ng requirements. Salamat. Susuriin ito ng HR. Tapos na at sarado na ang invitation na ito.':'All required documents have been submitted. Thank you. Your recruitment team will review them. This invitation is now complete and closed.');
+    setMessage(language==='tl'?'Naisumite na ang lahat ng requirements. Salamat. Susuriin ito ng HR. Tapos na at sarado na ang invitation na ito.':'Your application and all required items have been submitted. Thank you. Your recruitment team will review them. This invitation is now complete and closed.');
   }
   function applyContext(value: Context, preserveDraft = false) {
     if (value.serverNow) serverOffset.current = Date.parse(value.serverNow) - Date.now();
@@ -70,7 +71,7 @@ export default function ApplicationForm() {
     setContext(value);
     if (phase.current === 'requirements') {
       current.current = {}; setDraft({});
-      setMessage('Your application form is submitted. This page is now for requirements only. Reopen this same link whenever you need to upload the remaining documents.');
+      setMessage(language==='tl'?'Naka-save ang iyong impormasyon. Kumpletuhin muna ang lahat ng requirements bago pindutin ang Isumite ang aplikasyon.':'Your details are saved. Complete all required items before clicking Submit application. Your application is not finally submitted yet.');
     } else if (!preserveDraft) {
       current.current = {...(value.draft || {}), ...(!value.draft?.JobOpeningID && value.fixedJob ? {JobOpeningID:value.fixedJob} : {})}; revision.current = value.revision || 0;
       setDraft(current.current);
@@ -112,6 +113,7 @@ export default function ApplicationForm() {
     window.addEventListener('online', resume); window.addEventListener('pagehide', leaving); document.addEventListener('visibilitychange', visibility);
     return () => { clearInterval(saver); window.removeEventListener('online', resume); window.removeEventListener('pagehide', leaving); document.removeEventListener('visibilitychange', visibility); };
   }, [context, closed]);
+  useEffect(()=>{if(context?.phase!=='requirements'||closed||uploading||finalizing)return;const timer=setInterval(()=>{if(!document.hidden)void reload().catch(reason=>setError(reason.message));},15000);return()=>clearInterval(timer);},[context?.phase,closed,uploading,finalizing]);
   useEffect(() => {
     if (!changed.current || closed || submitting || phase.current !== 'application') return;
     const timeout = setTimeout(() => { void flush().catch(() => {}); }, 800);
@@ -154,7 +156,7 @@ export default function ApplicationForm() {
       }
     } catch (reason) { setError((reason as Error).message); } finally { setUploading(''); }
   }
-  async function submitRequirements(){if(finalizing)return;setFinalizing(true);setError('');try{const result=await publicRpc<{saved?:boolean;expired?:boolean}>('ats_requirements_submit',{p_token:token.current});if(result.expired){await reload();return;}if(!result.saved)throw Error('Requirements could not be submitted.');finish();}catch(reason){setError((reason as Error).message);}finally{setFinalizing(false);}}
+  async function submitRequirements(){if(finalizing||uploading||remaining===0||!context?.requiredDocuments?.every(kind=>submittedTypes.has(kind)))return;requirementsConfirmation.current?.close();setFinalizing(true);setError('');try{const result=await publicRpc<{saved?:boolean;expired?:boolean}>('ats_requirements_submit',{p_token:token.current});if(result.expired){await reload();return;}if(!result.saved)throw Error('Requirements could not be submitted.');finish();}catch(reason){setError((reason as Error).message);}finally{setFinalizing(false);}}
   async function previewDocument(document: Document) {
     setError('');
     try {
@@ -193,7 +195,9 @@ export default function ApplicationForm() {
   const selectedJob = available.find(job => job.id === draft.JobOpeningID);
   const safeLogo = context?.companyInfo?.logo && /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/.test(context.companyInfo.logo) && context.companyInfo.logo.length < 900000 ? context.companyInfo.logo : '';
   const clock = remaining === null ? 'Loading…' : Math.floor(remaining/86400)+'d '+[Math.floor(remaining%86400/3600),Math.floor(remaining%3600/60),remaining%60].map(n=>String(n).padStart(2,'0')).join(':');
-  const submittedTypes = new Set((context?.documents || []).filter(document => document.latest !== false && document.review_status !== 'Rejected' && document.file_available !== false).map(document => document.type));
+  const hrSubmitted=(kind:string)=>/^(submitted|verified|accepted|not required)$/i.test(context?.requirementStatuses?.[kind]||'');
+  const applicantDocumentStatus=(document:Document)=>document.latest!==false&&hrSubmitted(document.type)?'Submitted':document.file_available===false?'File unavailable':document.review_status==='Rejected'?'Rejected':'Submitted';
+  const submittedTypes = new Set([...(context?.requiredDocuments||[]).filter(hrSubmitted),...(context?.documents || []).filter(document => document.latest !== false && document.review_status !== 'Rejected' && document.file_available !== false && !/^(pending|rejected)$/i.test(context?.requirementStatuses?.[document.type]||'')).map(document => document.type)]);
   return <main className="application-page"><article className="application-card">
     <header className="application-brand">{safeLogo && <img src={safeLogo} alt="Company logo" />}<div><p className="eyebrow">RECRUITMENT APPLICATION</p><h1>{context?.companyInfo?.name || context?.company || 'Applicant application'}</h1>{context?.companyInfo?.address && <p>{context.companyInfo.address}</p>}</div></header>
     <ApplicationLanguageSwitch language={language} onLanguage={setLanguage}/>
@@ -202,7 +206,7 @@ export default function ApplicationForm() {
     {context?.expired && <button type="button" className="btn-sm ghost" onClick={() => void reload().catch(reason => setError(reason.message))}>Check for renewed access</button>}
     {error && <p className="form-error" role="alert">{error}</p>}
     {inviter && <section className="application-recruiter" aria-label="Your recruitment contact">
-      {safePhoto ? <img src={safePhoto} alt={(inviter.name || 'Recruiter') + ' profile'} /> : <span className="recruiter-initials">{(inviter.name || 'Recruitment team').split(/\s+/).map(word => word[0]).slice(0, 2).join('')}</span>}
+      <span className="recruiter-profile-avatar">{safePhoto ? <img src={safePhoto} alt={(inviter.name || 'Recruiter') + ' profile'} /> : <span className="recruiter-initials"><svg className="account-person-icon" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="18" r="11"/><ellipse cx="32" cy="47" rx="22" ry="13"/></svg></span>}<span className="presence-dot" data-presence={['Active','Busy','Inactive'].includes(inviter.presence||'')?inviter.presence:'Offline'} role="img" aria-label={inviter.presence||'Offline'}/></span>
       <div><p>Invited by</p><strong>{inviter.name || 'Recruitment team'}</strong><p>{inviter.role}</p>
         <p>Email: {inviter.email ? <a href={'mailto:' + inviter.email}>{inviter.email}</a> : 'Not provided'}</p>
         <p>Contact: {inviter.contact ? <a href={'tel:' + inviter.contact.replace(/[^+0-9]/g, '')}>{inviter.contact}</a> : 'Not provided—use email to contact your recruiter'}</p></div>
@@ -220,26 +224,32 @@ export default function ApplicationForm() {
           </select> : type === 'textarea' ? <textarea className="field-input" id={'apply-' + key} maxLength={max} value={draft[key] || ''} onChange={e => update(key, e.target.value)} /> : <input className="field-input" id={'apply-' + key} type={type} max={type==='date'?today:undefined} placeholder={key==='Name'?'Juan Dela Cruz':key==='Email Address'?'juan@example.com':key==='Contact Number'?'0917 123 4567':undefined} maxLength={max} value={draft[key] || ''} onChange={e => update(key, e.target.value)} />}
         </div>)}
         <div><label className="field-label" htmlFor="apply-age">{tr('Age','Edad')}</label><input id="apply-age" className="field-input" readOnly value={age===null?'':String(age)} placeholder="Calculated from birthdate"/></div>
-      </div><ApplicationPreview language={language} disabled={submitting||remaining===0} entries={[...definitions.map(([key,label])=>[label,key==='JobOpeningID'?(selectedJob?selectedJob.position_title+' · '+selectedJob.site:''):draft[key]||''] as [string,string]),['Age',age===null?'':String(age)],['Site address',selectedJob?.address||''],['Required documents',selectedJob?.required_documents.join(' · ')||'']]}/><button className="btn btn-primary" type="submit">{submitting ? tr('Submitting…','Isinusumite…') : tr('Submit application and continue to requirements','Isumite ang aplikasyon at magpatuloy sa requirements')}</button></fieldset></form>
+      </div><ApplicationPreview language={language} disabled={submitting||remaining===0} entries={[...definitions.map(([key,label])=>[label,key==='JobOpeningID'?(selectedJob?selectedJob.position_title+' · '+selectedJob.site:''):draft[key]||''] as [string,string]),['Age',age===null?'':String(age)],['Site address',selectedJob?.address||''],['Required documents',selectedJob?.required_documents.join(' · ')||'']]}/><button className="btn btn-primary" type="submit">{submitting ? tr('Saving details…','Sine-save ang impormasyon…') : tr('Save details & continue','I-save ang impormasyon at magpatuloy')}</button></fieldset></form>
     </>}
     {context && !closed && context.phase === 'requirements' && <section className="application-requirements">
       {context.job && <section className="application-instructions"><h2>{context.job.position_title} · {context.job.site}</h2>{context.job.address && <p>{context.job.address}</p>}<p>{context.job.description}</p></section>}
-      <h2>{tr('Applicant requirements','Mga requirements ng aplikante')}</h2><p>{submittedTypes.size} of {context.requiredDocuments?.length || 0} requirement categories submitted. Rejected files require a replacement. Documents remain subject to recruiter review.</p>
-      <p>{tr('Upload PDF, JPG, PNG, DOC or DOCX files up to 10 MB each. Blurred or unclear JPG/PNG images are automatically rejected with instructions. Your personal information is already submitted; use this link for requirements only.','Mag-upload ng PDF, JPG, PNG, DOC o DOCX hanggang 10 MB bawat file. Awtomatikong tinatanggihan ang malabo o hindi malinaw na JPG/PNG at may kasamang tagubilin. Naipasa na ang personal na impormasyon; para sa requirements na lamang ang link na ito.')}</p>
-      {(context.requiredDocuments || []).map(kind => <article key={kind}><h3>{kind === 'ID PHOTO' ? tr('1×1 ID picture','1×1 ID na larawan') : kind} <span>{(context.documents || []).find(document => document.type === kind && document.latest !== false)?.review_status || (submittedTypes.has(kind) ? 'Submitted' : 'Required')}</span></h3>
+      <h2>{tr('Applicant requirements','Mga requirements ng aplikante')}</h2><p>{(context.requiredDocuments||[]).filter(kind=>submittedTypes.has(kind)).length} of {context.requiredDocuments?.length || 0} requirement categories submitted. Rejected files require a replacement. Documents remain subject to recruiter review.</p>
+      <p>{tr('Upload PDF, JPG, PNG, DOC or DOCX files up to 10 MB each. Blurred or unclear JPG/PNG images are automatically rejected with instructions. Your details are saved. Complete every requirement, then use Submit application to finalize.','Mag-upload ng PDF, JPG, PNG, DOC o DOCX hanggang 10 MB bawat file. Awtomatikong tinatanggihan ang malabo o hindi malinaw na JPG/PNG at may kasamang tagubilin. Naka-save na ang personal na impormasyon. Kumpletuhin ang lahat ng requirements bago isumite ang aplikasyon.')}</p>
+      {(context.requiredDocuments || []).map(kind => <article key={kind}><h3>{kind === 'ID PHOTO' ? tr('1×1 ID picture','1×1 ID na larawan') : kind} <span>{(()=>{const latest=context.documents?.find(document=>document.type===kind&&document.latest!==false);return submittedTypes.has(kind)?'Submitted':context.requirementStatuses?.[kind]==='Rejected'?'Rejected':/^(pending)$/i.test(context.requirementStatuses?.[kind]||'')?'Required':latest?applicantDocumentStatus(latest):'Required';})()}</span></h3>
         {kind === 'ID PHOTO' && <p>{tr('Upload a square JPG/PNG picture, at least 300×300 pixels, suitable for a 1×1 ID photo.','Mag-upload ng parisukat na JPG/PNG na hindi bababa sa 300×300 pixels, na angkop para sa 1×1 ID picture.')}</p>}
-        {(context.documents || []).filter(document => document.type === kind).map(document => <div key={document.id} className={'application-document ' + (document.review_status === 'Rejected' ? 'document-rejected' : '')}>
-          <p>{document.filename} · {Math.ceil(document.size / 1024)} KB · {document.review_status || 'Submitted'}{document.latest === false ? ' · Previous upload' : ''}{document.automated ? ' · Automatic quality check' : ''}</p>
-          {document.review_comment && <p className="requirement-comment"><strong>Comment:</strong> {document.review_comment}</p>}
+        {(context.documents || []).filter(document => document.type === kind).map(document => <div key={document.id} className={'application-document ' + (applicantDocumentStatus(document) === 'Rejected' ? 'document-rejected' : '')}>
+          <p>{document.filename} · {Math.ceil(document.size / 1024)} KB · {applicantDocumentStatus(document)}{document.latest === false ? ' · Previous upload' : ''}{document.automated ? ' · Automatic quality check' : ''}</p>
+          {document.review_comment && !(document.review_status==='Rejected'&&applicantDocumentStatus(document)==='Submitted') && <p className="requirement-comment"><strong>Comment:</strong> {document.review_comment}</p>}
           {['application/pdf','image/png','image/jpeg'].includes(document.mime_type || '') && <button className="btn-sm ghost" type="button" onClick={() => void previewDocument(document)}>Preview {document.filename}</button>}
         </div>)}
         <label className="field-label" htmlFor={'upload-' + kind}>{uploading === kind ? tr('Uploading…','Ina-upload…') : tr('Upload ','I-upload ang ') + kind}</label>
         <input className="field-input" id={'upload-' + kind} type="file" accept={kind === 'ID PHOTO' ? '.jpg,.jpeg,.png' : '.pdf,.jpg,.jpeg,.png,.doc,.docx'} disabled={Boolean(uploading) || submittedTypes.has(kind) || remaining===0} onChange={e => void upload(kind, e.currentTarget)} />
+        {hrSubmitted(kind)&&!(context.documents||[]).some(doc=>doc.type===kind&&doc.latest!==false)&&<p>{tr('Marked submitted by HR. No uploaded file is attached.','Minarkahang naipasa ng HR. Walang naka-attach na file.')}</p>}
         {submittedTypes.has(kind) && <p>{tr('This requirement is submitted. If a recruiter rejects it, this upload field will reopen with their comments.','Na-upload na ang requirement na ito. Kapag tinanggihan ito ng HR, maaari kang mag-upload muli at makikita ang kanilang komento.')}</p>}
       </article>)}
-      <div className="requirements-final-actions"><button type="button" className="btn-sm ghost" disabled={Boolean(uploading)||finalizing} onClick={()=>requirementsReview.current?.showModal()}>{tr('Review requirements','Suriin ang requirements')}</button><button type="button" className="btn btn-primary" disabled={Boolean(uploading)||finalizing||remaining===0||!context.requiredDocuments?.every(kind=>submittedTypes.has(kind))} onClick={()=>void submitRequirements()}>{finalizing?tr('Submitting…','Isinusumite…'):tr('Submit requirements','Isumite ang requirements')}</button><p>{tr('Upload all required files and replace rejected files to enable submission.','I-upload ang lahat ng kailangan at palitan ang mga tinanggihang file upang makapagsumite.')}</p></div>
+      <div className="requirements-final-actions"><button type="button" className="btn-sm ghost" disabled={Boolean(uploading)||finalizing} onClick={()=>requirementsReview.current?.showModal()}>{tr('Review requirements','Suriin ang requirements')}</button><button type="button" className="btn btn-primary" disabled={Boolean(uploading)||finalizing||remaining===0||!context.requiredDocuments?.every(kind=>submittedTypes.has(kind))} onClick={()=>{requirementsConfirmation.current?.showModal();requirementsConfirmation.current?.querySelector<HTMLButtonElement>('[data-cancel-submission]')?.focus();}}>{finalizing?tr('Submitting…','Isinusumite…'):tr('Submit application','Isumite ang aplikasyon')}</button><p>{tr('Submit application becomes available only after every required item is uploaded or confirmed by HR. Replace rejected files before submitting.','Kumpletuhin ang bawat requirement sa pamamagitan ng upload o kumpirmasyon ng HR. Palitan ang tinanggihang file bago isumite.')}</p></div>
     </section>}
-    <dialog ref={requirementsReview} className="application-review" aria-labelledby="requirementsReviewTitle"><header><div><h2 id="requirementsReviewTitle">{tr('Review requirements','Suriin ang requirements')}</h2><p>{tr('Check the files below before final submission.','Suriin ang mga file sa ibaba bago ang pinal na pagsusumite.')}</p></div><button type="button" className="btn-sm ghost" onClick={()=>requirementsReview.current?.close()}>{tr('Close','Isara')}</button></header><dl>{context?.requiredDocuments?.map(kind=><div key={kind}><dt>{kind==='ID PHOTO'?'1×1 ID picture':kind}</dt><dd>{context.documents?.filter(doc=>doc.type===kind&&doc.latest!==false).map(doc=><span key={doc.id}>{doc.filename} · {doc.review_status||'Submitted'}</span>)}{!submittedTypes.has(kind)&&<strong>{tr(' Missing or rejected',' Kulang o tinanggihan')}</strong>}</dd></div>)}</dl><footer><button type="button" className="btn-sm primary" onClick={()=>requirementsReview.current?.close()}>{tr('Back to requirements','Bumalik sa requirements')}</button></footer></dialog>
+    <dialog ref={requirementsConfirmation} className="application-submit-confirmation" aria-labelledby="confirmRequirementsTitle" aria-describedby="confirmRequirementsDescription">
+      <h2 id="confirmRequirementsTitle">{tr('Submit application?','Isumite ang aplikasyon?')}</h2>
+      <p id="confirmRequirementsDescription">{tr('Are you sure you want to submit this application? Your requirements will be submitted and this link will close automatically.','Sigurado ka bang nais mong isumite ang aplikasyong ito? Isusumite ang iyong requirements at awtomatikong isasara ang link na ito.')}</p>
+      <div><button type="button" className="btn-sm ghost" data-cancel-submission onClick={()=>requirementsConfirmation.current?.close()}>{tr('Cancel','Kanselahin')}</button><button type="button" className="btn-sm primary" disabled={finalizing} onClick={()=>void submitRequirements()}>{tr('Yes, submit application','Oo, isumite ang aplikasyon')}</button></div>
+    </dialog>
+    <dialog ref={requirementsReview} className="application-review" aria-labelledby="requirementsReviewTitle"><header><div><h2 id="requirementsReviewTitle">{tr('Review requirements','Suriin ang requirements')}</h2><p>{tr('Check the files below before final submission.','Suriin ang mga file sa ibaba bago ang pinal na pagsusumite.')}</p></div><button type="button" className="btn-sm ghost" onClick={()=>requirementsReview.current?.close()}>{tr('Close','Isara')}</button></header><dl>{context?.requiredDocuments?.map(kind=><div key={kind}><dt>{kind==='ID PHOTO'?'1×1 ID picture':kind}</dt><dd>{context.documents?.filter(doc=>doc.type===kind&&doc.latest!==false).map(doc=><span key={doc.id}>{doc.filename} · {applicantDocumentStatus(doc)}</span>)}{!submittedTypes.has(kind)&&<strong>{tr(' Missing or rejected',' Kulang o tinanggihan')}</strong>}</dd></div>)}</dl><footer><button type="button" className="btn-sm primary" onClick={()=>requirementsReview.current?.close()}>{tr('Back to requirements','Bumalik sa requirements')}</button></footer></dialog>
     {context?.companyInfo && <footer className="application-footer"><strong>{context.companyInfo.name}</strong><p>{context.companyInfo.address}</p></footer>}
     <dialog ref={previewDialog} className="application-preview" onClose={() => setPreview(null)}>
       <div className="application-preview-head"><h2>{preview?.name || 'Document preview'}</h2><button type="button" className="btn-sm ghost" onClick={() => setPreview(null)}>Close preview</button></div>

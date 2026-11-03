@@ -203,6 +203,12 @@
   }
   setInterval(checkCurrentSession, 15000);
   document.addEventListener('visibilitychange', checkCurrentSession);
+  ATS.presenceStates=['Active','Busy','Offline','Inactive'];
+  ATS.presenceStatus=value=>ATS.presenceStates.includes(value)?value:'Offline';
+  ATS.paintPresence=(target,value)=>{if(!target)return;target.querySelector(':scope>.presence-dot')?.remove();const dot=document.createElement('span');dot.className='presence-dot';dot.dataset.presence=ATS.presenceStatus(value);dot.setAttribute('role','img');dot.setAttribute('aria-label',dot.dataset.presence);dot.title=dot.dataset.presence;target.append(dot);};
+  ATS.currentPresence='Offline';let presenceInFlight=false;
+  async function heartbeat(){const session=await ATS.ready;if(!session||document.hidden||presenceInFlight||ATS.getUser()?.sessionToken!==session.sessionToken)return;presenceInFlight=true;try{const result=await ATS.rpc('ats_presence',{p_session_token:session.sessionToken});if(ATS.presenceStates.includes(result.presence)){ATS.currentPresence=result.presence;ATS.preferredPresence=result.status;window.dispatchEvent(new CustomEvent('ats:presence-change',{detail:result}));}}catch{}finally{presenceInFlight=false;}}
+  void heartbeat();setInterval(heartbeat,30000);document.addEventListener('visibilitychange',heartbeat);window.addEventListener('online',heartbeat);window.addEventListener('offline',()=>{ATS.currentPresence='Offline';window.dispatchEvent(new CustomEvent('ats:presence-change',{detail:{presence:'Offline'}}));});
   ATS.reloadCatalogs = async function () {
     const session = await ATS.ready;
     if (!session || getUser()?.sessionToken !== session.sessionToken) throw new Error('Please sign in again.');
@@ -302,7 +308,7 @@
   if (avatar) {
     avatar.setAttribute('role','button');avatar.setAttribute('aria-disabled','true');
     const parts = name.split(/\s+/);
-    avatar.textContent = parts.length > 1 ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase() : name.slice(0, 2).toUpperCase();
+    avatar.innerHTML = "<svg class=\"account-person-icon\" viewBox=\"0 0 64 64\" aria-hidden=\"true\"><circle cx=\"32\" cy=\"18\" r=\"11\"/><ellipse cx=\"32\" cy=\"47\" rx=\"22\" ry=\"13\"/></svg>";
     avatar.title = name;
     avatar.setAttribute('aria-label', name);
   }
