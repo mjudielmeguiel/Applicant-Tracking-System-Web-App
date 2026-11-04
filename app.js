@@ -5,6 +5,13 @@
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
   })[character]);
   const dateKey = date => [date.getFullYear(), String(date.getMonth() + 1).padStart(2, '0'), String(date.getDate()).padStart(2, '0')].join('-');
+  const manilaDay = new Intl.DateTimeFormat('sv-SE', {timeZone:'Asia/Manila', year:'numeric', month:'2-digit', day:'2-digit'});
+  function manilaDateKey(value) {
+    if (!value) return '';
+    if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? '' : manilaDay.format(date);
+  }
   let verifiedAccount = null;
   const sharedRecordKeys = new Set(['ats_applicants', 'ats_events']);
   function recordStorageKey(key) {
@@ -108,7 +115,11 @@
   }
 
   window.ATS = {
-    read, save, escape, dateKey, getUser, notify, openDialog, closeDialog,
+    read, save, escape, dateKey, manilaDateKey, getUser, notify, openDialog, closeDialog,
+    applicantAddedDay: record => {
+      const row = record.db || record;
+      return manilaDateKey(record.addedAt || row.CreatedAt || row.created_at);
+    },
     id: () => globalThis.crypto?.randomUUID?.() || `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`,
     today: () => dateKey(new Date()),
     formatDate: (key, options) => {
@@ -248,6 +259,81 @@
       name:row.FullName||row.Name||(row.ApplicationInvitationID?'Incomplete application':''),position:row.PositionApplied||row.Position||'',source:row.Source||'',site:row.Site||'',
       email:row.Email||row['Email Address']||'',phone:row.ContactNumber||row['Contact Number']||'',status:row.Status||(row.WorkbookImportID?'Not recorded':'Screened'),
       dateApplied:row.Date||row['Submission Date']||'',requirements:done*10,db:row };
+  };
+  ATS.importLocalApplicants = function (rows) {
+    const key = 'ats_applicants';
+    const scopedKey = recordStorageKey(key);
+    if (!scopedKey) throw new Error('Sign in before importing applicants.');
+    // Read the scoped local list directly so remote applicants are never copied into it.
+    if (localStorage.getItem(scopedKey) === null) read(key);
+    const records = JSON.parse(localStorage.getItem(scopedKey) || '[]');
+    const emails = new Set();
+    const phones = new Set();
+    const names = new Set();
+    const namesWithoutContact = new Set();
+    function identity(record) {
+      const email = String(record.email || '').trim().toLowerCase();
+      const rawPhone = String(record.phone || '').trim().replace(/^'(?=[+-])/, '');
+      const digits = /^[+()\d .-]+$/.test(rawPhone) ? rawPhone.replace(/\D/g, '') : '';
+      const phone = digits.replace(/^(?:0063|63|0)?(9\d{9})$/, '$1');
+      const name = String(record.name || '').normalize('NFC').toLowerCase().trim()
+        .replace(/^([^,]+),\s*([^,]+)$/, '$2 $1').replace(/\s+/g, ' ');
+      return {
+        email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? email : '',
+        phone: phone.length >= 7 ? phone : '',
+        name,
+      };
+    }
+    function remember({ email, phone, name }) {
+      if (email) emails.add(email);
+      if (phone) phones.add(phone);
+      if (name) {
+        names.add(name);
+        if (!email && !phone) namesWithoutContact.add(name);
+      }
+    }
+    for (const record of [...records, ...(ATS.remoteApplicants || [])]) {
+      if (String(record?.AdminID) !== String(verifiedAccount.AdminID)) continue;
+      remember(identity(record));
+      if (record.csvOriginalIdentity) remember(identity(record.csvOriginalIdentity));
+    }
+    const added = [];
+    for (const row of rows) {
+      const record = ATS.normalizeApplicant(row);
+      const keys = identity(record);
+      if (emails.has(keys.email) || phones.has(keys.phone) ||
+          (keys.email || keys.phone ? namesWithoutContact : names).has(keys.name)) continue;
+      remember(keys);
+      added.push({ ...record, id: ATS.id(), AdminID: verifiedAccount.AdminID, status: row.Status, localCsv: true, addedAt: new Date().toISOString() });
+    }
+    if (added.length) {
+      localStorage.setItem(scopedKey, JSON.stringify([...records, ...added]));
+      window.dispatchEvent(new CustomEvent('ats:data-change', { detail: { key } }));
+    }
+    return added.length;
+  };
+  ATS.updateLocalApplicant = function (original, changes) {
+    const key = 'ats_applicants';
+    const scopedKey = recordStorageKey(key);
+    if (!scopedKey) throw new Error('Sign in before saving an applicant.');
+    const records = JSON.parse(localStorage.getItem(scopedKey) || '[]');
+    const index = records.findIndex(record => record?.localCsv && record.id === original.id &&
+      String(record.AdminID) === String(verifiedAccount.AdminID));
+    const record = records[index];
+    if (!record || JSON.stringify(record.db) !== JSON.stringify(original.db)) {
+      throw new Error('This applicant changed in another tab. Reopen the editor and try again.');
+    }
+    const row = { ...record.db, ...changes };
+    if (!row.Name?.trim()) throw new Error('Enter the applicant’s name.');
+    records[index] = {
+      ...record, ...ATS.normalizeApplicant(row), id: record.id, AdminID: record.AdminID,
+      status: row.Status,
+      csvOriginalIdentity: record.csvOriginalIdentity || {
+        name: record.name, email: record.email, phone: record.phone,
+      },
+    };
+    localStorage.setItem(scopedKey, JSON.stringify(records));
+    window.dispatchEvent(new CustomEvent('ats:data-change', { detail: { key } }));
   };
   ATS.reloadApplicants = async function () {
     const session=await ATS.ready;if(!session)return [];

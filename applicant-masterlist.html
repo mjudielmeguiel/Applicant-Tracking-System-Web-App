@@ -46,20 +46,33 @@
     <section class="table-card" aria-labelledby="applicantListTitle">
       <div class="table-card-head">
         <div><h2 class="section-heading" id="applicantListTitle">All applicants</h2><p class="section-subtitle">Applicant dates also appear on your calendar.</p></div>
-        <div class="page-actions"><button type="button" class="btn-sm ghost" id="refreshApplicants">Refresh</button><button type="button" class="btn-sm ghost" id="exportApplicants">Export CSV</button><button type="button" class="btn-sm primary" id="addApplicant" disabled>+ Add Applicant</button></div>
+        <div class="page-actions"><button type="button" class="btn-sm ghost" id="refreshApplicants">Refresh</button><button type="button" class="btn-sm ghost" id="exportApplicants">Export CSV</button><button type="button" class="btn-sm ghost" id="importApplicants" disabled>Import CSV</button><button type="button" class="btn-sm primary" id="addApplicant" disabled>+ Add Applicant</button></div>
       </div>
       <p id="applicantLoadError" class="form-error" role="alert" hidden></p>
       <div class="filters applicants-filters">
         <div class="filter-field applicant-search"><label class="field-label" for="applicantSearch">Search applicants</label><input class="field-input" id="applicantSearch" type="search" placeholder="Search name, position, or contact…"></div>
+        <div class="filter-field"><label class="field-label" for="applicantDayFilter">Added or applied on</label><input class="field-input" id="applicantDayFilter" type="date"></div>
         <button type="button" class="btn-sm ghost" id="clearApplicantFilters">Clear filters</button>
       </div>
       <div class="table-scroll"><table><thead><tr><th scope="col">Applicant</th><th scope="col">Position applied</th><th scope="col">Contact</th><th scope="col">Status</th><th scope="col">Dates</th><th scope="col">Requirements</th><th scope="col">Action</th></tr></thead><tbody id="applicantRows"></tbody></table></div>
       <div class="table-footer" id="applicantCount" role="status" aria-live="polite">0 applicants</div>
     </section>
-    <p class="applicants-storage-note">New applicant records and documents are saved to Supabase. Older browser records remain available until saved to the database.</p>
+    <p class="applicants-storage-note">CSV imports are saved in this browser for the current workspace. Applicants added through the form and their documents are saved to Supabase.</p>
   </main>
 </div>
 
+<dialog class="app-dialog" id="applicantImportDialog" aria-labelledby="applicantImportTitle">
+  <form id="applicantImportForm">
+    <div class="dialog-head"><h2 id="applicantImportTitle">Import applicants from CSV</h2></div>
+    <div class="dialog-body">
+      <p class="section-subtitle">Choose a file in the Applicant Masterlist CSV format. Imported applicants stay in this browser.</p>
+      <label class="field-label" for="applicantImportFile">Applicant CSV</label>
+      <input class="field-input" id="applicantImportFile" type="file" accept=".csv,text/csv" required>
+      <p class="form-error" id="applicantImportError" role="alert" hidden></p>
+    </div>
+    <div class="dialog-actions"><button type="button" class="btn-sm ghost" id="cancelApplicantImport">Cancel</button><button type="submit" class="btn-sm primary">Import applicants</button></div>
+  </form>
+</dialog>
 <dialog class="app-dialog" id="applicantDialog" aria-labelledby="applicantDialogTitle">
   <form id="applicantForm">
     <div class="dialog-head"><div><h2 id="applicantDialogTitle">Add applicant</h2><p class="section-subtitle">Keep the applicant's details and hiring status up to date.</p></div><button class="dialog-close" type="button" id="closeApplicantDialog" aria-label="Close applicant form">×</button></div>

@@ -37,25 +37,31 @@
       <div class="page-actions"><div class="avatar" id="userAvatar" role="button" aria-disabled="true">AD</div></div>
     </header>
     <section class="stat-grid" aria-label="Applicant summary">
-      <div class="card stat-card"><span class="stat-symbol" aria-hidden="true">◎</span><div class="stat-label">TOTAL APPLICANTS</div><div class="stat-value accent" id="totalCount">0</div><div class="stat-note">Across your hiring pipeline</div></div>
-      <div class="card stat-card"><span class="stat-symbol" aria-hidden="true">✓</span><div class="stat-label">SCREENED</div><div class="stat-value" id="screenedCount">0</div><div class="stat-note">Ready for the next step</div></div>
-      <div class="card stat-card"><span class="stat-symbol" aria-hidden="true">◷</span><div class="stat-label">PHONE INTERVIEW</div><div class="stat-value" id="phoneCount">0</div><div class="stat-note">In the phone interview stage</div></div>
+      <div class="card stat-card"><span class="stat-symbol" aria-hidden="true">◎</span><div class="stat-label">TOTAL APPLICANTS</div><div class="stat-value accent" id="totalCount">0</div><div class="stat-note">Applications in the selected period</div></div>
+      <div class="card stat-card"><span class="stat-symbol" aria-hidden="true">◷</span><div class="stat-label">APPLICANTS ADDED TODAY</div><div class="stat-value" id="addedTodayCount">0</div><div class="stat-note">Based on today's date in Manila</div></div>
+      <div class="card stat-card"><span class="stat-symbol" aria-hidden="true">✓</span><div class="stat-label">HIRED</div><div class="stat-value" id="dashboardHiredCount">0</div><div class="stat-note">Applicants with Hired status</div></div>
       <div class="card stat-card"><span class="stat-symbol" aria-hidden="true">↗</span><div class="stat-label">FINAL INTERVIEW</div><div class="stat-value" id="finalCount">0</div><div class="stat-note">In the final interview stage</div></div>
     </section>
     <div class="dashboard-content">
     <div class="dashboard-main-panels">
     <div class="panel-row">
       <section class="card panel" aria-labelledby="monthlyTitle">
-        <div class="section-heading"><div><h2 id="monthlyTitle">Applicants per month</h2><p class="section-subtitle">Applications received throughout the year</p></div><label><span class="field-label" style="position:absolute;clip-path:inset(50%);width:1px;height:1px;overflow:hidden">Chart year</span><select class="year-select" id="chartYear" aria-label="Chart year"></select></label></div>
-        <div class="dashboard-chart" id="monthlyChart" role="img" aria-label="Monthly applicant counts"></div>
-        <div class="chart-months" aria-hidden="true"><span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span><span>Jul</span><span>Aug</span><span>Sep</span><span>Oct</span><span>Nov</span><span>Dec</span></div>
-        <p class="chart-empty" id="chartSummary"></p>
+        <div class="section-heading">
+          <div><h2 id="monthlyTitle">Applications by day</h2><p class="section-subtitle">Applications received in the selected period</p></div>
+          <div class="page-actions" role="group" aria-label="Applicant analytics period">
+            <label><span class="field-label">Month</span><select class="year-select" id="chartMonth"></select></label>
+            <label><span class="field-label">Year</span><select class="year-select" id="chartYear"></select></label>
+          </div>
+        </div>
+        <div class="dashboard-chart" id="monthlyChart" role="img" aria-label="Applicant counts"></div>
+        <div class="chart-months" id="chartLabels" aria-hidden="true"></div>
+        <p class="chart-empty" id="chartSummary" role="status"></p>
       </section>
       <section class="card panel" aria-labelledby="pipelineTitle"><div class="section-heading"><div><h2 id="pipelineTitle">Pipeline status</h2><p class="section-subtitle">Applicants at each stage of recruitment</p></div></div><div class="pipeline-list" id="pipelineList"></div></section>
     </div>
     <div class="panel-row">
       <section class="table-card" aria-labelledby="recentTitle">
-        <div class="table-card-head"><div><h2 id="recentTitle">Recent applicants</h2><p class="section-subtitle">The latest additions to your masterlist</p></div><div class="page-actions"><a href="applicant-masterlist.html" class="btn-sm ghost">View all →</a><a class="btn-sm primary" href="applicant-masterlist.html?add=1">+ Add applicant</a></div></div>
+        <div class="table-card-head"><div><h2 id="recentTitle">Recent applicants</h2><p class="section-subtitle">Latest applications in the selected period</p></div><div class="page-actions"><a href="applicant-masterlist.html" class="btn-sm ghost">View all →</a><a class="btn-sm primary" href="applicant-masterlist.html?add=1">+ Add applicant</a></div></div>
         <div class="table-scroll"><table><thead><tr><th scope="col">Applicant</th><th scope="col">Position</th><th scope="col">Status</th><th scope="col">Date applied</th></tr></thead><tbody id="recentApplicants"></tbody></table></div>
         <div class="table-footer" id="applicantSummary">0 applicants</div>
       </section>

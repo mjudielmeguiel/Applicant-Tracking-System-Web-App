@@ -7,9 +7,64 @@
   const { read, save, escape: esc } = window.ATS;
   const key = "ats_applicants";
   const statuses = window.ATS.applicantStatuses;
+  const importColumns = [
+    ["Name", "Name"], ["Position", "Position"], ["Source", "Source"],
+    ["Location", "Site"], ["Email", "Email Address"], ["Contact number", "Contact Number"],
+    ["Status", "Status"], ["Date applied", "Date"], ["Current address", "Current Address"],
+    ["Ongoing requirements status", "Ongoing Requirements Status"],
+    ["Date of interview", "Date of Interview"],
+    ["For onboarding target start date", "For Onboarding Target Start Date"],
+    ["Remarks", "Remarks"],
+  ];
+
+  function parseApplicantCsv(text) {
+    const cell = /"((?:[^"]|"")*)"|([^",\r\n]*)/y;
+    const newline = /\r\n?|\n/y;
+    const records = [];
+    let offset = text.startsWith("\uFEFF") ? 1 : 0;
+    let row = [];
+    while (offset < text.length || row.length) {
+      cell.lastIndex = offset;
+      const match = cell.exec(text);
+      row.push((match[1]?.replace(/""/g, '"') ?? match[2]).trim());
+      offset = cell.lastIndex;
+      if (text[offset] === ",") {
+        offset++;
+        continue;
+      }
+      newline.lastIndex = offset;
+      if (offset < text.length && !newline.test(text)) {
+        throw Error(`Invalid CSV quoting in record ${records.length + 1}.`);
+      }
+      if (offset < text.length) offset = newline.lastIndex;
+      if (row.some(Boolean)) records.push(row);
+      row = [];
+    }
+
+    const header = records.shift();
+    if (header?.length !== importColumns.length ||
+        !importColumns.every(([label], index) => header[index].toLowerCase() === label.toLowerCase())) {
+      throw Error("Use the Applicant Masterlist CSV format with its original column headers.");
+    }
+    if (!records.length) throw Error("The CSV has no applicant rows.");
+    return records.map((values, index) => {
+      const line = index + 2;
+      if (values.length !== importColumns.length || !values[0]) {
+        throw Error(`Record ${line} needs a name and the same columns as the header.`);
+      }
+      const row = Object.fromEntries(importColumns.map(([, field], i) => [field, values[i]]));
+      const status = statuses.find(value => value.toLowerCase() === row.Status.toLowerCase());
+      if (row.Status && !status) throw Error(`Record ${line} has an unrecognized applicant status.`);
+      row.Status = status || "";
+      // Undo the spreadsheet safety prefix on contact numbers from the prepared CSV.
+      row["Contact Number"] = row["Contact Number"].replace(/^'(?=[+\-][\d() .-]+$)/, "");
+      return row;
+    });
+  }
   const statusTools = window.ApplicantStatusTools;
   const workflow = window.ApplicantWorkflow;
   const search = document.getElementById("applicantSearch");
+  const dayFilter = document.getElementById("applicantDayFilter");
   const filter = {value:""};
   const rows = document.getElementById("applicantRows");
   const dialog = document.getElementById("applicantDialog");
@@ -127,6 +182,7 @@ const done=documentTypes.filter((type,i)=>{const value=document.getElementById('
   document.addEventListener('pointerdown',event=>{if(pickerOpen&&!picker.contains(event.target))closeJobPicker();});picker.addEventListener('focusout',()=>setTimeout(()=>{if(pickerOpen&&!picker.contains(document.activeElement))closeJobPicker();},0));dialog.addEventListener('close',()=>closeJobPicker(false));form.querySelector('.dialog-body').addEventListener('scroll',positionPicker);window.addEventListener('resize',positionPicker);
   function fillJobs(record=currentRecord){
     record=record?.id?record:currentRecord;
+    if(record?.localCsv)return;
     const selected=fields.job.value||committed;
     const current=record?.db?.JobOpeningID||jobChoices.find(job=>job.position_title===record?.position&&job.site===record?.site)?.id;
     const choices=jobChoices.filter(job=>(job.remaining_slots>0||job.id===current));
@@ -138,6 +194,7 @@ const done=documentTypes.filter((type,i)=>{const value=document.getElementById('
   }
   async function reloadJobs(){const result=await window.ATS.rpc('ats_jobs_list',{p_session_token:session.sessionToken});if(String(result.AdminID)!==String(session.AdminID)||!Array.isArray(result.jobs))throw Error('Available jobs could not be verified.');jobChoices=result.jobs;fillJobs();}
   function fillChoices(record){
+    if(currentRecord?.localCsv)return;
     const selected=record?.source||fields.source.value;fields.source.innerHTML='<option value="">Select source</option>'+(window.ATS.catalogs?.sources||[]).map(row=>'<option value="'+esc(row.name)+'">'+esc(row.name)+'</option>').join('');if(selected&&![...fields.source.options].some(option=>option.value===selected))fields.source.add(new Option(selected+' (saved value)',selected));fields.source.value=selected;fillJobs(record||currentRecord);
   }
   fields.job.addEventListener('change',()=>{const job=jobChoices.find(job=>job.id===fields.job.value);if(job){fields.position.value=job.position_title;fields.site.value=job.site;}fields.job.setCustomValidity('');});
@@ -162,8 +219,13 @@ const done=documentTypes.filter((type,i)=>{const value=document.getElementById('
 
   function matchingApplicants() {
     const term = search.value.trim().toLowerCase();
+    const day = dayFilter.value;
     return applicants()
       .filter((record) => {
+        const row = record.db || record;
+        const matchesDay = !day || A.applicantAddedDay(record) === day ||
+          [record.dateApplied, row["Submission Date"]].some(value => A.manilaDateKey(value) === day);
+        if (!matchesDay) return false;
         const matchesSearch = [
           record.name,
           record.position,
@@ -219,7 +281,7 @@ const done=documentTypes.filter((type,i)=>{const value=document.getElementById('
       `Showing ${visible.length} of ${all.length} applicant${all.length === 1 ? "" : "s"}`;
     document.getElementById("exportApplicants").disabled = visible.length === 0;
     if (!visible.length) {
-      rows.innerHTML = `<tr><td class="empty-state" colspan="7">${all.length ? "No applicants match your filters. Try a different search or clear the filters." : "No applicants yet. Select “Add Applicant” to create your first record."}</td></tr>`;
+      rows.innerHTML = `<tr><td class="empty-state" colspan="7">${all.length ? "No applicants match your filters. Try a different search or clear the filters." : "No applicants yet. Select “Add Applicant” or “Import CSV” to get started."}</td></tr>`;
       return;
     }
     rows.innerHTML = visible
@@ -234,9 +296,9 @@ const done=documentTypes.filter((type,i)=>{const value=document.getElementById('
         <td><div class="applicant-person"><span class="applicant-photo" data-applicant-photo="${esc(record.databaseId||'')}" data-name="${esc(record.name||'Applicant')}">${esc((record.name||'A').trim().slice(0,2).toUpperCase())}</span><div><span class="applicant-name">${esc(record.name || "Unnamed applicant")}</span><span class="applicant-ref">#${esc(shortId)}</span><span class="applicant-added-by">Added by ${esc(record.db?.AddedByName||"Recruitment team")}</span></div></div></td>
         <td>${esc(record.position || "—")}<span class="applicant-ref">${esc([record.source, record.site].filter(Boolean).join(" · "))}</span></td>
         <td>${esc(record.phone || "—")}${record.email ? `<span class="applicant-email">${esc(record.email)}</span>` : ""}</td>
-        <td><span class="record-badge ${statusTone(record.status)}">${esc(record.status || "Not recorded")}</span><button type="button" class="applicant-requirements-status" data-requirement-activity="${esc(record.id)}"><span>Ongoing requirements status ↗</span>${esc(String(record.db?.["Ongoing Requirements Status"] || record["Ongoing Requirements Status"] || "").trim() || "View requirements updates")}</button></td>
+        <td><span class="record-badge ${statusTone(record.status)}">${esc(record.status || "Not recorded")}</span>${record.localCsv ? "" : `<button type="button" class="applicant-requirements-status" data-requirement-activity="${esc(record.id)}"><span>Ongoing requirements status ↗</span>${esc(String(record.db?.["Ongoing Requirements Status"] || record["Ongoing Requirements Status"] || "").trim() || "View requirements updates")}</button>`}</td>
         <td class="applicant-dates-cell">${statusTools.dates(record)}</td>
-        <td class="requirements-cell"><span>${progress === 100 ? "Complete · 100%" : progress + "%"}</span><div class="progress-track" role="progressbar" aria-label="Requirements for ${esc(record.name)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${progress}"><div class="progress-fill" style="width:${progress}%"></div></div></td>
+        <td class="requirements-cell"><span>${progress === 100 ? "Complete · 100%" : progress + "%"}</span><div class="progress-track" role="progressbar" aria-label="Requirements for ${esc(record.name)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${progress}"><div class="progress-fill" style="width:${progress}%"></div></div>${record.localCsv && record.db["Ongoing Requirements Status"] ? `<span>${esc(record.db["Ongoing Requirements Status"])}</span>` : ""}</td>
         <td><div class="applicant-row-actions"><button type="button" class="btn-sm applicant-manage" data-edit="${esc(record.id)}" aria-label="Manage ${esc(record.name)}">Manage applicant <span aria-hidden="true">↗</span></button></div></td>
       </tr>`;
       })
@@ -353,12 +415,45 @@ const done=documentTypes.filter((type,i)=>{const value=document.getElementById('
       await loadDocuments();await syncRequirementSummary();render();reviewDialog.close();A.notify('Requirement review saved.');
     }catch(reason){error.textContent=reason.message;error.hidden=false;}finally{button.disabled=false;}
   };
+  const localSource = document.createElement("input");
+  localSource.id = "localApplicantSource";
+  localSource.className = "field-input";
+  localSource.hidden = true;
+  fields.source.after(localSource);
+  const sourceLabel = fields.source.parentElement.querySelector("label");
+  const phonePattern = fields.phone.pattern;
+  function setLocalFormMode(local) {
+    jobField.hidden = local;
+    jobSearch.disabled = local;
+    fields.source.hidden = local;
+    fields.source.required = !local;
+    localSource.hidden = !local;
+    sourceLabel.htmlFor = local ? localSource.id : fields.source.id;
+    fields.status.required = fields.dateApplied.required = !local;
+    fields.email.type = local ? "text" : "email";
+    if (local) fields.phone.removeAttribute("pattern");
+    else fields.phone.pattern = phonePattern;
+    for (const input of [fields.position, fields.site]) {
+      input.type = local ? "text" : "hidden";
+      input.closest(".form-field").hidden = !local;
+    }
+    for (const column of ["Date of Interview", "For Onboarding Target Start Date"]) {
+      form.querySelector(`[data-applicant-field="${column}"]`).closest(".form-field").hidden = !local;
+    }
+    form.querySelectorAll("[data-document-type]").forEach(input => { input.parentElement.hidden = local; });
+    customize.hidden = local;
+    const requirementHelp = requirementSection.querySelector(".section-subtitle");
+    requirementHelp.textContent = "Submitted, Verified, Accepted and Not required count as complete." +
+      (local ? "" : " Uploads are optional. PDF, JPG, PNG, DOC, DOCX · up to 10 MB per file.");
+  }
   function openForm(record) {
     if (saving) return;
     currentRecord = record || null;
     editingId = record?.id || null;
     draftId = record?.id || A.id();
     form.reset();closeJobPicker(false);committed='';
+    const local = Boolean(record?.localCsv);
+    setLocalFormMode(local);
     fillChoices(record || {});
     formError.hidden = true;
     formError.textContent = "";
@@ -371,12 +466,14 @@ const done=documentTypes.filter((type,i)=>{const value=document.getElementById('
       input.value = value;
     });
     jobSearch.value="";fillChoices(record||{});
-    fields.dateApplied.value = fields.dateApplied.value || A.today();
+    localSource.value = local ? row.Source || "" : "";
+    if (!local) fields.dateApplied.value = fields.dateApplied.value || A.today();
     const submission=form.querySelector('[data-applicant-field="Submission Date"]');
-    if(!submission.value){const original=record?.db?.Date;const parts=new Intl.DateTimeFormat('en',{timeZone:'Asia/Manila',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(original?new Date(original):new Date());const get=type=>parts.find(part=>part.type===type)?.value;submission.value=get('year')+'-'+get('month')+'-'+get('day');}
+    if(!local&&!submission.value){const original=record?.db?.Date;const parts=new Intl.DateTimeFormat('en',{timeZone:'Asia/Manila',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(original?new Date(original):new Date());const get=type=>parts.find(part=>part.type===type)?.value;submission.value=get('year')+'-'+get('month')+'-'+get('day');}
     fields.status.value = statuses.includes(row.Status) ? row.Status : (statuses.find(status => statusTools.group(status) === statusTools.group(row.Status)) || "");
     statusTools.formOpened();
-    requirementPlan=null;customRows.replaceChildren();documentTypes.forEach((type,index)=>document.getElementById("requirement_"+index).closest(".applicant-document").hidden=false);document.querySelector(".applicant-id-photo").hidden=false;
+    requirementPlan=null;customRows.replaceChildren();documentTypes.forEach((type,index)=>document.getElementById("requirement_"+index).closest(".applicant-document").hidden=false);document.querySelector(".applicant-id-photo").hidden=local;
+    document.getElementById("idPhotoDocuments").textContent = "";
     documentTypes.forEach((type, i) => {
       const input=document.getElementById("requirement_"+i),value=row[type]||'Pending';
       [...input.options].filter(option=>option.dataset.legacy).forEach(option=>option.remove());
@@ -387,12 +484,15 @@ const done=documentTypes.filter((type,i)=>{const value=document.getElementById('
       ? "Applicant details & documents"
       : "Add applicant";
     document.getElementById("saveApplicant").textContent = record
-      ? "Save changes & uploads"
+      ? (local ? "Save changes" : "Save changes & uploads")
       : "Save applicant & documents";
-    document.getElementById('applicantCompanyNote').textContent='AdminID '+session.AdminID+' · Applicant details and documents are shared only within this workspace.';
+    document.getElementById('applicantCompanyNote').textContent=local ? 'Imported applicant · Changes are saved in this browser.' : 'AdminID '+session.AdminID+' · Applicant details and documents are shared only within this workspace.';
+    const followup = form.querySelector(".followup-policy");
+    if (followup) followup.hidden = local;
     inviteExisting.hidden=!record?.databaseId;workflow.open(record);refreshRequirementProgress();refreshAge();
     A.openDialog(dialog);
     fields.name.focus();
+    if (local) return;
     reloadJobs().catch(error=>{formError.textContent=error.message;formError.hidden=false;});
     loadDocuments().catch((error) => {
       formError.textContent =
@@ -418,7 +518,8 @@ const done=documentTypes.filter((type,i)=>{const value=document.getElementById('
     if (saving) return;
     formError.hidden = true;
     if (!workflow.validate()) return;
-    const contactError = statusTools.validateContacts(
+    const local = Boolean(currentRecord?.localCsv);
+    const contactError = !local && statusTools.validateContacts(
       currentRecord,
       applicants(),
     );
@@ -465,6 +566,19 @@ const done=documentTypes.filter((type,i)=>{const value=document.getElementById('
         document.getElementById("requirement_" + i).value.trim() || null;
     });
     if(changes.JobOpeningID==="legacy-current")delete changes.JobOpeningID;
+    if (local) {
+      delete changes.JobOpeningID;
+      changes.Source = localSource.value.trim();
+      try {
+        A.updateLocalApplicant(currentRecord, changes);
+        A.closeDialog(dialog);
+        A.notify("Applicant details and requirements saved in this browser.");
+      } catch (error) {
+        formError.textContent = error.name === "QuotaExceededError" ? "Browser storage is full." : error.message;
+        formError.hidden = false;
+      }
+      return;
+    }
     if (!workflow.prepareChanges(changes)) return;
     if (currentRecord?.databaseId) changes.ExpectedStageVersion = Number(currentRecord.db?.StageVersion || 0);
     lockForm(true);
@@ -603,6 +717,51 @@ const done=documentTypes.filter((type,i)=>{const value=document.getElementById('
   statusTools.initForm();
   workflow.init({form, dialog, session});
   document.getElementById("addApplicant").disabled = false;
+  const importButton = document.getElementById("importApplicants");
+  const importDialog = document.getElementById("applicantImportDialog");
+  const importForm = document.getElementById("applicantImportForm");
+  const importInput = document.getElementById("applicantImportFile");
+  const importError = document.getElementById("applicantImportError");
+  const importSubmit = importForm.querySelector('[type="submit"]');
+  const importCancel = document.getElementById("cancelApplicantImport");
+  importButton.disabled = false;
+  importButton.addEventListener("click", () => {
+    importForm.reset();
+    importError.hidden = true;
+    importDialog.showModal();
+  });
+  importCancel.addEventListener("click", () => importDialog.close());
+  importDialog.addEventListener("cancel", event => {
+    if (importSubmit.disabled) event.preventDefault();
+  });
+  importForm.addEventListener("submit", async event => {
+    event.preventDefault();
+    const file = importInput.files[0];
+    if (!file || importSubmit.disabled) return;
+    importSubmit.disabled = importCancel.disabled = importInput.disabled = true;
+    importError.hidden = true;
+    try {
+      if (!/\.csv$/i.test(file.name)) throw Error("Choose a .csv file.");
+      if (file.size > 2 * 1024 * 1024) throw Error("Choose a CSV file up to 2 MB.");
+      const records = parseApplicantCsv(await file.text());
+      // Check against the latest workspace records before writing to browser storage.
+      await A.reloadApplicants();
+      const added = A.importLocalApplicants(records);
+      search.value = filter.value = dayFilter.value = "";
+      render();
+      importDialog.close();
+      const duplicates = records.length - added;
+      A.notify(`Imported ${added} applicant${added === 1 ? "" : "s"} into this browser.` +
+        (duplicates ? ` Skipped ${duplicates} existing or duplicate applicant${duplicates === 1 ? "" : "s"}.` : ""));
+    } catch (error) {
+      importError.textContent = error.name === "QuotaExceededError"
+        ? "Browser storage is full. Free up space and try again."
+        : error.message;
+      importError.hidden = false;
+    } finally {
+      importSubmit.disabled = importCancel.disabled = importInput.disabled = false;
+    }
+  });
   document
     .getElementById("refreshApplicants")
     .addEventListener("click", async (event) => {
@@ -642,11 +801,13 @@ const done=documentTypes.filter((type,i)=>{const value=document.getElementById('
     if(record){openForm(record);if(editButton.dataset.viewDocuments)workflow.showDocuments();}
   });
   search.addEventListener("input", render);
+  dayFilter.addEventListener("input", render);
   document
     .getElementById("clearApplicantFilters")
     .addEventListener("click", () => {
       search.value = "";
       filter.value = "";
+      dayFilter.value = "";
       render();
       search.focus();
     });
