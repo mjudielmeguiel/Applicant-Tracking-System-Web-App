@@ -22,18 +22,38 @@
     const selectedYear = Number(yearSelect.value) || currentYear;
     const selectedMonth = Number(monthSelect.value);
     const period = selectedMonth ? `${months[selectedMonth - 1]} ${selectedYear}` : String(selectedYear);
-    const dated = applicants.map(applicant => ({ applicant, day: ATS.manilaDateKey(applicant.dateApplied) }));
-    const years = [...new Set([currentYear, selectedYear, ...dated.filter(entry => entry.day).map(entry => Number(entry.day.slice(0, 4)))])].sort((a, b) => b - a);
-    yearSelect.innerHTML = years.map(year => `<option value="${year}" ${year === selectedYear ? 'selected' : ''}>${year}</option>`).join('');
-    const entries = dated.filter(({ day }) => Number(day.slice(0, 4)) === selectedYear &&
-      (!selectedMonth || Number(day.slice(5, 7)) === selectedMonth));
+    const periodPrefix = selectedMonth ? `${selectedYear}-${String(selectedMonth).padStart(2, '0')}-` : `${selectedYear}-`;
+    const inPeriod = day => day.startsWith(periodPrefix);
+    const years = new Set([currentYear, selectedYear]);
+    const dated = applicants.map(applicant => {
+      const row = applicant.db || applicant;
+      const day = ATS.manilaDateKey(applicant.dateApplied);
+      const hiredDay = ATS.manilaDateKey(row['DATE HIRED'] || applicant['DATE HIRED'] || applicant.hiredDate);
+      let finalInterviewDay = ATS.manilaDateKey(row['FINAL INTERVIEW DATE']);
+      if (badgeClass(row.ScheduleType || applicant.status) === 'status-final-interview') {
+        finalInterviewDay = row.ScheduleResponse === 'Cancelled' ? '' : ATS.manilaDateKey(row.ScheduleDate) || finalInterviewDay;
+      }
+      for (const date of [day, hiredDay, finalInterviewDay]) {
+        if (date) years.add(Number(date.slice(0, 4)));
+      }
+      return { applicant, day, hiredDay, finalInterviewDay };
+    });
+    yearSelect.innerHTML = [...years].sort((a, b) => b - a)
+      .map(year => `<option value="${year}" ${year === selectedYear ? 'selected' : ''}>${year}</option>`).join('');
+    const entries = dated.filter(({ day }) => inPeriod(day));
     document.getElementById('totalCount').textContent = entries.length;
-    const count = status => entries.filter(({ applicant }) => applicant.status === status).length;
-    document.getElementById('addedTodayCount').textContent = applicants.filter(applicant =>
-      (ATS.applicantAddedDay(applicant) || ATS.manilaDateKey(applicant.dateApplied)) === currentDay
-    ).length;
-    document.getElementById('dashboardHiredCount').textContent = count('Hired');
-    document.getElementById('finalCount').textContent = count('Final Interview') + count('For Final Interview');
+    const countInPeriod = status => entries.filter(({ applicant }) => applicant.status === status).length;
+    const addedToday = dated.filter(({ applicant, day }) => {
+      const row = applicant.db || applicant;
+      const imported = applicant.localCsv || row.WorkbookImportID;
+      // Use the original application date for imports so a batch upload preserves historical counts.
+      const addedDay = imported ? day :
+        ATS.applicantAddedDay(applicant) || ATS.manilaDateKey(row['Submission Date']) || day;
+      return addedDay === currentDay;
+    });
+    document.getElementById('addedTodayCount').textContent = addedToday.length;
+    document.getElementById('dashboardHiredCount').textContent = dated.filter(({ hiredDay }) => inPeriod(hiredDay)).length;
+    document.getElementById('finalCount').textContent = dated.filter(({ finalInterviewDay }) => inPeriod(finalInterviewDay)).length;
 
     const totals = Array(selectedMonth ? new Date(Date.UTC(selectedYear, selectedMonth, 0)).getUTCDate() : 12).fill(0);
     for (const { day } of entries) {
@@ -57,7 +77,7 @@
     chart.setAttribute('aria-label', `Applicant counts for ${period}. ${totals.map((total, index) => `${chartLabel(index)}: ${total}`).join(', ')}.`);
     document.getElementById('chartSummary').textContent = entries.length ? `${entries.length} application${entries.length === 1 ? '' : 's'} received in ${period}.` : `No applications in ${period}.`;
     document.getElementById('pipelineList').innerHTML = stages.map(stage => {
-      const total = count(stage);
+      const total = countInPeriod(stage);
       const percent = entries.length ? Math.round(total / entries.length * 100) : 0;
       return `<div class="progress-row"><div class="progress-head"><span>${stage}</span><span>${total} · ${percent}%</span></div><div class="progress-track"><div class="progress-fill ${badgeClass(stage)}" style="width:${percent}%"></div></div></div>`;
     }).join('');

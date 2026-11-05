@@ -72,6 +72,67 @@ const session = { id: 7, AdminID: 7, name: 'Test Admin', username: 'test_admin',
       assert.equal(await page.locator('.runtime-error').count(), 0);
     }
 
+    const dashboardContext = await browser.newContext({ timezoneId: 'UTC' });
+    try {
+      // Manila is already on Nov 5 while the browser's local date is still Nov 4.
+      const importedAt = '2026-11-04T16:10:00Z';
+      const localApplicants = [
+        { id: 'old-csv', name: 'Historical CSV applicant', dateApplied: '2026-10-05', status: 'For Final Interview',
+          db: { 'FINAL INTERVIEW DATE': '2026-10-31', ScheduleType: '  for FINAL  interview  ', ScheduleDate: '2026-10-31T16:30:00Z' } },
+        { id: 'today-csv', name: 'Current CSV applicant', dateApplied: '2026-11-05', status: 'Final Interview',
+          db: { 'Date of Interview': '2026-11-05', ScheduleType: 'For Phone Interview', ScheduleDate: '2026-11-05T01:00:00Z' } },
+        { id: 'undated-csv', name: 'Legacy applicant with a hire date', dateApplied: '', status: 'Deployed', hiredDate: '2024-12-17' },
+        { id: 'other-workspace', AdminID: 99, name: 'Other workspace applicant', dateApplied: '2026-11-05', status: 'Hired', hiredDate: '2026-11-04' },
+      ].map(row => ({ AdminID: session.AdminID, localCsv: true, addedAt: importedAt, ...row }));
+      const remoteApplicants = [
+        { ApplicantID: 301, Name: 'Historical workbook applicant', Date: '2025-11-05', CreatedAt: importedAt, Status: 'Final Interview',
+          'FINAL INTERVIEW DATE': '2025-11-12', WorkbookImportID: '71470c9a-682d-4abf-9354-36a0e939f37b' },
+        { ApplicantID: 302, Name: 'Backdated manual applicant', Date: '2026-10-12', CreatedAt: '2026-11-04T16:12:00Z', Status: 'Hired', 'DATE HIRED': '2026-11-04' },
+        { ApplicantID: 303, Name: 'Applicant without a creation timestamp or hire date', Date: '2026-11-05', Status: 'Hired',
+          'FINAL INTERVIEW DATE': '2026-11-05', ScheduleType: 'Final Interview', ScheduleDate: '2026-11-05T01:00:00Z', ScheduleResponse: 'Cancelled' },
+        { ApplicantID: 304, Name: 'Applicant added before Manila midnight', Date: '2026-10-13', CreatedAt: '2026-11-04T15:59:59Z', Status: 'Deployed',
+          'DATE HIRED': '2026-11-03', 'FINAL INTERVIEW DATE': '2026-11-02', ScheduleType: 'For Orientation', ScheduleDate: '2026-10-30T01:00:00Z' },
+      ].map(row => ({ AdminID: session.AdminID, ...row }));
+
+      await dashboardContext.addInitScript(({ session, localApplicants }) => {
+        localStorage.setItem('ats_user', JSON.stringify(session));
+        localStorage.setItem(`ats_applicants:admin:${session.AdminID}`, JSON.stringify(localApplicants));
+      }, { session, localApplicants });
+      await dashboardContext.route('**/*', route => {
+        const url = new URL(route.request().url());
+        if (url.hostname.endsWith('.supabase.co') && url.pathname.endsWith('/rpc/ats_applicant_list')) {
+          return route.fulfill({ json: remoteApplicants, headers: { 'access-control-allow-origin': '*' } });
+        }
+        return mockRequest(route);
+      });
+      const dashboard = await dashboardContext.newPage();
+      dashboard.on('pageerror', error => errors.push(error.message));
+      await dashboard.clock.setFixedTime(new Date('2026-11-04T16:15:00Z'));
+      await dashboard.goto(base + '/dashboard');
+      const chartSummary = dashboard.locator('#chartSummary');
+      await chartSummary.filter({ hasText: 'November 2026' }).waitFor();
+      assert.equal(await dashboard.locator('#chartMonth').inputValue(), '11');
+
+      for (const [year, month, chartText, total, hired, finalInterview] of [
+        ['2026', '11', '2 applications received in November 2026.', '2', '2', '2'],
+        ['2026', '10', '3 applications received in October 2026.', '3', '0', '0'],
+        ['2026', '0', '5 applications received in 2026.', '5', '2', '2'],
+        ['2025', '11', '1 application received in November 2025.', '1', '0', '1'],
+        ['2025', '12', 'No applications in December 2025.', '0', '0', '0'],
+        ['2024', '12', 'No applications in December 2024.', '0', '1', '0'],
+      ]) {
+        await dashboard.locator('#chartYear').selectOption(year);
+        await dashboard.locator('#chartMonth').selectOption(month);
+        assert.equal(await chartSummary.innerText(), chartText);
+        assert.equal(await dashboard.locator('#totalCount').innerText(), total);
+        assert.equal(await dashboard.locator('#dashboardHiredCount').innerText(), hired);
+        assert.equal(await dashboard.locator('#finalCount').innerText(), finalInterview);
+        assert.equal(await dashboard.locator('#addedTodayCount').innerText(), '3');
+      }
+    } finally {
+      await dashboardContext.close();
+    }
+
     await page.goto(base+'/dashboard');await page.locator('[data-job-id="job-1"]').waitFor();assert.equal(await page.locator('[data-job-id="job-2"]').count(),0);await page.getByRole('button',{name:/Notifications/}).click();await page.getByRole('button',{name:'Requirements updates ↗'}).click();await page.waitForFunction(()=>document.getElementById('requirementModalItems')?.textContent.includes('Alex Applicant'));await page.getByRole('button',{name:'Close requirements activity'}).click();
     assert.ok((await page.locator('.dashboard-positions').boundingBox()).x > (await page.locator('.dashboard-main-panels').boundingBox()).x);
     await page.goto(base+'/job-openings');await page.locator('[data-job-id="job-1"]').waitFor();assert.equal(await page.locator('a[title="MRF Monitoring"]').count(),0);assert.equal(await page.locator('a[title="Job Openings"]').count(),1);
